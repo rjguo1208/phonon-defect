@@ -37,7 +37,7 @@ Map defect-supercell sites onto pristine sites (vacancy site has no image); buil
 
 ### P3 — Host resolvent on the cluster (spectral density + Hilbert transform)
 
-The T-matrix inversion lives in the real-space cluster basis (that is what makes it a small block — see P4), so only the $d\times d$ cluster block $g_{ab}(z)$ is ever needed. Compute it in **two steps**, not as one BZ sum per frequency:
+The T-matrix inversion lives in the real-space cluster basis (that is what makes it a small block — see P4), so only the $d\times d$ cluster block $g_{ab}(z)$ is ever needed. Here $a\equiv(l,\kappa,\alpha)$ is a composite site index — the (host-mass-scaled) displacement of atom $\kappa$ in cell $l$ along Cartesian direction $\alpha$, restricted to the truncated defect cluster (vacancy + neighbour shells, $d=3N_{\rm cluster}\approx75$–$120$ after projecting out the 3 vacant-site degrees of freedom). It is the same orthonormal basis in which $V(z)=\Delta\mathcal D-z\,\varepsilon$ is expressed, with mode projections $\langle l\kappa\alpha|\mathbf q\nu\rangle=e_{\nu\alpha}(\kappa;\mathbf q)\,e^{i\mathbf q\cdot\mathbf R_l}/\sqrt{N_p}$ (cf. §4 of the [derivation note](fm-phonon-defect.html)). Compute it in **two steps**, not as one BZ sum per frequency:
 
 1. **One pass** over a dense Fourier-interpolated $\mathbf q$-grid (start $300\times300\times1$, converge; tetrahedron or adaptive smearing) accumulates the cluster-projected spectral density on a fine $\lambda=\omega'^2$ mesh:
 
