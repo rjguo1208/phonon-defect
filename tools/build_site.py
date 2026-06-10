@@ -1,0 +1,391 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+build_site.py  —  Static-site generator for the phonon-defect repo.
+
+Converts Markdown notes in content/ into MathJax-rendered sub-pages under
+docs/pages/ and regenerates the landing page (docs/index.html) with the
+catalog table. Converter copied from the claude-sternheimer repo (math-
+protected, stdlib only); the driver below is registry-based: to add a page,
+drop a Markdown file in content/ and register it in PAGES + CATALOG.
+
+Usage
+-----
+    python3 tools/build_site.py
+"""
+import os, re, html
+
+ROOT      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOCS      = os.path.join(ROOT, "docs")
+PAGES_DIR = os.path.join(DOCS, "pages")
+
+GEN_DATE   = "2026-06-09"
+SITE_TITLE = "Phonon-Defect"
+BRAND      = "Phonon&nbsp;Defect"
+
+# ======================================================================
+#  Markdown -> HTML  (math-protected, stdlib only)
+# ======================================================================
+NUL = "\x00"
+
+def _protect(md, store):
+    """Replace fenced code, display math, inline math, inline code with
+    null-delimited placeholders so Markdown processing cannot mangle them."""
+    def fence(m):
+        store["c"].append((m.group(1) or "", m.group(2)))
+        return "%sC%d%s" % (NUL, len(store["c"]) - 1, NUL)
+    md = re.sub(r"```[ \t]*([A-Za-z0-9_+-]*)[ \t]*\n(.*?)\n```", fence, md, flags=re.DOTALL)
+    def disp(m):
+        store["d"].append(m.group(1))
+        return "%sD%d%s" % (NUL, len(store["d"]) - 1, NUL)
+    md = re.sub(r"\$\$(.*?)\$\$", disp, md, flags=re.DOTALL)
+    def inl(m):
+        store["i"].append(m.group(1))
+        return "%sI%d%s" % (NUL, len(store["i"]) - 1, NUL)
+    md = re.sub(r"\$([^$\n]+?)\$", inl, md)
+    def ic(m):
+        store["k"].append(m.group(1))
+        return "%sK%d%s" % (NUL, len(store["k"]) - 1, NUL)
+    md = re.sub(r"`([^`]+?)`", ic, md)
+    return md
+
+def _restore(text, store):
+    """Restore placeholders. Math is emitted RAW (for MathJax); code is escaped."""
+    for n, (lang, code) in enumerate(store["c"]):
+        cls = ' class="language-%s"' % lang if lang else ""
+        repl = "<pre><code%s>%s</code></pre>" % (cls, html.escape(code))
+        text = text.replace("%sC%d%s" % (NUL, n, NUL), repl)
+    for n, tex in enumerate(store["d"]):
+        repl = '<div class="math">\n$$%s$$\n</div>' % tex
+        text = text.replace("%sD%d%s" % (NUL, n, NUL), repl)
+    for n, tex in enumerate(store["i"]):
+        text = text.replace("%sI%d%s" % (NUL, n, NUL), "$" + tex + "$")
+    for n, code in enumerate(store["k"]):
+        text = text.replace("%sK%d%s" % (NUL, n, NUL), "<code>" + html.escape(code) + "</code>")
+    return text
+
+def _inline(text):
+    """Escape HTML, then apply images / links / bold / italic. Placeholders untouched."""
+    text = html.escape(text, quote=False)
+    text = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)",
+                  r'<img src="\2" alt="\1" style="max-width:100%;height:auto;display:block;'
+                  r'margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px">', text)
+    text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', text)
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)", r"<em>\1</em>", text)
+    return text
+
+def _slug(headtext):
+    m = re.match(r"\s*(\d+)\.", headtext)
+    if m:
+        return "sec-" + m.group(1)
+    s = re.sub(r"%s[A-Z]\d+%s" % (NUL, NUL), "", headtext)
+    s = re.sub(r"[^A-Za-z0-9]+", "-", s).strip("-").lower()
+    return s or "sec"
+
+def _render_table(header, body_rows):
+    def cells(row):
+        row = row.strip()
+        if row.startswith("|"): row = row[1:]
+        if row.endswith("|"):   row = row[:-1]
+        return [c.strip() for c in row.split("|")]
+    h = "".join("<th>%s</th>" % _inline(c) for c in cells(header))
+    out = ['<div class="table-wrap"><table><thead><tr>%s</tr></thead><tbody>' % h]
+    for r in body_rows:
+        tds = "".join("<td>%s</td>" % _inline(c) for c in cells(r))
+        out.append("<tr>%s</tr>" % tds)
+    out.append("</tbody></table></div>")
+    return "".join(out)
+
+def _render_list(lines):
+    ordered = bool(re.match(r"\s*\d+\.\s+", lines[0]))
+    tag = "ol" if ordered else "ul"
+    items, cur = [], None
+    for ln in lines:
+        m = re.match(r"\s*(?:[-*+]|\d+\.)\s+(.*)$", ln)
+        if m:
+            if cur is not None: items.append(cur)
+            cur = m.group(1)
+        else:
+            cur = (cur + " " + ln.strip()) if cur is not None else ln.strip()
+    if cur is not None: items.append(cur)
+    has_task = any(re.match(r"\[[ xX]\]\s+", it) for it in items)
+    lis = []
+    for it in items:
+        mt = re.match(r"\[([ xX])\]\s+(.*)$", it)
+        if mt:
+            chk = " checked" if mt.group(1) in ("x", "X") else ""
+            lis.append('<li class="task"><input type="checkbox" disabled%s> %s</li>'
+                       % (chk, _inline(mt.group(2))))
+        else:
+            lis.append("<li>%s</li>" % _inline(it))
+    cls = ' class="tasklist"' if has_task else ""
+    return "<%s%s>%s</%s>" % (tag, cls, "".join(lis), tag)
+
+def _is_block_start(line):
+    s = line.strip()
+    if re.match(r"^#{1,6}\s", line): return True
+    if re.match(r"^%s[DC]\d+%s$" % (NUL, NUL), s): return True
+    if s.startswith(">"): return True
+    if re.match(r"\s*(?:[-*+]|\d+\.)\s+", line): return True
+    return False
+
+def _parse_blocks(md):
+    lines = md.split("\n")
+    out, i = [], 0
+    while i < len(lines):
+        line = lines[i]
+        if line.strip() == "":
+            i += 1; continue
+        m = re.match(r"^(#{1,6})\s+(.*)$", line)
+        if m:
+            lv = len(m.group(1)); out.append("<h%d>%s</h%d>" % (lv, _inline(m.group(2).strip()), lv))
+            i += 1; continue
+        if re.match(r"^%s[DC]\d+%s$" % (NUL, NUL), line.strip()):
+            out.append(line.strip()); i += 1; continue
+        if line.lstrip().startswith(">"):
+            buf = []
+            while i < len(lines) and lines[i].lstrip().startswith(">"):
+                buf.append(re.sub(r"^\s*>\s?", "", lines[i])); i += 1
+            out.append("<blockquote>%s</blockquote>" % _parse_blocks("\n".join(buf)))
+            continue
+        if "|" in line and i + 1 < len(lines) and re.match(r"^\s*\|?[\s:|-]*-[\s:|-]*\|?\s*$", lines[i+1]):
+            header = line; i += 2; body = []
+            while i < len(lines) and lines[i].strip() != "" and "|" in lines[i]:
+                body.append(lines[i]); i += 1
+            out.append(_render_table(header, body)); continue
+        if re.match(r"^\s*(?:[-*+]|\d+\.)\s+", line):
+            buf = []
+            while i < len(lines) and lines[i].strip() != "" and \
+                  (re.match(r"^\s*(?:[-*+]|\d+\.)\s+", lines[i]) or lines[i].startswith("  ")):
+                buf.append(lines[i]); i += 1
+            out.append(_render_list(buf)); continue
+        buf = [line]; i += 1
+        while i < len(lines) and lines[i].strip() != "" and not _is_block_start(lines[i]):
+            buf.append(lines[i]); i += 1
+        out.append("<p>%s</p>" % _inline(" ".join(b.strip() for b in buf)))
+    return "\n".join(out)
+
+def convert_doc(md, want_subtitle=False):
+    """Convert a Markdown doc to HTML pieces: dict(title, subtitle, preamble, body, toc)."""
+    lines = md.split("\n")
+    title_md = lines[0][2:].strip() if lines[0].startswith("# ") else SITE_TITLE
+    start, subtitle_md = 1, ""
+    if want_subtitle:
+        for j in range(1, min(8, len(lines))):
+            if lines[j].startswith("### "):
+                subtitle_md = lines[j][4:].strip(); start = j + 1; break
+            if lines[j].startswith("## "):
+                break
+    rest_md = "\n".join(lines[start:])
+
+    store = {"c": [], "d": [], "i": [], "k": []}
+    rest_md = _protect(rest_md, store)
+
+    pre_lines, sections, cur = [], [], None
+    for ln in rest_md.split("\n"):
+        if ln.startswith("## "):
+            if cur: sections.append(cur)
+            cur = {"head": ln[3:].strip(), "body": []}
+        elif re.match(r"^---+\s*$", ln.strip()):
+            continue
+        elif cur is None:
+            pre_lines.append(ln)
+        else:
+            cur["body"].append(ln)
+    if cur: sections.append(cur)
+
+    preamble_html = _parse_blocks("\n".join(pre_lines)) if any(l.strip() for l in pre_lines) else ""
+
+    toc, html_sections = [], []
+    for s in sections:
+        slug = _slug(s["head"]); head_html = _inline(s["head"])
+        toc.append((slug, head_html))
+        inner = _parse_blocks("\n".join(s["body"]))
+        html_sections.append(
+            '<section id="%s"><h2>%s</h2>\n%s\n</section>' % (slug, head_html, inner))
+    body_html = "\n".join(html_sections)
+
+    def inline_only(t):
+        st = {"c": [], "d": [], "i": [], "k": []}
+        return _restore(_inline(_protect(t, st)), st)
+
+    return {
+        "title": inline_only(title_md),
+        "subtitle": inline_only(subtitle_md),
+        "preamble": _restore(preamble_html, store),
+        "body": _restore(body_html, store),
+        "toc": [(sl, _restore(tx, store)) for sl, tx in toc],
+    }
+
+# ======================================================================
+#  HTML templates
+# ======================================================================
+MATHJAX = (
+    '<script>window.MathJax={tex:{inlineMath:[[\'$\',\'$\'],[\'\\\\(\',\'\\\\)\']],'
+    'displayMath:[[\'$$\',\'$$\'],[\'\\\\[\',\'\\\\]\']]},'
+    'options:{skipHtmlTags:[\'script\',\'noscript\',\'style\',\'textarea\',\'pre\',\'code\']}};</script>\n'
+    '<script id="MathJax-script" async '
+    'src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>'
+)
+
+# Site navigation: (href-from-docs-root, label, key)
+NAV = [
+    ("index.html", "Home", "home"),
+    ("pages/fm-phonon-defect.html", "FM self-energy &amp; defect phonons", "fm"),
+]
+
+def _topnav(active, prefix=""):
+    links = "".join(
+        '<a href="%s%s"%s>%s</a>' % (
+            prefix, href,
+            ' style="color:#fff;text-decoration:underline"' if key == active else "",
+            label)
+        for href, label, key in NAV)
+    return ('<nav class="topnav"><div class="inner">'
+            '<span class="brand">%s</span>%s</div></nav>' % (BRAND, links))
+
+def page_shell(title, head_html, nav_html, body_html, css_href):
+    return """<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<link rel="stylesheet" href="{css}">
+{mathjax}
+</head><body>
+{nav}
+{head}
+<main>
+{body}
+</main>
+<footer>Generated {date}. Static HTML; equations rendered client-side with MathJax v3.
+No raw wavefunctions, cubes, binaries, or logs are published.</footer>
+</body></html>""".format(title=html.escape(title), css=css_href, mathjax=MATHJAX,
+                          nav=nav_html, head=head_html, body=body_html, date=GEN_DATE)
+
+# ======================================================================
+#  Page registry — to add a page: register here (and in NAV / CATALOG)
+# ======================================================================
+PAGES = [
+    dict(
+        key="fm",
+        md=os.path.join(ROOT, "content", "note_fm_phonon_defect.md"),
+        out=os.path.join(PAGES_DIR, "fm-phonon-defect.html"),
+        html_title=SITE_TITLE + " — Fan–Migdal self-energy & defect phonon spectral function",
+        subtitle=(r"Two linked derivations: the Fan&ndash;Migdal electron self-energy as the lowest-order "
+                  r"electron&ndash;phonon term, built explicitly from the <em>bare</em> $G^0$ and $D^0$ "
+                  r"(S-matrix, Wick, Matsubara sum, analytic continuation); then the phonon spectral function "
+                  r"$B_{\mathbf q\nu}(\omega)$ of a crystal with a dilute concentration of point defects, "
+                  r"via the exact defect $T$-matrix with $V(z)=\Delta\mathcal D - z\,\varepsilon$."),
+        pill="Theory / derivation",
+    ),
+]
+
+# Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
+CATALOG = [
+    (r"Fan&ndash;Migdal self-energy &amp; defect phonon spectral function", "Theory", GEN_DATE, "ok", "Complete",
+     r"Lowest-order e&ndash;ph self-energy from bare $G^0$ and $D^0$: S-matrix expansion, Wick contractions "
+     r"(first order and tadpoles vanish at the relaxed geometry), the boson Matsubara sum done explicitly "
+     r"($n_B(\xi-i\omega_j)=-n_F(\xi)$), retarded $\Sigma^{\rm FM}$ with absorption/emission golden-rule structure. "
+     r"Then phonons with defects: Lifshitz perturbation $V(z)=\Delta\mathcal D-z\varepsilon$, exact small-block "
+     r"$T$-matrix (phonon Koster&ndash;Slater), dilute average $\pi_{q\nu}=c\,t_{q\nu}$, spectral function "
+     r"$B_{q\nu}(\omega)$ with Tamura/Born and resonant-mode limits, plus the non-adiabatic e&ndash;ph bubble "
+     r"with defect-dressed electrons.",
+     '<a href="pages/fm-phonon-defect.html">Open derivation &rarr;</a>'),
+]
+
+def build_page(p):
+    with open(p["md"], encoding="utf-8") as f:
+        md = f.read()
+    r = convert_doc(md, want_subtitle=False)
+    toc_links = "".join('<a href="#%s">%s</a>' % (sl, tx) for sl, tx in r["toc"])
+    header = ('<header><div class="header-inner"><h1>{t}</h1>'
+              '<p class="subtitle">{s}</p>'
+              '<div class="meta"><span class="pill">{p}</span>'
+              '<span class="pill">{n} sections</span>'
+              '<span class="pill">MathJax v3</span>'
+              '<span class="pill">Generated {d}</span></div></div></header>'
+             ).format(t=r["title"], s=p["subtitle"], p=p["pill"], n=len(r["toc"]), d=GEN_DATE)
+    toc_section = ('<section id="contents"><h2>Contents</h2>'
+                   '<div class="toc">%s</div></section>' % toc_links)
+    body = toc_section + "\n" + r["preamble"] + "\n" + r["body"]
+    out = page_shell(p["html_title"], header, _topnav(p["key"], prefix="../"),
+                     body, "../assets/style.css")
+    with open(p["out"], "w", encoding="utf-8") as f:
+        f.write(out)
+
+def build_index():
+    rows = ""
+    for item, typ, date, bc, bl, summ, link in CATALOG:
+        planned = ' class="planned"' if bc == "plan" else ""
+        rows += ("<tr%s><td><strong>%s</strong></td><td>%s</td><td>%s</td>"
+                 "<td><span class=\"badge %s\">%s</span></td><td>%s</td><td>%s</td></tr>\n"
+                 % (planned, item, typ, date, bc, bl, summ, link))
+    catalog = (
+        '<section id="catalog"><h2>Catalog</h2>'
+        '<p>One row per piece of work: what it is, when, status, the key result, and a link.</p>'
+        '<div class="table-wrap"><table><thead><tr>'
+        '<th>Item</th><th>Type</th><th>Date</th><th>Status</th><th>Key result / summary</th><th>Link</th>'
+        '</tr></thead><tbody>%s</tbody></table></div>'
+        '<p class="small">Legend: '
+        '<span class="badge ok">Complete</span> done &nbsp; '
+        '<span class="badge plan">Planned</span> not yet run &nbsp; '
+        '<span class="badge prod">Production</span> headline result.</p></section>'
+        % rows)
+
+    warnings = (
+        '<section id="not-published" class="warning"><h2>Warnings: Files Not Published</h2>'
+        '<p>This GitHub Pages artifact contains only the static report under <code>docs/</code>. '
+        'It intentionally excludes raw or large research data so the published site stays small '
+        'and contains no credentials.</p>'
+        '<div class="table-wrap"><table><thead><tr><th>Class</th><th>Policy</th></tr></thead><tbody>'
+        '<tr><td>Wavefunctions, QE <code>*.save/</code></td><td>Excluded (large binary).</td></tr>'
+        '<tr><td>Cube / volumetric grids <code>*.cube</code></td><td>Excluded (often &gt;100&nbsp;MB).</td></tr>'
+        '<tr><td>Numerical arrays <code>*.npy/*.npz/*.bin/*.h5/*.dat</code></td><td>Excluded; summarized in tables only.</td></tr>'
+        '<tr><td>Scheduler logs <code>*.out/*.err/*.log</code></td><td>Excluded.</td></tr>'
+        '<tr><td>Local/private config <code>.claude/</code>, keys/tokens</td><td>Excluded.</td></tr>'
+        '</tbody></table></div></section>')
+
+    header = ('<header><div class="header-inner"><h1>{t}</h1>'
+              '<p class="subtitle">Phonon&ndash;defect interaction project &mdash; theory notes, '
+              'derivations, and (forthcoming) numerical results.</p>'
+              '<div class="meta">'
+              '<span class="pill">Generated {d}</span>'
+              '<span class="pill">GitHub Pages: docs/</span>'
+              '<span class="pill">Branch: main</span>'
+              '<span class="pill">MathJax v3</span></div></div></header>'
+             ).format(t=SITE_TITLE, d=GEN_DATE)
+
+    body = catalog + warnings
+    out = page_shell(SITE_TITLE, header, _topnav("home"), body, "assets/style.css")
+    with open(os.path.join(DOCS, "index.html"), "w", encoding="utf-8") as f:
+        f.write(out)
+
+# ======================================================================
+#  main + self-checks
+# ======================================================================
+def main():
+    os.makedirs(PAGES_DIR, exist_ok=True)
+    for p in PAGES:
+        build_page(p)
+    build_index()
+
+    def check(txt):
+        problems = []
+        if NUL in txt: problems.append("UNRESTORED placeholder (\\x00) present!")
+        leftover = re.findall(r"%s[A-Z]\d+%s" % (NUL, NUL), txt)
+        if leftover: problems.append("leftover tokens: %s" % leftover[:5])
+        return problems
+
+    print("=== build_site.py ===")
+    files = [(os.path.basename(p["out"]), p["out"]) for p in PAGES]
+    files.append(("index.html", os.path.join(DOCS, "index.html")))
+    for nm, path in files:
+        txt = open(path, encoding="utf-8").read()
+        print("%-28s: %d bytes, %d sections, %d display-eq, %d tables" % (
+            nm, len(txt), txt.count("<section id="),
+            txt.count('class="math"'), txt.count("<table>")))
+        p = check(txt)
+        print("  [%s] %s" % (nm, "OK" if not p else " ; ".join(p)))
+
+if __name__ == "__main__":
+    main()
