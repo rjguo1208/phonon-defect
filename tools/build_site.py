@@ -233,6 +233,7 @@ MATHJAX = (
 NAV = [
     ("index.html", "Home", "home"),
     ("pages/fm-phonon-defect.html", "FM self-energy &amp; defect phonons", "fm"),
+    ("pages/mos2-vs-phonon-plan.html", "V<sub>S</sub>@MoS&#8322; phonons: plan", "vsplan"),
 ]
 
 def _topnav(active, prefix=""):
@@ -278,6 +279,17 @@ PAGES = [
                   r"via the exact defect $T$-matrix with $V(z)=\Delta\mathcal D - z\,\varepsilon$."),
         pill="Theory / derivation",
     ),
+    dict(
+        key="vsplan",
+        md=os.path.join(ROOT, "content", "note_mos2_vs_phonon_plan.md"),
+        out=os.path.join(PAGES_DIR, "mos2-vs-phonon-plan.html"),
+        html_title=SITE_TITLE + " — MoS2 S-vacancy phonon spectral function: plan",
+        subtitle=(r"Computational plan + TODO for $B_{\mathbf q\nu}(\omega)$ of monolayer MoS&#8322; with "
+                  r"dilute S vacancies: host DFPT on a $6\times6\times1$ grid, finite-displacement "
+                  r"$\Delta\Phi$ from the same $6\times6$ supercells used in the EDI electron-defect study, "
+                  r"cluster T-matrix, validation gates V0&ndash;V5, and a Kestrel cost estimate."),
+        pill="Plan / TODO",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -291,6 +303,14 @@ CATALOG = [
      r"$B_{q\nu}(\omega)$ with Tamura/Born and resonant-mode limits, plus the non-adiabatic e&ndash;ph bubble "
      r"with defect-dressed electrons.",
      '<a href="pages/fm-phonon-defect.html">Open derivation &rarr;</a>'),
+    (r"MoS&#8322; S-vacancy phonon spectral function", "Plan", GEN_DATE, "plan", "Planned",
+     r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
+     r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "
+     r"2D LO&ndash;TO), defect-supercell relaxation + phonopy finite displacements, $\Delta\Phi$ cluster "
+     r"truncation with ASR, dense-grid host resolvent, T-matrix $\to\pi_{q\nu}=c\,t_{q\nu}$ at "
+     r"$n_d=10^{12}\,{\rm cm^{-2}}$ ($c\approx8.8\times10^{-4}$). Six validation gates (incl. Tamura Born "
+     r"check and supercell-diagonalization fingerprint); est. 15&ndash;30 node-h.",
+     '<a href="pages/mos2-vs-phonon-plan.html">Open plan &amp; TODO &rarr;</a>'),
 ]
 
 def build_page(p):
