@@ -35,9 +35,26 @@ ph.x on the relaxed primitive cell: $6\times6\times1$ $\mathbf q$-grid, with the
 
 Map defect-supercell sites onto pristine sites (vacancy site has no image); build $\Delta\Phi=\Phi^{\rm def}-\Phi^{\rm prist}$ on the common 106 atoms + the vacancy row/column handled by projection (the vacant S contributes $\Delta M=-M_{\rm S}$ and decoupled rows — project its 3 degrees of freedom out of the cluster space). Then: (i) plot $\lVert\Delta\Phi(d)\rVert$ vs distance $d$ from the vacancy — require ≥ 2 orders of decay before the supercell boundary; (ii) truncate to a defect cluster (vacancy + Mo first shell + S shells out to $\sim5$–6 Å, ~25–40 atoms ⇒ cluster dimension ~75–120); (iii) re-impose the acoustic sum rule on the truncated $\Delta\Phi$. Build $\varepsilon$ (mass term) and $V(z)=\Delta\mathcal D-z\,\varepsilon$.
 
-### P3 — Host resolvent on the cluster
+### P3 — Host resolvent on the cluster (spectral density + Hilbert transform)
 
-$g_{ab}(z)$ for cluster orbitals from the Fourier-interpolated host modes: dense $\mathbf q$-grid (start $300\times300\times1$, converge), broadening $\eta$ scanned over 0.02–0.2 meV (or tetrahedron). Frequency mesh: 0–65 meV covering the full MoS₂ spectrum (top of optical branches ≈ 58 meV), step ≤ 0.05 meV near resonances.
+The T-matrix inversion lives in the real-space cluster basis (that is what makes it a small block — see P4), so only the $d\times d$ cluster block $g_{ab}(z)$ is ever needed. Compute it in **two steps**, not as one BZ sum per frequency:
+
+1. **One pass** over a dense Fourier-interpolated $\mathbf q$-grid (start $300\times300\times1$, converge; tetrahedron or adaptive smearing) accumulates the cluster-projected spectral density on a fine $\lambda=\omega'^2$ mesh:
+
+$$
+\rho_{ab}(\lambda)=\frac{1}{N_p}\sum_{\mathbf q\nu}\langle a|\mathbf q\nu\rangle\langle\mathbf q\nu|b\rangle\,N_p\;
+\delta\big(\lambda-\omega_{\mathbf q\nu}^2\big).
+$$
+
+2. The resolvent at **any** complex $z$ then follows by a Hilbert (Kramers–Kronig) transform,
+
+$$
+g_{ab}(z)=\int_0^{\lambda_{\max}}\! d\lambda\;\frac{\rho_{ab}(\lambda)}{z-\lambda},
+\qquad
+\mathrm{Im}\,g_{ab}\big((\omega+i0^+)^2\big)=-\pi\,\rho_{ab}(\omega^2),
+$$
+
+so the scan over thousands of $z$ points for the T-matrix is essentially free, and the small-$\eta$ convergence burden moves onto the (cheap) $\lambda$-mesh of $\rho$ instead of the $\mathbf q$-sum. Built-in sanity checks: completeness $\int d\lambda\,\rho_{ab}(\lambda)=\delta_{ab}$, positivity $\rho_{aa}(\lambda)\ge0$, and Hermiticity of $g$. Frequency mesh for the downstream T-matrix: 0–65 meV (top of optical branches ≈ 58 meV), step ≤ 0.05 meV near resonances.
 
 ### P4 — T-matrix and self-energy
 
@@ -82,7 +99,7 @@ Total ≈ 15–30 node-hours on `shared` — comparable to the EDI electron-side
 - [ ] **T3** (P1.2) phonopy finite displacements: pristine 108-atom supercell; gate **V1** vs folded DFPT
 - [ ] **T4** (P1.2) phonopy finite displacements: relaxed defect supercell (job array)
 - [ ] **T5** (P2) `tools/build_dphi.py` — site mapping, $\Delta\Phi$, decay plot, cluster truncation, ASR; gate **V2**
-- [ ] **T6** (P3) `tools/host_resolvent.py` — interpolated dense-grid cluster $g(z)$; $\eta$ / grid convergence
+- [ ] **T6** (P3) `tools/host_resolvent.py` — single-pass cluster spectral density $\rho_{ab}(\lambda)$ (tetrahedron) + Hilbert transform to $g_{ab}(z)$; checks: completeness $\int\rho_{ab}\,d\lambda=\delta_{ab}$, positivity, $\lambda$-mesh / $\mathbf q$-grid convergence
 - [ ] **T7** (P4) `tools/tmatrix_phonon.py` — $V(z)$, block inversion, mode projection, $\pi_{\mathbf q\nu}$; gates **V3, V4**
 - [ ] **T8** (P5) `tools/spectral.py` — $B(\mathbf q,\omega)$ maps, linewidths, resonant modes, $\Delta$DOS; gate **V5**
 - [ ] **T9** Results page: spectral-function maps + linewidths + resonance table, uploaded here
