@@ -235,6 +235,7 @@ NAV = [
     ("pages/fm-phonon-defect.html", "FM self-energy &amp; defect phonons", "fm"),
     ("pages/mos2-vs-phonon-plan.html", "V<sub>S</sub>@MoS&#8322; phonons: plan", "vsplan"),
     ("pages/mos2-vs-phonon-results.html", "V<sub>S</sub>@MoS&#8322; phonons: results", "vsres"),
+    ("pages/mos2-os-phonon-results.html", "O<sub>S</sub>@MoS&#8322; phonons: results", "osres"),
 ]
 
 def _topnav(active, prefix=""):
@@ -303,6 +304,18 @@ PAGES = [
                   r"No in-gap modes &mdash; the S vacancy scatters resonantly inside the bands."),
         pill="Numerical results",
     ),
+    dict(
+        key="osres",
+        md=os.path.join(ROOT, "content", "note_mos2_os_phonon_results.md"),
+        out=os.path.join(PAGES_DIR, "mos2-os-phonon-results.html"),
+        html_title=SITE_TITLE + " — MoS2 O-substitution phonon spectral function: results",
+        subtitle=(r"Same T-matrix pipeline with the frequency-dependent $V(z)=\Delta\mathcal D-z\,\varepsilon$ "
+                  r"($\Delta M/M_S=-0.50$): O$_S$ produces true localized modes above the host spectrum "
+                  r"&mdash; e 59.2 + a&#8321; 66.2 meV &mdash; matching the real-O-mass supercell "
+                  r"diagonalization to 0.12&ndash;0.15 meV. Gentler in-band scattering than V$_S$ "
+                  r"($\tau_{\min}\approx49$ ps at $10^{12}$ cm$^{-2}$). Marginal cost ~12 node-h."),
+        pill="Numerical results",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -324,6 +337,14 @@ CATALOG = [
      r"$\Gamma_{\max}\approx9\times10^{-3}$ meV at 43.4/34.3 meV &rArr; $\tau_{\min}\approx37$ ps at "
      r"$n_d=10^{12}$ cm$^{-2}$.",
      '<a href="pages/mos2-vs-phonon-results.html">Open results &rarr;</a>'),
+    (r"MoS&#8322; O-substitution (O$_S$) phonon spectral function &mdash; results", "Result", GEN_DATE, "prod", "Complete",
+     r"First exercise of the frequency-dependent $V(z)=\Delta\mathcal D-z\varepsilon$ (mass term "
+     r"$\varepsilon=-0.50$): three local modes ejected above the host spectrum &mdash; e doublet 59.2 meV + "
+     r"a&#8321; 66.2 meV (PR 0.004, cluster weight 0.999) &mdash; T-matrix poles vs real-O-mass supercell "
+     r"diagonalization agree to 0.12&ndash;0.15 meV. In-band scattering gentler than V$_S$: "
+     r"$\bar\Gamma=1.1\times10^{-3}$ meV, $\tau_{\min}\approx49$ ps at $10^{12}$ cm$^{-2}$. "
+     r"Reused host DFPT + pristine FCs + cached $\rho_{ab}(\lambda)$; ~12 node-h marginal.",
+     '<a href="pages/mos2-os-phonon-results.html">Open results &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "
