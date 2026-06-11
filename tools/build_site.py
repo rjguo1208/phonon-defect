@@ -19,7 +19,7 @@ ROOT      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS      = os.path.join(ROOT, "docs")
 PAGES_DIR = os.path.join(DOCS, "pages")
 
-GEN_DATE   = "2026-06-09"
+GEN_DATE   = "2026-06-10"
 SITE_TITLE = "Phonon-Defect"
 BRAND      = "Phonon&nbsp;Defect"
 
@@ -234,6 +234,7 @@ NAV = [
     ("index.html", "Home", "home"),
     ("pages/fm-phonon-defect.html", "FM self-energy &amp; defect phonons", "fm"),
     ("pages/mos2-vs-phonon-plan.html", "V<sub>S</sub>@MoS&#8322; phonons: plan", "vsplan"),
+    ("pages/mos2-vs-phonon-results.html", "V<sub>S</sub>@MoS&#8322; phonons: results", "vsres"),
 ]
 
 def _topnav(active, prefix=""):
@@ -290,6 +291,18 @@ PAGES = [
                   r"cluster T-matrix, validation gates V0&ndash;V5, and a Kestrel cost estimate."),
         pill="Plan / TODO",
     ),
+    dict(
+        key="vsres",
+        md=os.path.join(ROOT, "content", "note_mos2_vs_phonon_results.md"),
+        out=os.path.join(PAGES_DIR, "mos2-vs-phonon-results.html"),
+        html_title=SITE_TITLE + " — MoS2 S-vacancy phonon spectral function: results",
+        subtitle=(r"Executed plan P0&ndash;P5 on Kestrel (~13 node-h): all six gates passed. "
+                  r"Vacancy-induced resonances (a&#8321; 40.9 meV, e 42.2 / 46.7 meV, band-bottom 34.5 meV) "
+                  r"confirmed against the direct 321-DOF supercell diagonalization to &le;0.5 meV; "
+                  r"defect-limited lifetimes $\tau_{\min}\approx37$ ps at $n_d=10^{12}\,{\rm cm^{-2}}$. "
+                  r"No in-gap modes &mdash; the S vacancy scatters resonantly inside the bands."),
+        pill="Numerical results",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -303,7 +316,15 @@ CATALOG = [
      r"$B_{q\nu}(\omega)$ with Tamura/Born and resonant-mode limits, plus the non-adiabatic e&ndash;ph bubble "
      r"with defect-dressed electrons.",
      '<a href="pages/fm-phonon-defect.html">Open derivation &rarr;</a>'),
-    (r"MoS&#8322; S-vacancy phonon spectral function", "Plan", GEN_DATE, "plan", "Planned",
+    (r"MoS&#8322; S-vacancy phonon spectral function &mdash; results", "Result", GEN_DATE, "prod", "Complete",
+     r"Full pipeline executed (~13 node-h): host DFPT + 124-displacement defect FD (P3m1 preserved), "
+     r"32-atom cluster T-matrix. Gates V0&ndash;V5 all passed (Born&rarr;Tamura scaling 10.5%&rarr;0.40% as "
+     r"$\epsilon$ 0.06&rarr;0.01; $\int B\,d\omega=0.9985$; resonances match supercell diagonalization "
+     r"&le;0.5 meV). V$_S$ gives in-band resonances (a&#8321; 40.9, e 42.2/46.7, 34.5 meV), no gap states; "
+     r"$\Gamma_{\max}\approx9\times10^{-3}$ meV at 43.4/34.3 meV &rArr; $\tau_{\min}\approx37$ ps at "
+     r"$n_d=10^{12}$ cm$^{-2}$.",
+     '<a href="pages/mos2-vs-phonon-results.html">Open results &rarr;</a>'),
+    (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "
      r"2D LO&ndash;TO), defect-supercell relaxation + phonopy finite displacements, $\Delta\Phi$ cluster "

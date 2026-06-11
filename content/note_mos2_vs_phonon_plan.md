@@ -93,16 +93,16 @@ Total ≈ 15–30 node-hours on `shared` — comparable to the EDI electron-side
 
 ## 5. TODO
 
-- [ ] **T0** Install phonopy (`pip install --user phonopy`) and check the pw.x interface on the primitive cell
-- [ ] **T1** (P1.1) Check force residual of the shipped 107-atom geometry; relax the defect supercell
-- [ ] **T2** (P0) DFPT: ph.x $6\times6\times1$ on the primitive cell with 2D polar treatment; q2r + matdyn; gate **V0**
-- [ ] **T3** (P1.2) phonopy finite displacements: pristine 108-atom supercell; gate **V1** vs folded DFPT
-- [ ] **T4** (P1.2) phonopy finite displacements: relaxed defect supercell (job array)
-- [ ] **T5** (P2) `tools/build_dphi.py` — site mapping, $\Delta\Phi$, decay plot, cluster truncation, ASR; gate **V2**
-- [ ] **T6** (P3) `tools/host_resolvent.py` — single-pass cluster spectral density $\rho_{ab}(\lambda)$ (tetrahedron) + Hilbert transform to $g_{ab}(z)$; checks: completeness $\int\rho_{ab}\,d\lambda=\delta_{ab}$, positivity, $\lambda$-mesh / $\mathbf q$-grid convergence
-- [ ] **T7** (P4) `tools/tmatrix_phonon.py` — $V(z)$, block inversion, mode projection, $\pi_{\mathbf q\nu}$; gates **V3, V4**
-- [ ] **T8** (P5) `tools/spectral.py` — $B(\mathbf q,\omega)$ maps, linewidths, resonant modes, $\Delta$DOS; gate **V5**
-- [ ] **T9** Results page: spectral-function maps + linewidths + resonance table, uploaded here
+- [x] **T0** Install phonopy (`pip install --user phonopy`) and check the pw.x interface on the primitive cell
+- [x] **T1** (P1.1) Check force residual of the shipped 107-atom geometry; relax the defect supercell
+- [x] **T2** (P0) DFPT: ph.x $6\times6\times1$ on the primitive cell with 2D polar treatment; q2r + matdyn; gate **V0**
+- [x] **T3** (P1.2) phonopy finite displacements: pristine 108-atom supercell; gate **V1** vs folded DFPT
+- [x] **T4** (P1.2) phonopy finite displacements: relaxed defect supercell (job array)
+- [x] **T5** (P2) `tools/build_dphi.py` — site mapping, $\Delta\Phi$, decay plot, cluster truncation, ASR; gate **V2**
+- [x] **T6** (P3) `tools/host_resolvent.py` — single-pass cluster spectral density $\rho_{ab}(\lambda)$ (tetrahedron) + Hilbert transform to $g_{ab}(z)$; checks: completeness $\int\rho_{ab}\,d\lambda=\delta_{ab}$, positivity, $\lambda$-mesh / $\mathbf q$-grid convergence
+- [x] **T7** (P4) `tools/tmatrix_phonon.py` — $V(z)$, block inversion, mode projection, $\pi_{\mathbf q\nu}$; gates **V3, V4**
+- [x] **T8** (P5) `tools/spectral.py` — $B(\mathbf q,\omega)$ maps, linewidths, resonant modes, $\Delta$DOS; gate **V5**
+- [x] **T9** Results page: spectral-function maps + linewidths + resonance table, uploaded here
 - [ ] **T10** *(optional, P6)* Non-adiabatic e–ph bubble with EDI-dressed electron lines
 
 ## 6. Risks and open questions
