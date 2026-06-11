@@ -1,0 +1,30 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phonon-Defect — Pristine MoS2 phonon spectral function (baseline)</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body>
+<nav class="topnav"><div class="inner"><span class="brand">Phonon&nbsp;Defect</span><a href="../index.html">Home</a><a href="../pages/fm-phonon-defect.html">FM self-energy &amp; defect phonons</a><a href="../pages/mos2-vs-phonon-plan.html">V<sub>S</sub>@MoS&#8322; phonons: plan</a><a href="../pages/mos2-vs-phonon-results.html">V<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-os-phonon-results.html">O<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-pristine-baseline.html" style="color:#fff;text-decoration:underline">Pristine baseline</a></div></nav>
+<header><div class="header-inner"><h1>Pristine MoS₂ phonon spectral function — baseline</h1><p class="subtitle">Null reference: with $\pi_{q\nu}=0$ the spectral function collapses to $\delta(\omega-\omega_{q\nu})$ ($\eta=0.05$ meV broadening only). Produced by the identical code path with $V=0$ &mdash; doubling as a machinery null test ($\max|t|=0$, no resonances, $\Delta$DOS $\equiv0$). Zero DFT cost.</p><div class="meta"><span class="pill">Baseline</span><span class="pill">2 sections</span><span class="pill">MathJax v3</span><span class="pill">Generated 2026-06-10</span></div></div></header>
+<main>
+<section id="contents"><h2>Contents</h2><div class="toc"><a href="#host-facts-dfpt-validated-used-by-both-defect-runs">Host facts (DFPT-validated, used by both defect runs)</a><a href="#three-way-comparison">Three-way comparison</a></div></section>
+<p>Null reference for the <a href="mos2-vs-phonon-results.html">V$_S$</a> and <a href="mos2-os-phonon-results.html">O$_S$</a> runs. With no defect the self-energy vanishes and the spectral function collapses to the host dispersion,</p>
+<div class="math">
+$$
+B_{\mathbf q\nu}(\omega)\;\xrightarrow{\;\pi_{\mathbf q\nu}\to0\;}\;\delta\big(\omega-\omega_{\mathbf q\nu}\big),
+$$
+</div>
+<p>broadened here only by the numerical $\eta=0.05$ meV. The figure below was produced by the <strong>identical code path</strong> as the defect maps (same Γ–M–K–Γ path, ω-mesh 0.03 meV, same cluster spectral density) with $V$ set to zero — so it doubles as a null test of the machinery: $\max|t|=0$ exactly, $\int B\,d\omega=0.9987$ (per-mode, finite-window), the resonance scan finds nothing, and the Krein ΔDOS is identically zero.</p>
+<p><img src="../assets/pristine_spectral_map.png" alt="Pristine MoS2 spectral function" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"></p>
+<section id="host-facts-dfpt-validated-used-by-both-defect-runs"><h2>Host facts (DFPT-validated, used by both defect runs)</h2>
+<div class="table-wrap"><table><thead><tr><th>Quantity</th><th>Value</th></tr></thead><tbody><tr><td>Acoustic branches</td><td>ZA/TA/LA, top of acoustic manifold ≈ 28.5 meV</td></tr><tr><td>Acoustic–optical gap</td><td>≈ 28.5–34 meV (no defect states appear here for either defect)</td></tr><tr><td>Γ opticals (FD / DFPT)</td><td>E″ 276.4/275.6 — E′ 373.1/376.4–378.2 — A₁′ 397.1/399.0 — ZO 458.2/456.0 cm⁻¹</td></tr><tr><td>Top of spectrum</td><td>56.8 meV (FD), 56.4 meV (DFPT path max)</td></tr></tbody></table></div>
+</section>
+<section id="three-way-comparison"><h2>Three-way comparison</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>pristine</th><th>V$_S$</th><th>O$_S$</th></tr></thead><tbody><tr><td>Line shape</td><td>δ-sharp (η only)</td><td>in-band resonance broadening</td><td>in-band broadening <strong>+ local modes 59.2 / 66.2 meV above the band</strong></td></tr><tr><td>Strongest features</td><td>—</td><td>a₁ 40.9, e 42.2/46.7, 34.5 meV resonances</td><td>30.3, 40.9 meV resonances; e + a₁ local modes</td></tr><tr><td>$\bar\Gamma$, $\tau_{\min}$ @ $10^{12}$ cm⁻²</td><td>0, ∞</td><td>2.3×10⁻³ meV, 37 ps</td><td>1.1×10⁻³ meV, 49 ps</td></tr></tbody></table></div>
+<p>Marginal compute cost: <strong>zero DFT</strong> — pure post-processing of the cached pristine force constants and cluster spectral density (~5 min on the login node).</p>
+</section>
+</main>
+<footer>Generated 2026-06-10. Static HTML; equations rendered client-side with MathJax v3.
+No raw wavefunctions, cubes, binaries, or logs are published.</footer>
+</body></html>

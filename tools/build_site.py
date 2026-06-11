@@ -236,6 +236,7 @@ NAV = [
     ("pages/mos2-vs-phonon-plan.html", "V<sub>S</sub>@MoS&#8322; phonons: plan", "vsplan"),
     ("pages/mos2-vs-phonon-results.html", "V<sub>S</sub>@MoS&#8322; phonons: results", "vsres"),
     ("pages/mos2-os-phonon-results.html", "O<sub>S</sub>@MoS&#8322; phonons: results", "osres"),
+    ("pages/mos2-pristine-baseline.html", "Pristine baseline", "prist"),
 ]
 
 def _topnav(active, prefix=""):
@@ -316,6 +317,17 @@ PAGES = [
                   r"($\tau_{\min}\approx49$ ps at $10^{12}$ cm$^{-2}$). Marginal cost ~12 node-h."),
         pill="Numerical results",
     ),
+    dict(
+        key="prist",
+        md=os.path.join(ROOT, "content", "note_mos2_pristine_baseline.md"),
+        out=os.path.join(PAGES_DIR, "mos2-pristine-baseline.html"),
+        html_title=SITE_TITLE + " — Pristine MoS2 phonon spectral function (baseline)",
+        subtitle=(r"Null reference: with $\pi_{q\nu}=0$ the spectral function collapses to "
+                  r"$\delta(\omega-\omega_{q\nu})$ ($\eta=0.05$ meV broadening only). Produced by the "
+                  r"identical code path with $V=0$ &mdash; doubling as a machinery null test "
+                  r"($\max|t|=0$, no resonances, $\Delta$DOS $\equiv0$). Zero DFT cost."),
+        pill="Baseline",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -345,6 +357,12 @@ CATALOG = [
      r"$\bar\Gamma=1.1\times10^{-3}$ meV, $\tau_{\min}\approx49$ ps at $10^{12}$ cm$^{-2}$. "
      r"Reused host DFPT + pristine FCs + cached $\rho_{ab}(\lambda)$; ~12 node-h marginal.",
      '<a href="pages/mos2-os-phonon-results.html">Open results &rarr;</a>'),
+    (r"Pristine MoS&#8322; phonon spectral function (baseline)", "Result", GEN_DATE, "ok", "Complete",
+     r"Null reference for the defect runs: $B_{q\nu}(\omega)\to\delta(\omega-\omega_{q\nu})$ at "
+     r"$\pi_{q\nu}=0$, same path/mesh/$\eta$ and code path with $V=0$ (null test: $\max|t|=0$, "
+     r"$\int B=0.9987$, no resonances, $\Delta$DOS$\,\equiv0$). Includes the three-way "
+     r"pristine / V$_S$ / O$_S$ comparison table. Zero DFT cost (~5 min post-processing).",
+     '<a href="pages/mos2-pristine-baseline.html">Open baseline &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "
