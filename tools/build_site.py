@@ -237,6 +237,7 @@ NAV = [
     ("pages/mos2-vs-phonon-results.html", "V<sub>S</sub>@MoS&#8322; phonons: results", "vsres"),
     ("pages/mos2-os-phonon-results.html", "O<sub>S</sub>@MoS&#8322; phonons: results", "osres"),
     ("pages/mos2-pristine-baseline.html", "Pristine baseline", "prist"),
+    ("pages/supercell-bands.html", "Electronic bands", "bands"),
 ]
 
 def _topnav(active, prefix=""):
@@ -328,6 +329,17 @@ PAGES = [
                   r"($\max|t|=0$, no resonances, $\Delta$DOS $\equiv0$). Zero DFT cost."),
         pill="Baseline",
     ),
+    dict(
+        key="bands",
+        md=os.path.join(ROOT, "content", "note_supercell_bands.md"),
+        out=os.path.join(PAGES_DIR, "supercell-bands.html"),
+        html_title=SITE_TITLE + " — Electronic band structure of the three MoS2 supercells",
+        subtitle=(r"Companion electronic-structure comparison along $\Gamma$&ndash;M&ndash;K&ndash;$\Gamma$ "
+                  r"(coarse 26-$k$ path). V$_S$ shows the classic empty $e$ defect doublet deep in the gap "
+                  r"(+1.15 eV, width &lt;10 meV); O$_S$ is isovalent &mdash; no gap state; pristine ~1.66 eV gap. "
+                  r"The electronic mirror of the phonon story."),
+        pill="Electronic structure",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -363,6 +375,13 @@ CATALOG = [
      r"$\int B=0.9987$, no resonances, $\Delta$DOS$\,\equiv0$). Includes the three-way "
      r"pristine / V$_S$ / O$_S$ comparison table. Zero DFT cost (~5 min post-processing).",
      '<a href="pages/mos2-pristine-baseline.html">Open baseline &rarr;</a>'),
+    (r"Electronic band structure of the three supercells", "Result", "2026-06-13", "ok", "Complete",
+     r"Companion electronic comparison ($\Gamma$&ndash;M&ndash;K&ndash;$\Gamma$, coarse 26-$k$ path, "
+     r"standard partition whole-node ~4 node-h each): V$_S$ introduces the classic empty $e$ defect "
+     r"doublet deep in the gap (two flat bands at +1.15 eV above VBM, width &lt;10 meV, ~0.55 eV below "
+     r"the host CBM); O$_S$ is isovalent (group VI) &mdash; no in-gap state, gap 1.58 eV vs pristine 1.66 eV. "
+     r"The electronic mirror of the phonon results (V$_S$ strong/level-introducing, O$_S$ gentle).",
+     '<a href="pages/supercell-bands.html">Open band structure &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "
