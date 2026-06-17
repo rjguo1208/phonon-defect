@@ -375,12 +375,12 @@ CATALOG = [
      r"$\int B=0.9987$, no resonances, $\Delta$DOS$\,\equiv0$). Includes the three-way "
      r"pristine / V$_S$ / O$_S$ comparison table. Zero DFT cost (~5 min post-processing).",
      '<a href="pages/mos2-pristine-baseline.html">Open baseline &rarr;</a>'),
-    (r"Electronic band structure of the three supercells", "Result", "2026-06-13", "ok", "Complete",
-     r"Companion electronic comparison ($\Gamma$&ndash;M&ndash;K&ndash;$\Gamma$, coarse 26-$k$ path, "
-     r"standard partition whole-node ~4 node-h each): V$_S$ introduces the classic empty $e$ defect "
-     r"doublet deep in the gap (two flat bands at +1.15 eV above VBM, width &lt;10 meV, ~0.55 eV below "
-     r"the host CBM); O$_S$ is isovalent (group VI) &mdash; no in-gap state, gap 1.58 eV vs pristine 1.66 eV. "
-     r"The electronic mirror of the phonon results (V$_S$ strong/level-introducing, O$_S$ gentle).",
+    (r"Electronic band structure of the supercells (6×6 &amp; 9×9)", "Result", "2026-06-17", "ok", "Complete",
+     r"Companion electronic comparison ($\Gamma$&ndash;M&ndash;K&ndash;$\Gamma$, sparse $k$, standard "
+     r"whole-node): V$_S$ shows the empty $e$ defect doublet deep in the gap; O$_S$ isovalent (no in-gap "
+     r"state, gap 1.58 vs pristine 1.66 eV). Plus a 9×9 (242-atom) V$_S$ size-convergence run: the $e$ "
+     r"doublet dispersion collapses ~10× (9.1&rarr;0.9 meV) and drops to +1.06 eV &mdash; direct evidence "
+     r"the defect states reach the isolated limit, validating the dilute assumption of the phonon work.",
      '<a href="pages/supercell-bands.html">Open band structure &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
