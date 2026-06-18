@@ -349,7 +349,8 @@ PAGES = [
         subtitle=(r"Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$, "
                   r"$g_{ij}=\langle i|\Delta V|j\rangle$ from EDI (direct mode), diagonalized on the coarse "
                   r"$12\times12$ grid (= 144-cell supercell). Band-space convergence 5&rarr;11&rarr;60 band: "
-                  r"the over-screened $e$ states climb 0.5&rarr;0.8&rarr;1.3 eV, converging into the DFT range."),
+                  r"the over-screened $e$ states climb 0.5&rarr;0.8&rarr;1.3 eV, converging into the DFT range. "
+                  r"Plus full 1&ndash;66 band V$_S$ vs O$_S$ comparison (preliminary, unrelaxed)."),
         pill="Method / electronic structure",
     ),
 ]

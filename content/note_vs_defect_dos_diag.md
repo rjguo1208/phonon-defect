@@ -42,7 +42,26 @@ The defect $e$ doublet is acutely sensitive to the size of the band manifold: to
 
 **The $e$ level climbs monotonically with band space — 0.5 → 0.8 → 1.3 eV — and the 60-band explicit value (1.20–1.31 eV) lands squarely inside the DFT-supercell / explicit-$T$-matrix range (1.06–1.35 eV).** Over-screening is essentially eliminated once the conduction manifold is represented explicitly. This closes the loop on the well-known sensitivity: a downfolded 5-orbital model is not enough for the deep V$_S$ states; the explicit ~60-band calculation converges. (Alignment choice shifts levels by ~0.1 eV: 11-band sits at 0.82 eV with vacuum alignment, 0.70 eV with none; the 60-band run used `pot_align='none'`.)
 
-## 3. Direct-mode setup (60-band)
+## 3. Full band window (1–66) and V$_S$ vs O$_S$ comparison
+
+The 7–66 window above omits the deep valence/semicore bands 1–6 (Mo 4s4p, S 3s; −66 to −18 eV) and the band 1–6 ↔ 7–66 cross terms. Extending to the **full 1–66 window** (9504×9504 diagonalization, all $66^2\times144^2=9.0\times10^7$ matrix elements) and applying the same direct-mode pipeline to the **O substitutional (O$_S$)** gives a like-for-like comparison (unrelaxed geometry, `pot_align='none'`, bands 1–66):
+
+![V_S 66-band defect DOS](../assets/defect_dos_66band_VS.png)
+*V$_S$, full 1–66 band: host vs defect DOS (left), Friedel ΔDOS (right).*
+
+![O_S 66-band defect DOS](../assets/defect_dos_66band_OS.png)
+*O$_S$ (O substitution), full 1–66 band.*
+
+| system | in-gap defect levels ($E-E_{\rm VBM}$, eV) |
+|---|---|
+| **V$_S$** (vacancy) | 0.025, 0.144, 0.795, 1.206, 1.352, 1.575 |
+| **O$_S$** (O substitution) | 0.162, 0.258, 1.123, 1.244, 1.478 |
+
+The two spectra are genuinely distinct (full-spectrum $\max|E_{V_S}-E_{O_S}|=103$ eV, dominated by the deep band-1 difference between a vacancy and an O atom). For V$_S$ the cluster around 0.8–1.35 eV is consistent with the $e$ manifold found in the 7–66 / DFT references; the extra low-lying levels (0.025, 0.144 eV near the VBM) and the additional structure appear once bands 1–6 and the full cross terms are included.
+
+**Caveat (under verification).** The full-1–66 numbers give *more* and *more dispersed* in-gap levels than the cleaner 60-band (7–66) / DFT-supercell picture (where V$_S$ shows essentially an $a_1$ near the VBM + an $e$ doublet at ~1.1–1.35 eV). Likely contributors: (i) the **unrelaxed** geometry with a frozen $\Delta V$ (over-strong, especially for O$_S$ where the smaller O would relax inward); (ii) inclusion of the deep band 1–6 coupling. The *method* (direct-mode explicit diagonalization) and the band-space convergence trend of §2 are robust; the absolute 1–66 level positions should be cross-checked against relaxed-geometry DFT supercell defect levels before being taken as final.
+
+## 4. Direct-mode setup (60-band)
 
 ```
 edmat_direct_from_file = .true.    ! EXCLUSIVE: skips Wannier + interp
@@ -53,7 +72,7 @@ pot_align = 'none'
 ```
 Prerequisite: rerun the primitive nscf to `nbnd=66`. Run: 2 nodes, 26 ranks/node, `MPICH_SMP_SINGLE_COPY_MODE=NONE`; the edmat computation (panel broadcast) took ~50 min and wrote a 12 GB `mos2_edmat_direct.dat` (full $144^2\times60^2=7.5\times10^7$ matrix elements). The diagonalization is an $8640\times8640$ Hermitian eigenproblem (~15 min, ~4 GB).
 
-## 4. Memory & parallelism reality
+## 5. Memory & parallelism reality
 
 A correction to an earlier overestimate: the cached wavefunctions `psir` live on the **primitive** smooth FFT grid (`dffts%nnr` = 40×40×300 ≈ 4.8×10⁵), **not** the supercell $240^3$ cube grid. The true cache is ~12 GB (11-band) / ~67 GB (60-band) *total*, streamed via panel broadcast (each rank holds only its local k-points plus one received panel — O(nks), exactly as a streaming $\langle\psi_i|\Delta V|\psi_j\rangle$ should). Direct mode therefore fits comfortably in 2 nodes; its bottleneck is communication (broadcasting wavefunction panels), not memory.
 
@@ -63,7 +82,7 @@ The Wannierize path, by contrast, hit four independent walls on Kestrel (each ma
 3. Fine-interpolation array (`fine_nk=300` → ~174 GB on one rank) → not needed for diagonalization (`fine_nk=12`, or just use direct mode).
 4. Misjudged psir cache (the 240³-grid overestimate above).
 
-## 5. Caveats
+## 6. Caveats
 
 - $\Delta V$ is the frozen, **unrelaxed** $6\times6$ supercell difference potential (neutral V$_S$, short-ranged; charged defects would need range separation).
 - $g_{ij}$ is the bare Bloch matrix element.
