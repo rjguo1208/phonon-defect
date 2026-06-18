@@ -238,6 +238,7 @@ NAV = [
     ("pages/mos2-os-phonon-results.html", "O<sub>S</sub>@MoS&#8322; phonons: results", "osres"),
     ("pages/mos2-pristine-baseline.html", "Pristine baseline", "prist"),
     ("pages/supercell-bands.html", "Electronic bands", "bands"),
+    ("pages/vs-defect-dos-diag.html", "V<sub>S</sub> defect DOS (diag)", "dosdiag"),
 ]
 
 def _topnav(active, prefix=""):
@@ -340,6 +341,17 @@ PAGES = [
                   r"The electronic mirror of the phonon story."),
         pill="Electronic structure",
     ),
+    dict(
+        key="dosdiag",
+        md=os.path.join(ROOT, "content", "note_vs_defect_dos_diag.md"),
+        out=os.path.join(PAGES_DIR, "vs-defect-dos-diag.html"),
+        html_title=SITE_TITLE + " — V_S defect DOS by single-defect Hamiltonian diagonalization",
+        subtitle=(r"Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$, "
+                  r"$g_{ij}=\langle i|\Delta V|j\rangle$ from EDI's Bloch matrix elements, diagonalized on the "
+                  r"coarse $12\times12$ grid (= single defect in a 144-cell supercell). 5-band vs 11-band "
+                  r"Wannier: the over-screened $e$ states climb 0.5&rarr;0.82 eV, moving toward the DFT value."),
+        pill="Method / electronic structure",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -382,6 +394,13 @@ CATALOG = [
      r"doublet dispersion collapses ~10× (9.1&rarr;0.9 meV) and drops to +1.06 eV &mdash; direct evidence "
      r"the defect states reach the isolated limit, validating the dilute assumption of the phonon work.",
      '<a href="pages/supercell-bands.html">Open band structure &rarr;</a>'),
+    (r"V$_S$ defect DOS by single-defect Hamiltonian diagonalization", "Result", "2026-06-17", "ok", "Complete",
+     r"Literature method (eq. S1): diagonalize $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$ with "
+     r"$g_{ij}=\langle i|\Delta V|j\rangle$ from EDI's Bloch $M$ on the coarse $12\times12$ grid "
+     r"(= single defect in a 144-cell supercell, one $1584\times1584$ diag). 5-band(Mo:d) over-screens the "
+     r"$e$ states to 0.5&ndash;0.6 eV; **11-band(Mo:d+S:p)** lifts them to 0.82 eV, moving toward the "
+     r"9×9/6×6 DFT values (1.06/1.15 eV). Required clearing four EDI memory/MPI walls.",
+     '<a href="pages/vs-defect-dos-diag.html">Open defect DOS &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "

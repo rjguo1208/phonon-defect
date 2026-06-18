@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phonon-Defect — V_S defect DOS by single-defect Hamiltonian diagonalization</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body>
+<nav class="topnav"><div class="inner"><span class="brand">Phonon&nbsp;Defect</span><a href="../index.html">Home</a><a href="../pages/fm-phonon-defect.html">FM self-energy &amp; defect phonons</a><a href="../pages/mos2-vs-phonon-plan.html">V<sub>S</sub>@MoS&#8322; phonons: plan</a><a href="../pages/mos2-vs-phonon-results.html">V<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-os-phonon-results.html">O<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-pristine-baseline.html">Pristine baseline</a><a href="../pages/supercell-bands.html">Electronic bands</a><a href="../pages/vs-defect-dos-diag.html" style="color:#fff;text-decoration:underline">V<sub>S</sub> defect DOS (diag)</a></div></nav>
+<header><div class="header-inner"><h1>Defect DOS by single-defect Hamiltonian diagonalization (MoS₂ V$_S$)</h1><p class="subtitle">Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$, $g_{ij}=\langle i|\Delta V|j\rangle$ from EDI's Bloch matrix elements, diagonalized on the coarse $12\times12$ grid (= single defect in a 144-cell supercell). 5-band vs 11-band Wannier: the over-screened $e$ states climb 0.5&rarr;0.82 eV, moving toward the DFT value.</p><div class="meta"><span class="pill">Method / electronic structure</span><span class="pill">4 sections</span><span class="pill">MathJax v3</span><span class="pill">Generated 2026-06-10</span></div></div></header>
+<main>
+<section id="contents"><h2>Contents</h2><div class="toc"><a href="#sec-1">1. Method ⇄ our other work</a><a href="#sec-2">2. Band-space convergence: 5-band vs 11-band Wannier</a><a href="#sec-3">3. Practical notes (why this was expensive to set up)</a><a href="#sec-4">4. Caveats</a></div></section>
+<p>The literature electron–defect approach (e.g. eq. (S1) of the referenced works) writes a single-defect Hamiltonian</p>
+<div class="math">
+$$
+\hat H_{e\text{-}i}=\sum_{ij}c_i^\dagger c_j\,g_{ij},\qquad g_{ij}=\langle i|\Delta V|j\rangle ,
+$$
+</div>
+<p>and obtains the defect density of states by diagonalizing it. Here we realize this for the S vacancy in monolayer MoS₂, reusing the difference potential $\Delta V$ and the Bloch matrix elements $g_{ij}$ already produced by the EDI code. The object actually diagonalized is the <strong>total</strong> Hamiltonian in the coarse-grid Bloch basis $i=(n,\mathbf k)$,</p>
+<div class="math">
+$$
+H_{(n\mathbf k),(m\mathbf k')}=\varepsilon_{n\mathbf k}\,\delta+g_{(n\mathbf k),(m\mathbf k')},\qquad
+\rho(E)=-\tfrac1\pi\,\mathrm{Im\,Tr}\,(E+i\eta-H)^{-1},
+$$
+</div>
+<p>with $g$ taken from EDI's <code>mos2_edmat_bloch.dat</code> ("Bloch M before Wannier rotation") and $\varepsilon_{n\mathbf k}$ from the primitive nscf. On the coarse $12\times12$ k-grid this is <strong>equivalent to a single defect in a 144-cell ($12\times12$) supercell</strong> — larger than the explicit $6\times6$/$9\times9$ DFT supercells, but obtained at the cost of one $1584\times1584$ diagonalization (seconds), because $\Delta V$ and the host bands are reused rather than recomputed self-consistently.</p>
+<section id="sec-1"><h2>1. Method ⇄ our other work</h2>
+<p>This is the DOS form of the <strong>Koster–Slater / explicit T-matrix</strong> approach: $g_{ij}=\langle n\mathbf k|\Delta V|m\mathbf k'\rangle$ is exactly the explicit Bloch $M$-matrix used on the <a href="https://rjguo1208.github.io/">electron side</a> (claude-sternheimer), and the electronic mirror of the phonon <a href="fm-phonon-defect.html">defect T-matrix</a>. The single defect breaks translational symmetry, so $g$ is dense in $(\mathbf k,\mathbf k')$; diagonalizing it folds back to the $12\times12$ supercell levels.</p>
+</section>
+<section id="sec-2"><h2>2. Band-space convergence: 5-band vs 11-band Wannier</h2>
+<p>The defect $e$ states are notoriously sensitive to the size of the band/Wannier space — too small a manifold <strong>over-screens</strong> them (drags them toward the VBM). We compare two Wannier setups built from the same $\Delta V$:</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>5-band (Mo:d, bands 13–17)</th><th>11-band (Mo:d + S:p, bands 7–17)</th></tr></thead><tbody><tr><td>in-gap defect levels ($E-E_{\rm VBM}$, eV)</td><td>0.06, 0.09, <strong>0.50, 0.50, 0.60, 0.60</strong></td><td>0.08, 0.19, 0.19, <strong>0.82, 0.82, 0.83</strong></td></tr><tr><td>character</td><td>a₁ near VBM + over-screened $e$</td><td>a₁ + upward-shifted $e$ manifold</td></tr></tbody></table></div>
+<p><img src="../assets/defect_dos_5band.png" alt="5-band defect DOS" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>5-band (Mo:d): host vs defect DOS (left), Friedel ΔDOS (right). Purple = in-gap defect levels. The $e$ manifold sits at ~0.5–0.6 eV (over-screened).</em></p>
+<p><img src="../assets/defect_dos_11band.png" alt="11-band defect DOS" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>11-band (Mo:d + S:p): the in-gap $e$ manifold has moved up to ~0.82 eV.</em></p>
+<p><strong>Trend.</strong> Enlarging the manifold from 5 to 11 bands (adding S:p and the lower valence bands) pushes the $e$ states from ~0.5–0.6 eV up to ~0.82 eV — <strong>partially correcting the over-screening</strong>, and moving toward the explicit/DFT references:</p>
+<div class="table-wrap"><table><thead><tr><th>reference</th><th>$e$ level ($E-E_{\rm VBM}$)</th></tr></thead><tbody><tr><td>5-band diag</td><td>0.50–0.60 eV</td></tr><tr><td><strong>11-band diag (this work)</strong></td><td><strong>0.82 eV</strong></td></tr><tr><td>9×9 DFT supercell</td><td>~1.06 eV</td></tr><tr><td>6×6 DFT supercell</td><td>~1.15 eV</td></tr><tr><td>explicit 21-band $T$-matrix (claude-sternheimer)</td><td>~1.35 eV</td></tr></tbody></table></div>
+<p>The monotonic climb with band-space size is consistent with the claude-sternheimer finding that the deep $e$ doublet requires a large explicit manifold (≈21 bands) to fully escape over-screening. 11 bands gets roughly halfway from the 5-band result to the DFT value — a clear, controlled improvement, not yet full convergence.</p>
+</section>
+<section id="sec-3"><h2>3. Practical notes (why this was expensive to set up)</h2>
+<p>Generating the 11-band $g_{ij}$ with EDI's <code>edi.x</code> hit four independent memory/MPI walls on Kestrel, each masking the next:</p>
+<ol><li><strong>Full-core OOM</strong> — 104 ranks/node is too many; run 26 ranks/node (reserve the full node with <code>--ntasks-per-node=104 --mem=0</code>, launch fewer with <code>srun --ntasks-per-node=26</code>).</li><li><strong>Cray MPICH CMA crash</strong> (<code>process_vm_readv copy size mismatch</code> on a ~253 MB transfer) → <code>export MPICH_SMP_SINGLE_COPY_MODE=NONE</code>.</li><li><strong>Fine-interpolation array</strong> — <code>fine_nk=300</code> preallocates ~174 GB on one rank; the diagonalization needs only the coarse $M$, so <code>fine_nk=12</code>.</li><li><strong>psir cache</strong> — wavefunctions are cached on the <em>supercell</em> $240^3$ cube grid (to match $\Delta V$): total $144\,k\times11\,{\rm band}\times240^3\times16\,{\rm B}=437$ GB, spread over nodes. A Kestrel standard node has 243 GB, so 2 nodes (219 GB/node) + overhead OOMs; <strong>3 nodes (146 GB/node)</strong> fit.</li></ol>
+<p>Winning configuration: 3 nodes, 26 ranks/node, <code>fine_nk=12</code>, single-copy off, full-node memory. The diagonalization itself is a trivial $1584\times1584$ eigenproblem afterwards.</p>
+</section>
+<section id="sec-4"><h2>4. Caveats</h2>
+<ul><li>$\Delta V$ is the frozen $6\times6$ supercell difference potential (neutral V$_S$, short-ranged — fine; charged defects would need range separation).</li><li>The $g_{ij}$ here is the <strong>bare</strong> Bloch matrix element (before Wannier rotation); the Wannier step is used only to validate band interpolation, not for the diagonalization.</li><li>Band-space (11) is still not fully converged for the deep $e$ states — the absolute level (~0.82 eV) is a lower bound relative to the DFT/explicit value; the <em>method</em> and the <em>over-screening-correction trend</em> are the robust results.</li><li>Γ-only supercell SCF + smearing for $\Delta V$; coarse $12\times12$ Bloch grid for the diagonalization.</li></ul>
+<p>Artifacts: <code>/scratch/rjguo/edi_example/edi_run/edi/</code> — <code>mos2_edmat_bloch.dat</code> (11-band $g_{ij}$), <code>diagonalize_dos.py</code>, <code>defect_dos_{5,11}band.{png,npz}</code>.</p>
+</section>
+</main>
+<footer>Generated 2026-06-10. Static HTML; equations rendered client-side with MathJax v3.
+No raw wavefunctions, cubes, binaries, or logs are published.</footer>
+</body></html>
