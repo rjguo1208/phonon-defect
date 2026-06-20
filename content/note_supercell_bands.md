@@ -22,7 +22,7 @@ This is the electronic counterpart of the phonon story: **V$_S$ is the strong, l
 
 ±4 eV around the VBM. The valence manifold (Mo-$d$ / S-$p$) and conduction manifold are essentially common to all three; the defects act only near the gap.
 
-## 3. Supercell-size convergence: V$_S$ at 9×9
+## 3. Supercell-size convergence: V$_S$ and O$_S$ at 9×9
 
 To test how isolated the defect states really are, the S-vacancy was rerun in a **9×9 supercell (242 atoms)** — 2.25× the area of the 6×6. This is a heavy calculation (2100 valence electrons, ~2×10⁶ plane waves); to keep it tractable it used an even sparser 13-$k$ $\Gamma$–M–K–$\Gamma$ path, a relaxed convergence threshold (`conv_thr=1e-5`, ample for a band plot), and an *ideal* (unrelaxed) vacancy geometry. Single-$k$ cost was ~1 h on 4 nodes; ~13 node-h total.
 
@@ -41,6 +41,19 @@ Two clean trends as the cell grows:
 2. **Level drops ~90 meV** (1.15 → 1.06 eV above VBM) and the two bands become degenerate to the meV: image–image repulsion that pushed the level up at 6×6 is largely gone, so 1.06 eV is closer to the true isolated-vacancy $e$ level.
 
 (Caveat: the 6×6 used the relaxed geometry and a denser 26-$k$ path, the 9×9 an ideal geometry and 13-$k$; the absolute positions therefore carry some method spread, but the **order-of-magnitude dispersion narrowing is a robust size effect**, not a settings artifact.)
+
+### O$_S$ at 9×9 — the isovalent control
+
+The O substitution was run in the **same 9×9 supercell (243 atoms, ideal/unrelaxed)** along the same 13-$k$ path (~13 node-h). The result is the clean complement to V$_S$:
+
+![9×9 O_S band structure, gap zoom](../assets/bands9x9_os_zoom.png)
+
+| | 9×9 V$_S$ (242 atoms) | 9×9 O$_S$ (243 atoms) |
+|---|---|---|
+| in-gap defect bands | $e$ doublet at **+1.06 eV** | **none** |
+| PBE gap | host ~1.65 (defect band inside) | **1.65 eV, clean** |
+
+**O$_S$ has no in-gap state even in the dilute 9×9 limit** — and this holds for the *unrelaxed* (frozen) geometry, so it is not a relaxation effect: the isovalent O simply introduces no deep level. This is the DFT ground truth against which the single-defect [diagonalization / T-matrix](vs-defect-dos-diag.html) method is benchmarked: for V$_S$ the method reproduces the $e$ doublet at ~+1.2 eV, whereas any in-gap level it produces for O$_S$ is a method artifact (frozen first-order $\Delta V$ in a truncated basis), not a real bound state.
 
 ## 4. Caveats
 
