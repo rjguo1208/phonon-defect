@@ -347,10 +347,10 @@ PAGES = [
         out=os.path.join(PAGES_DIR, "vs-defect-dos-diag.html"),
         html_title=SITE_TITLE + " — V_S defect DOS by single-defect Hamiltonian diagonalization",
         subtitle=(r"Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$, "
-                  r"$g_{ij}=\langle i|\Delta V|j\rangle$ from EDI (direct mode), diagonalized on the coarse "
-                  r"$12\times12$ grid (= 144-cell supercell). Band-space convergence 5&rarr;11&rarr;60 band: "
-                  r"the over-screened $e$ states climb 0.5&rarr;0.8&rarr;1.3 eV, converging into the DFT range. "
-                  r"Plus full 1&ndash;66 band V$_S$ vs O$_S$ comparison (preliminary, unrelaxed)."),
+                  r"$g_{ij}=M\,\mathrm{Ry}/N_{\mathbf k}$ from EDI (direct mode). With the correct "
+                  r"$\mathrm{Ry}/N_{\mathbf k}$ normalization the in-gap levels converge cleanly (stable count, "
+                  r"monotonic): V$_S$ $\to$ a$_1$ + $e\,{\approx}\,{+}1.24$ eV, O$_S$, and a 3D Si-vacancy "
+                  r"control. Earlier (un-normalized) numbers retracted."),
         pill="Method / electronic structure",
     ),
 ]
@@ -395,13 +395,13 @@ CATALOG = [
      r"doublet dispersion collapses ~10× (9.1&rarr;0.9 meV) and drops to +1.06 eV &mdash; direct evidence "
      r"the defect states reach the isolated limit, validating the dilute assumption of the phonon work.",
      '<a href="pages/supercell-bands.html">Open band structure &rarr;</a>'),
-    (r"V$_S$ defect DOS by single-defect Hamiltonian diagonalization", "Result", "2026-06-18", "prod", "Complete",
+    (r"Defect DOS by single-defect Hamiltonian diagonalization (V$_S$, O$_S$, Si vacancy)", "Result", "2026-06-19", "prod", "Complete",
      r"Literature method (eq. S1): diagonalize $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$ with "
-     r"$g_{ij}=\langle i|\Delta V|j\rangle$ from EDI on the coarse $12\times12$ grid (= 144-cell supercell). "
-     r"**Band-space convergence**: the over-screened $e$ states climb 5-band 0.5&ndash;0.6 &rarr; 11-band "
-     r"0.7&ndash;0.82 &rarr; **60-band (direct mode) 1.20&ndash;1.31 eV**, landing in the DFT-supercell / "
-     r"explicit-$T$-matrix range (1.06&ndash;1.35 eV) &mdash; over-screening eliminated. Direct mode "
-     r"(`edmat_direct_from_file`, `band_ed='7-66'`) skips Wannier/interp and the four memory walls.",
+     r"$g_{ij}=M\,\mathrm{Ry}/N_{\mathbf k}$ from EDI direct mode. **The $\mathrm{Ry}/N_{\mathbf k}$ "
+     r"normalization is essential** &mdash; omitting it (earlier version, now retracted) over-weighted the "
+     r"perturbation ${\sim}10.6\times$ and gave spurious non-converging levels. With it, the in-gap levels "
+     r"**converge cleanly** (stable count, monotonic) across MoS$_2$ V$_S$ ($\to$ a$_1$ + $e\,{\approx}\,{+}1.24$ eV, "
+     r"in the DFT range), O$_S$, and a 3D Si-vacancy control. Cross-checked vs an independent EDT implementation.",
      '<a href="pages/vs-defect-dos-diag.html">Open defect DOS &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
