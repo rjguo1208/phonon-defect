@@ -346,11 +346,11 @@ PAGES = [
         md=os.path.join(ROOT, "content", "note_vs_defect_dos_diag.md"),
         out=os.path.join(PAGES_DIR, "vs-defect-dos-diag.html"),
         html_title=SITE_TITLE + " — V_S defect DOS by single-defect Hamiltonian diagonalization",
-        subtitle=(r"Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$, "
-                  r"$g_{ij}=M\,\mathrm{Ry}/N_{\mathbf k}$ from EDI (direct mode). With the correct "
-                  r"$\mathrm{Ry}/N_{\mathbf k}$ normalization the in-gap levels converge cleanly (stable count, "
-                  r"monotonic): V$_S$ $\to$ a$_1$ + $e\,{\approx}\,{+}1.24$ eV, O$_S$, and a 3D Si-vacancy "
-                  r"control. Earlier (un-normalized) numbers retracted."),
+        subtitle=(r"Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+M\,\mathrm{Ry}/N_{\mathbf k}$ "
+                  r"from EDI (direct mode). Two fixes (found vs an independent EDT code): the "
+                  r"$\mathrm{Ry}/N_{\mathbf k}$ normalization, and a stale-bra bug that made $M$ non-Hermitian "
+                  r"and split the $e$-doublet. Corrected V$_S$: $a_1$ + a DEGENERATE $e$-doublet at "
+                  r"$+1.196$ eV (EDT: $+1.205$); $C_3$ restored (143/144). Earlier numbers retracted."),
         pill="Method / electronic structure",
     ),
 ]
@@ -395,13 +395,14 @@ CATALOG = [
      r"doublet dispersion collapses ~10× (9.1&rarr;0.9 meV) and drops to +1.06 eV &mdash; direct evidence "
      r"the defect states reach the isolated limit, validating the dilute assumption of the phonon work.",
      '<a href="pages/supercell-bands.html">Open band structure &rarr;</a>'),
-    (r"Defect DOS by single-defect Hamiltonian diagonalization (V$_S$, O$_S$, Si vacancy)", "Result", "2026-06-19", "prod", "Complete",
-     r"Literature method (eq. S1): diagonalize $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$ with "
-     r"$g_{ij}=M\,\mathrm{Ry}/N_{\mathbf k}$ from EDI direct mode. **The $\mathrm{Ry}/N_{\mathbf k}$ "
-     r"normalization is essential** &mdash; omitting it (earlier version, now retracted) over-weighted the "
-     r"perturbation ${\sim}10.6\times$ and gave spurious non-converging levels. With it, the in-gap levels "
-     r"**converge cleanly** (stable count, monotonic) across MoS$_2$ V$_S$ ($\to$ a$_1$ + $e\,{\approx}\,{+}1.24$ eV, "
-     r"in the DFT range), O$_S$, and a 3D Si-vacancy control. Cross-checked vs an independent EDT implementation.",
+    (r"Defect DOS by single-defect Hamiltonian diagonalization (MoS$_2$ V$_S$)", "Result", "2026-06-20", "prod", "Complete",
+     r"Diagonalize $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+M\,\mathrm{Ry}/N_{\mathbf k}$ from EDI direct mode. "
+     r"Two corrections, both found by cross-checking an independent EDT code: (1) the $\mathrm{Ry}/N_{\mathbf k}$ "
+     r"normalization; (2) a stale-bra bug in `ed_direct_from_files` that made the same-$\mathbf k$ block "
+     r"**non-Hermitian** ($\lVert M-M^\dagger\rVert/\lVert M\rVert\!\approx\!2$), breaking $C_3$ and splitting the "
+     r"$e$-doublet. After the fix: Hermitian to $10^{-13}$, $C_3$ triplets 143/144 (= EDT), and V$_S$ shows an "
+     r"$a_1$ + a **degenerate $e$-doublet at $+1.196$ eV** (EDT $+1.205$; DFT 1.06&ndash;1.15) &mdash; the correct "
+     r"defect structure. Earlier tables retracted.",
      '<a href="pages/vs-defect-dos-diag.html">Open defect DOS &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "

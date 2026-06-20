@@ -6,9 +6,9 @@
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head><body>
 <nav class="topnav"><div class="inner"><span class="brand">Phonon&nbsp;Defect</span><a href="../index.html">Home</a><a href="../pages/fm-phonon-defect.html">FM self-energy &amp; defect phonons</a><a href="../pages/mos2-vs-phonon-plan.html">V<sub>S</sub>@MoS&#8322; phonons: plan</a><a href="../pages/mos2-vs-phonon-results.html">V<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-os-phonon-results.html">O<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-pristine-baseline.html">Pristine baseline</a><a href="../pages/supercell-bands.html">Electronic bands</a><a href="../pages/vs-defect-dos-diag.html" style="color:#fff;text-decoration:underline">V<sub>S</sub> defect DOS (diag)</a></div></nav>
-<header><div class="header-inner"><h1>Defect DOS by single-defect Hamiltonian diagonalization (MoS₂ V$_S$, O$_S$; Si vacancy)</h1><p class="subtitle">Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+g_{ij}$, $g_{ij}=M\,\mathrm{Ry}/N_{\mathbf k}$ from EDI (direct mode). With the correct $\mathrm{Ry}/N_{\mathbf k}$ normalization the in-gap levels converge cleanly (stable count, monotonic): V$_S$ $\to$ a$_1$ + $e\,{\approx}\,{+}1.24$ eV, O$_S$, and a 3D Si-vacancy control. Earlier (un-normalized) numbers retracted.</p><div class="meta"><span class="pill">Method / electronic structure</span><span class="pill">4 sections</span><span class="pill">MathJax v3</span><span class="pill">Generated 2026-06-10</span></div></div></header>
+<header><div class="header-inner"><h1>Defect DOS by single-defect Hamiltonian diagonalization (MoS₂ V$_S$)</h1><p class="subtitle">Literature single-defect Hamiltonian $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+M\,\mathrm{Ry}/N_{\mathbf k}$ from EDI (direct mode). Two fixes (found vs an independent EDT code): the $\mathrm{Ry}/N_{\mathbf k}$ normalization, and a stale-bra bug that made $M$ non-Hermitian and split the $e$-doublet. Corrected V$_S$: $a_1$ + a DEGENERATE $e$-doublet at $+1.196$ eV (EDT: $+1.205$); $C_3$ restored (143/144). Earlier numbers retracted.</p><div class="meta"><span class="pill">Method / electronic structure</span><span class="pill">4 sections</span><span class="pill">MathJax v3</span><span class="pill">Generated 2026-06-10</span></div></div></header>
 <main>
-<section id="contents"><h2>Contents</h2><div class="toc"><a href="#sec-1">1. Direct mode</a><a href="#sec-2">2. Band-manifold convergence (corrected normalization)</a><a href="#sec-3">3. Setup</a><a href="#sec-4">4. Caveats</a></div></section>
+<section id="contents"><h2>Contents</h2><div class="toc"><a href="#sec-1">1. The Hermiticity bug and its fix</a><a href="#sec-2">2. Corrected V$_S$ defect DOS</a><a href="#sec-3">3. Cross-validation against an independent code (EDT)</a><a href="#sec-4">4. Setup &amp; caveats</a></div></section>
 <p>The literature electron–defect approach (e.g. eq. (S1) of the referenced works) writes a single-defect Hamiltonian</p>
 <div class="math">
 $$
@@ -18,46 +18,36 @@ $$
 <p>and obtains the defect density of states by diagonalizing it in the coarse-grid Bloch basis $i=(n,\mathbf k)$:</p>
 <div class="math">
 $$
-H_{(n\mathbf k),(m\mathbf k')}=\varepsilon_{n\mathbf k}\,\delta+g_{(n\mathbf k),(m\mathbf k')} .
+H_{(n\mathbf k),(m\mathbf k')}=\varepsilon_{n\mathbf k}\,\delta+g_{(n\mathbf k),(m\mathbf k')},\qquad
+g_{ij}=M_{ij}\,\frac{\mathrm{Ry}}{N_{\mathbf k}} .
 $$
 </div>
-<p>On an $N_{\mathbf k}$-point coarse grid this is <strong>equivalent to a single defect in an $N_{\mathbf k}$-cell supercell</strong> — obtained from one dense diagonalization, reusing $\Delta V$ and the host bands $\varepsilon_{n\mathbf k}$ rather than recomputing self-consistently. It is the DOS form of the <strong>Koster–Slater / explicit $T$-matrix</strong> approach.</p>
-<blockquote><p><strong>⚠️ Correction (this page was rewritten).</strong> Earlier versions of this page reported defect levels from a diagonalization that <strong>omitted the matrix-element normalization</strong>. The host bands $\varepsilon_{n\mathbf k}$ are read in eV while the stored matrix element $M_{ij}=\langle i|\Delta V|j\rangle$ is in <strong>Rydberg</strong> <em>and</em> is the <em>per-primitive-cell</em> element; the single-defect coupling is</p>
-<div class="math">
-$$ g_{ij}=M_{ij}\,\frac{\mathrm{Ry}}{N_{\mathbf k}},\qquad \mathrm{Ry}=13.6057\ \text{eV}. $$
-</div>
-<p>Omitting the $\mathrm{Ry}/N_{\mathbf k}$ factor over-weighted the perturbation by $N_{\mathbf k}/\mathrm{Ry}\approx10.6$ and produced spurious, <strong>non-converging</strong> in-gap levels. <strong>All previous numerical tables on this page are retracted.</strong> With the correct $g_{ij}$ the levels converge cleanly, as shown below. The fix was confirmed against an independent implementation (the EDT/Sternheimer code), which uses the same $H=\mathrm{diag}(\varepsilon)+M\,\mathrm{Ry}/N_{\mathbf k}$.</p></blockquote>
-<section id="sec-1"><h2>1. Direct mode</h2>
-<p>EDI's <strong>direct mode</strong> (<code>edmat_direct_from_file=.true.</code>) computes $M(\mathbf k_i,\mathbf k_f)=\langle i|\Delta V|j\rangle$ directly from the wavefunctions for the band range <code>band_ed</code>, with no Wannierization or fine interpolation. The coarse Bloch $M$ is then assembled offline into $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+M\,\mathrm{Ry}/N_{\mathbf k}$ and diagonalized.</p>
+<p>On an $N_{\mathbf k}$-point coarse grid this is <strong>equivalent to a single defect in an $N_{\mathbf k}$-cell supercell</strong>, obtained from one dense diagonalization (Koster–Slater / explicit $T$-matrix). $\Delta V$ and $M=\langle n\mathbf k|\Delta V|m\mathbf k'\rangle$ come from the EDI code (direct mode); $\varepsilon_{n\mathbf k}$ are the pristine host bands.</p>
+<blockquote><p><strong>Two corrections got this page to its current (validated) state.</strong> Both were found by cross-checking against an independent implementation (the EDT/Sternheimer code on a separate machine).</p>
+<ol><li><strong>Normalization</strong> $g=M\,\mathrm{Ry}/N_{\mathbf k}$ — the stored $M$ is per-cell and in Rydberg; the single-defect coupling carries the $1/N_{\mathbf k}$ defect-density factor and the Ry→eV conversion. Omitting it over-weighted the perturbation ${\sim}10.6\times$.</li><li><strong>A bug in EDI direct mode</strong> left the <em>bra</em> wavefunction stale (frozen at the last $k$-point) for every $\langle n\mathbf k|\Delta V|m\mathbf k'\rangle$, making the matrix $M$ <strong>non-Hermitian</strong> ($\lVert M-M^\dagger\rVert/\lVert M\rVert\approx2$) — which broke the crystal $C_3$ symmetry and <strong>split the $e$-doublet</strong>. Fixed (see §1).</li></ol>
+<p>All earlier numerical tables on this page (from before these fixes) are retracted; the result below is the corrected, cross-validated one.</p></blockquote>
+<section id="sec-1"><h2>1. The Hermiticity bug and its fix</h2>
+<p>For the same $\mathbf k$ block, $\Delta V$ is Hermitian so $M(n,m)$ <strong>must</strong> equal $M(m,n)^\ast$. It did not. The breaking was localized step by step:</p>
+<div class="table-wrap"><table><thead><tr><th>object</th><th>$C_3$-symmetric?</th></tr></thead><tbody><tr><td>$\Delta V$ cube ($V_d-V_p$, supercell grid)</td><td>✅ exact (QE symmetrizes $V$)</td></tr><tr><td>folded $V_{\rm folded}$ (supercell → primitive)</td><td>✅ exact</td></tr><tr><td>host bands $\varepsilon_{n\mathbf k}$</td><td>✅</td></tr><tr><td><strong>EDI-direct $M$</strong></td><td>❌ broken (both local and nonlocal parts)</td></tr></tbody></table></div>
+<p>The same-$\mathbf k$ block $M(\mathbf k)$ was non-Hermitian (rel $\approx2.0$, near-anti-Hermitian). Root cause: in <code>ed_direct_from_files</code>, the bra wavefunctions (<code>psir_ki</code>/<code>becd_ki</code>/<code>becpc_ki</code>) were broadcast in a pre-loop that overwrote a single buffer, leaving only the <strong>last</strong> $k$-point; the compute loop then used that stale bra for <strong>all</strong> $(\mathbf k_i,\mathbf k_f)$. So every $M(\mathbf k_i,\mathbf k_f)$ used bra $=\psi_{\mathbf k_{N}}$. (The independent EDT code reads the bra fresh for each $\mathbf k_i$ — correct.) <strong>Fix:</strong> process only pairs whose $\mathbf k_i$ is local to the MPI pool, taking the bra straight from the cache (no broadcast) and the ket from the streamed panel — zero extra communication, and the edmat is actually faster.</p>
 </section>
-<section id="sec-2"><h2>2. Band-manifold convergence (corrected normalization)</h2>
-<p>The diagnostic test: slice the host-band basis to the lowest $N$ bands and track the in-gap eigenvalues vs $N$. A <strong>real bound state converges</strong> (stable count, level approaches a fixed value); a basis-truncation artifact keeps moving and does not settle.</p>
-<h3>MoS₂ V$_S$ (sulfur vacancy), 12×12 grid ($N_{\mathbf k}=144$)</h3>
-<p>Using the <strong>active window</strong> (bands 7–66, excluding the deep 1–6 semicore — the choice the independent EDT run also makes via an energy window):</p>
-<div class="table-wrap"><table><thead><tr><th>manifold</th><th>in-gap levels ($E-E_{\rm VBM}$, eV)</th></tr></thead><tbody><tr><td>bands 7–36 (30)</td><td>0.200, 0.898, <strong>1.365</strong></td></tr><tr><td>bands 7–46 (40)</td><td>0.099, 0.824, <strong>1.300</strong></td></tr><tr><td>bands 7–66 (60)</td><td>0.020, 0.703, <strong>1.244</strong></td></tr></tbody></table></div>
-<p>The count is stable at <strong>3</strong> and the highest level converges monotonically <strong>→ ≈ +1.24 eV</strong>, inside the DFT-supercell range (6×6: ≈1.15; 9×9: ≈1.06) and matching the independent EDT result (a₁ at +0.005, $e$ at +1.205). Including the deep semicore bands 1–6 (full 1–66 window) adds some jitter and shifts the cluster, so the active window is the cleaner basis.</p>
-<p><img src="../assets/conv_vs_diag.png" alt="V_S band convergence" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>V$_S$ in-gap levels vs band-manifold size (full 1–66 window shown; red band = DFT $e$ range).</em></p>
-<h3>MoS₂ O$_S$ (oxygen substitution), 12×12 grid</h3>
-<div class="table-wrap"><table><thead><tr><th>manifold</th><th>in-gap levels ($E-E_{\rm VBM}$, eV)</th></tr></thead><tbody><tr><td>bands 1–17</td><td>1.285, 1.522, 1.636</td></tr><tr><td>bands 1–37</td><td>0.997, 1.394, 1.521</td></tr><tr><td>bands 1–66</td><td>0.902, 1.340, 1.478</td></tr></tbody></table></div>
-<p>Stable count <strong>3</strong>, monotonic convergence (vs the earlier spurious 5 scattered levels).</p>
-<p><img src="../assets/conv_os_diag.png" alt="O_S band convergence" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"></p>
-<blockquote><p><strong>Open physics point.</strong> The isovalent O$_S$ supercell band structure shows <strong>no</strong> in-gap state, yet both this method and the independent EDT run produce in-gap levels for the <em>frozen, unrelaxed</em> O$_S$ $\Delta V$. This is most likely the unrelaxed geometry (the smaller O relaxes inward) and/or the first-order (non-self-consistent) treatment — not a normalization issue. Relaxed-geometry $\Delta V$ and/or the Sternheimer rest-dressing are the natural next checks.</p></blockquote>
-<h3>Si vacancy (3D, textbook case), 4×4×4 grid ($N_{\mathbf k}=64$)</h3>
-<p>A clean 3D control: ideal $T_d$ Si vacancy → an $a_1$ resonance + a $t_2$-derived manifold. PBE gap 0.73 eV.</p>
-<div class="table-wrap"><table><thead><tr><th>manifold</th><th>in-gap levels ($E-E_{\rm VBM}$, eV)</th></tr></thead><tbody><tr><td>bands 1–6</td><td>0.084, 0.383, 0.611, 0.712</td></tr><tr><td>bands 1–15</td><td>0.104, 0.451, 0.589, 0.679</td></tr><tr><td>bands 1–30</td><td>0.036, 0.305, 0.449, 0.630</td></tr></tbody></table></div>
-<p>Stable count <strong>4</strong> ($a_1$ near the VBM + a $t_2$-derived triplet, split by the small 4×4×4 cell), converging monotonically — confirming the method works on a 3D defect away from any 2D specifics.</p>
-<p><img src="../assets/conv_si_diag.png" alt="Si vacancy band convergence" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"></p>
+<section id="sec-2"><h2>2. Corrected V$_S$ defect DOS</h2>
+<p>With the bra-fixed, Hermitian, $C_3$-symmetric $M$ (full 1–66 band window, 12×12 grid = 144-cell):</p>
+<p><img src="../assets/dos_vs_brafixed.png" alt="V_S defect DOS (bra-fixed)" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>Host vs defect DOS (left) and Friedel ΔDOS (right), referenced to the VBM. In-gap defect states: an $a_1$ singlet and a <strong>degenerate $e$-doublet</strong> (the taller in-gap peak = 2 states).</em></p>
+<div class="table-wrap"><table><thead><tr><th>in-gap state</th><th>$E-E_{\rm VBM}$ (eV)</th></tr></thead><tbody><tr><td>$a_1$ (singlet)</td><td>+0.24</td></tr><tr><td>$e$ (doublet, <strong>degenerate</strong>)</td><td><strong>+1.196, +1.196</strong></td></tr></tbody></table></div>
+<p>The $e$-doublet is degenerate (split $=0.000$ eV) and lands at +1.20 eV — in the DFT-supercell range (9×9 ≈ 1.06; 6×6 ≈ 1.15) and matching the independent EDT value below.</p>
 </section>
-<section id="sec-3"><h2>3. Setup</h2>
-<pre><code>edmat_direct_from_file = .true.
-filki_direct = &#x27;kfull.dat&#x27;      ! N_k coarse k (12×12 MoS₂ / 4×4×4 Si)
-filkf_direct = &#x27;kfull.dat&#x27;
-band_ed = &#x27;7-66&#x27;                ! active window (MoS₂); &#x27;1-30&#x27; (Si)
+<section id="sec-3"><h2>3. Cross-validation against an independent code (EDT)</h2>
+<p>The same coarse Bloch $M$ computed by the independent EDT implementation, and the bra-fixed EDI $M$, agree on the symmetry that matters:</p>
+<div class="table-wrap"><table><thead><tr><th>check</th><th>EDI before fix</th><th>EDI after fix</th><th>EDT (independent)</th></tr></thead><tbody><tr><td>same-$\mathbf k$ block Hermiticity $\lVert M-M^\dagger\rVert/\lVert M\rVert$</td><td>2.0</td><td>$\sim10^{-13}$</td><td>$\sim10^{-14}$</td></tr><tr><td>$M$-block spectra form $C_3$ triplets (of 144 $k$)</td><td>0/144</td><td><strong>143/144</strong></td><td>143/144</td></tr><tr><td>$e$-doublet</td><td>split 0.4 eV</td><td><strong>+1.196 ×2</strong></td><td>+1.205 ×2</td></tr></tbody></table></div>
+<p>The $e$-doublet now agrees with EDT to ~0.01 eV. The residual $a_1$ offset (+0.24 here vs +0.005 in EDT) is the alignment choice — these runs use <code>pot_align=&#x27;none&#x27;</code>, EDT uses <code>&#x27;vacuum&#x27;</code> (a rigid constant shift; it does not affect the degeneracy or the $e$-level).</p>
+</section>
+<section id="sec-4"><h2>4. Setup &amp; caveats</h2>
+<pre><code>edmat_direct_from_file = .true.   ! direct-mode Bloch M, band_ed=&#x27;1-66&#x27;
+filki_direct = filkf_direct = &#x27;kfull.dat&#x27;   ! 144 coarse k (12×12)
 pot_align = &#x27;none&#x27;</code></pre>
-<p>Offline: $H=\mathrm{diag}(\varepsilon_{n\mathbf k})+M\,\mathrm{Ry}/N_{\mathbf k}$, Hermitize, <code>eigvalsh</code>; in-gap = eigenvalues between host VBM and CBM. Si supercell = 4×4×4 of the 2-atom FCC primitive (128 atoms), ideal (unrelaxed) vacancy at the cell center.</p>
-</section>
-<section id="sec-4"><h2>4. Caveats</h2>
-<ul><li><strong>Normalization</strong> $g=M\,\mathrm{Ry}/N_{\mathbf k}$ is essential (see correction box).</li><li><strong>Alignment</strong>: these runs use <code>pot_align=&#x27;none&#x27;</code>; the independent EDT runs use <code>&#x27;vacuum&#x27;</code> (2D). Alignment shifts absolute positions (and is why the V$_S$ $e$-doublet here is not exactly degenerate vs EDT's clean +1.205/+1.205); it does not change the convergence behavior.</li><li><strong>Frozen, unrelaxed</strong> $\Delta V$ (neutral defect); absolute levels carry the usual PBE / Γ-only-SCF / coarse-$k$ uncertainties.</li><li>$N_{\mathbf k}$-point Bloch grid = $N_{\mathbf k}$-cell effective supercell.</li></ul>
+<p>Offline: $H=\mathrm{diag}(\varepsilon)+M\,\mathrm{Ry}/N_{\mathbf k}$, <code>eigvalsh</code>; in-gap = eigenvalues between host VBM and CBM.</p>
+<ul><li><strong>Frozen, unrelaxed</strong> neutral-$V_S$ $\Delta V$; absolute levels carry the usual PBE / Γ-only-SCF / coarse-$k$ uncertainties.</li><li><code>pot_align=&#x27;none&#x27;</code> shifts the $a_1$ vs an aligned reference (does not change the $e$-doublet).</li><li>The O$_S$ and Si-vacancy controls are being re-run with the bra-fixed code; results to follow.</li></ul>
 </section>
 </main>
 <footer>Generated 2026-06-10. Static HTML; equations rendered client-side with MathJax v3.
