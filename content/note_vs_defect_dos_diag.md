@@ -99,7 +99,20 @@ $^\dagger$the $a_1$ position is alignment-sensitive (`pot_align='none'` here vs 
 ![Si vacancy defect DOS (bra-fixed)](../assets/dos_si_brafixed.png)
 *Si vacancy (3D control): a $t_2$-derived in-gap manifold near the CBM — a genuine defect level present in the DFT supercell too.*
 
-**The bra-fix makes V$_S$ correct, but O$_S$ still shows a spurious +0.73 in-gap doublet** while the dilute-limit DFT (9×9, even unrelaxed) has **none**. This is not a code bug — it is the intrinsic limitation of the frozen, first-order, non-self-consistent $\Delta V$ in a truncated basis: for an *isovalent* substitution it over-binds a state the self-consistent supercell does not. The Si-vacancy 3D control behaves like V$_S$ (a genuine in-gap $t_2$ manifold, present in both diag and DFT supercell).
+**The bra-fix makes V$_S$ correct, but O$_S$ still shows a spurious +0.73 in-gap doublet** while the dilute-limit DFT (9×9, even unrelaxed) has **none**. This is not a code bug — it is the intrinsic limitation of the frozen, first-order, **non-self-consistent** $\Delta V$: applied as a static perturbation to the pristine bands it over-binds a state for the *isovalent* substitution, whereas the self-consistent supercell (where the other states relax) forms no such level. The Si-vacancy 3D control behaves like V$_S$ (a genuine in-gap $t_2$ manifold, present in both diag and DFT supercell).
+
+### Convergence ≠ correctness
+
+Crucially, the spurious O$_S$ doublet is **not** a basis-truncation artifact — it *converges* in band-manifold size, just like the real V$_S$ level:
+
+| manifold | O$_S$ in-gap doublet ($E-E_{\rm VBM}$) |
+|---|---|
+| 1–17 | +0.865 ×2 |
+| 1–37 | +0.753 ×2 |
+| 1–57 | +0.733 ×2 |
+| 1–66 | +0.729 ×2 |
+
+It descends monotonically and **stabilizes at +0.73** (degenerate, $e$-like); it does not drift out of the gap as the basis grows. So both defects converge — V$_S$ to a level that DFT confirms (+1.2), O$_S$ to one DFT says does not exist (DFT: 0 in-gap). **Convergence in band space is therefore not sufficient to validate a level** — the frozen non-self-consistent method can produce a converged-but-spurious state. The DFT supercell ([9×9 bands](supercell-bands.html)) is the necessary ground-truth check.
 
 ## 7. Setup & caveats
 
