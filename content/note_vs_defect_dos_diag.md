@@ -93,6 +93,10 @@ So the **defect self-energy is obtained from the same $g$**: diagonalization giv
 | Si vacancy (3D) | $t_2$-derived in-gap (supercell) | cluster near CBM (+0.6…+0.7) | ✅ in-gap manifold present |
 
 ![O_S defect DOS (bra-fixed)](../assets/dos_os_brafixed.png)
+*O$_S$ defect DOS: only a weak spurious +0.73 in-gap feature (cf. the strong V$_S$ $e$-peak), while DFT has none.*
+
+![Si vacancy defect DOS (bra-fixed)](../assets/dos_si_brafixed.png)
+*Si vacancy (3D control): a $t_2$-derived in-gap manifold near the CBM — a genuine defect level present in the DFT supercell too.*
 
 **The bra-fix makes V$_S$ correct, but O$_S$ still shows a spurious +0.73 in-gap doublet** while the dilute-limit DFT (9×9, even unrelaxed) has **none**. This is not a code bug — it is the intrinsic limitation of the frozen, first-order, non-self-consistent $\Delta V$ in a truncated basis: for an *isovalent* substitution it over-binds a state the self-consistent supercell does not. The Si-vacancy 3D control behaves like V$_S$ (a genuine in-gap $t_2$ manifold, present in both diag and DFT supercell).
 
