@@ -112,7 +112,12 @@ Crucially, the spurious O$_S$ doublet is **not** a basis-truncation artifact —
 | 1–57 | +0.733 ×2 |
 | 1–66 | +0.729 ×2 |
 
-It descends monotonically and **stabilizes at +0.73** (degenerate, $e$-like); it does not drift out of the gap as the basis grows. So both defects converge — V$_S$ to a level that DFT confirms (+1.2), O$_S$ to one DFT says does not exist (DFT: 0 in-gap). **Convergence in band space is therefore not sufficient to validate a level** — the frozen non-self-consistent method can produce a converged-but-spurious state. The DFT supercell ([9×9 bands](supercell-bands.html)) is the necessary ground-truth check.
+It descends monotonically and **stabilizes at +0.73** (degenerate, $e$-like); it does not drift out of the gap as the basis grows. So both defects converge — V$_S$ to a level that DFT confirms (+1.2), O$_S$ to one DFT says does not exist (DFT: 0 in-gap).
+
+![Convergence of in-gap levels: V_S vs O_S](../assets/conv_vs_os_brafixed.png)
+*In-gap levels vs band-manifold size (bands 1..N, bra-fixed $M$). **Both** the real V$_S$ $e$-doublet (blue, → +1.20, into the DFT shaded band) and the spurious O$_S$ doublet (red, → +0.73) converge monotonically from above. V$_S$ also carries an $a_1$ (lower blue points). DFT says O$_S$ has no in-gap state at all.*
+
+**Convergence in band space is therefore not sufficient to validate a level** — the frozen non-self-consistent method produces a converged-but-spurious state for O$_S$. The DFT supercell ([9×9 bands](supercell-bands.html)) is the necessary ground-truth check.
 
 ## 7. Setup & caveats
 
