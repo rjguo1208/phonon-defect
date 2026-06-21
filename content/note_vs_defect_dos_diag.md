@@ -73,16 +73,17 @@ A larger manifold gives more complete screening, **lowering** the level toward t
 
 The same bra-fixed coupling $g$ gives the defect self-energy in the dilute (single-site) limit, $\Sigma(\omega)=n_d\,T(\omega)$, $T(\omega)=g\,[1-G_0(\omega)g]^{-1}$, $n_d=1/N_{\mathbf k}$ — the complex, frequency-dependent complement of the (real-spectrum) diagonalization.
 
-![V_S T-matrix self-energy](../assets/selfenergy_vs_766.png)
-*Tr $\Sigma(\omega)$ (left): a dispersive Re $\Sigma$ and an Im $\Sigma$ dip at the bound state. Friedel ΔDOS (right): the in-gap pole = the $e$-doublet.*
+![V_S T-matrix self-energy](../assets/selfenergy_vs_166.png)
+*Tr $\Sigma(\omega)$ (left): dispersive Re $\Sigma$ and Im $\Sigma$ dips at **both** bound states. Friedel ΔDOS (right): two in-gap poles — the $a_1$ (+0.24) and the $e$-doublet (+1.2, ~2× higher = 2 states).*
 
-The bound-state pole of $T$ coincides with the diagonalization eigenvalue, closing the two views:
+The bound-state poles of $T$ ($\det[1-G_0g]=0$) coincide with the diagonalization eigenvalues, closing the two views — **both** the $a_1$ and the $e$-doublet:
 
-| | diagonalization (DOS) | T-matrix (Friedel ΔDOS pole) | EDT |
+| in-gap pole | diagonalization (DOS) | T-matrix (Friedel ΔDOS) | EDT |
 |---|---|---|---|
-| $e$-doublet ($E-E_{\rm VBM}$) | +1.196 | +1.206 | +1.205 |
+| $a_1$ (singlet) | +0.238 | +0.243 | +0.005$^\dagger$ |
+| $e$ (doublet) | +1.196 | +1.206 | +1.205 |
 
-So the **defect self-energy is obtained from the same $g$**: diagonalization gives the poles/DOS, the T-matrix gives the full complex $\Sigma(\omega)$ (level shift from Re $\Sigma$, scattering rate from Im $\Sigma$). The $a_1$ is a shallow, window-sensitive resonance near the VBM (sharp in the 1–66 window, at the VBM edge in 7–66); the $e$-doublet pole is robust.
+$^\dagger$the $a_1$ position is alignment-sensitive (`pot_align='none'` here vs `'vacuum'` in EDT — a rigid shift); the $e$-doublet is alignment-robust. So the **defect self-energy is obtained from the same $g$**: diagonalization gives the poles/DOS, the T-matrix gives the full complex $\Sigma(\omega)$ (level shift from Re $\Sigma$, scattering rate from Im $\Sigma$), and the two agree on both poles. (In a smaller band window, e.g. 7–66, the shallow $a_1$ is pushed to the VBM edge; the full 1–66 window resolves it cleanly at +0.24.)
 
 ## 6. Controls: O$_S$ (isovalent) and the Si vacancy
 
