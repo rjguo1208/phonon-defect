@@ -99,25 +99,21 @@ $^\dagger$the $a_1$ position is alignment-sensitive (`pot_align='none'` here vs 
 ![Si vacancy defect DOS (bra-fixed)](../assets/dos_si_brafixed.png)
 *Si vacancy (3D control): a $t_2$-derived in-gap manifold near the CBM — a genuine defect level present in the DFT supercell too.*
 
-**The bra-fix makes V$_S$ correct, but O$_S$ still shows a spurious +0.73 in-gap doublet** while the dilute-limit DFT (9×9, even unrelaxed) has **none**. This is not a code bug — it is the intrinsic limitation of the frozen, first-order, **non-self-consistent** $\Delta V$: applied as a static perturbation to the pristine bands it over-binds a state for the *isovalent* substitution, whereas the self-consistent supercell (where the other states relax) forms no such level. The Si-vacancy 3D control behaves like V$_S$ (a genuine in-gap $t_2$ manifold, present in both diag and DFT supercell).
+**The bra-fix makes V$_S$ correct, but O$_S$ still shows a spurious +0.73 in-gap doublet** while the dilute-limit DFT (9×9, even unrelaxed) has **none**. This is not a code bug and not non-self-consistency ($\Delta V$ *is* the converged self-consistent difference potential); as analyzed below, it is a **basis-truncation (Ritz) ghost** — the strong, localized O perturbation projected onto an incomplete band manifold produces a spurious in-gap eigenvalue that a complete basis would remove. The Si-vacancy 3D control behaves like V$_S$ (a genuine in-gap $t_2$ manifold, present in both diag and DFT supercell).
 
-### Convergence ≠ correctness
+### Where does the spurious O$_S$ level come from? (band convergence to 90)
 
-Crucially, the spurious O$_S$ doublet is **not** a basis-truncation artifact — it *converges* in band-manifold size, just like the real V$_S$ level:
+![Convergence of in-gap levels to 90 bands: V_S vs O_S](../assets/conv90_viz.png)
+*1–90 band convergence. (a) all in-gap levels; (b) the top ($e$-doublet) level. Both descend monotonically from above and are **still descending at 90 bands** — V$_S$ toward the DFT range (residual shrinking, a real state), O$_S$ slowly plateauing near +0.73 (DFT: none).*
 
-| manifold | O$_S$ in-gap doublet ($E-E_{\rm VBM}$) |
-|---|---|
-| 1–17 | +0.865 ×2 |
-| 1–37 | +0.753 ×2 |
-| 1–57 | +0.733 ×2 |
-| 1–66 | +0.729 ×2 |
+The method is an exact identity, $H_{\rm SC}=H_0+\Delta V$ with $\Delta V=V_d-V_p$, diagonalized as a **Ritz projection** $P\,H_{\rm SC}\,P$ onto the lowest-$N$ pristine bands. In a *complete* basis it must reproduce the self-consistent DFT supercell — i.e. **zero** in-gap states for O$_S$. Two things could spoil that:
 
-It descends monotonically and **stabilizes at +0.73** (degenerate, $e$-like); it does not drift out of the gap as the basis grows. So both defects converge — V$_S$ to a level that DFT confirms (+1.2), O$_S$ to one DFT says does not exist (DFT: 0 in-gap).
+1. **Reference mismatch** — the $\varepsilon_{n\mathbf k}$ are primitive bands but $\Delta V$ is referenced to the *supercell* pristine $V_p$. Directly comparing the primitive potential tiled to 6×6 against the supercell pristine gives **RMS = 1.8 meV** (max 0.11 eV at isolated core points) — ~300× smaller than the O$_S$ perturbation ($\Delta V$ RMS 0.58 eV) and than +0.73. **Reference mismatch is ruled out.**
+2. **Basis truncation** — with the reference negligible, the exact identity then forces the conclusion: the O$_S$ +0.73 is a **slow-converging basis-truncation (Ritz) "ghost"** — the strong, localized O perturbation projected onto an incomplete Bloch basis (90 of ~500 bands) produces a spurious in-gap eigenvalue that would migrate out of the gap as the basis is completed.
 
-![Convergence of in-gap levels: V_S vs O_S](../assets/conv_vs_os_brafixed.png)
-*In-gap levels vs band-manifold size (bands 1..N, bra-fixed $M$). **Both** the real V$_S$ $e$-doublet (blue, → +1.20, into the DFT shaded band) and the spurious O$_S$ doublet (red, → +0.73) converge monotonically from above. V$_S$ also carries an $a_1$ (lower blue points). DFT says O$_S$ has no in-gap state at all.*
+Why it *looks* converged at 90 bands but isn't: a **real** bound state (V$_S$ $e$) is captured once enough bands span it (residual shrinks, → DFT); a **ghost** (O$_S$) must instead push out into the *continuum*, which needs many high bands to represent — so it descends very slowly and plateaus prematurely. Both are still descending at $N=90$ (V$_S$ step 0.0045 eV, O$_S$ 0.0018 eV); 90 ≪ complete.
 
-**Convergence in band space is therefore not sufficient to validate a level** — the frozen non-self-consistent method produces a converged-but-spurious state for O$_S$. The DFT supercell ([9×9 bands](supercell-bands.html)) is the necessary ground-truth check.
+**Takeaway: apparent convergence in band space does not validate an in-gap level.** A real level (V$_S$) and a slow truncation ghost (O$_S$) look alike over 11–90 bands; only the DFT supercell ([9×9 bands](supercell-bands.html), O$_S$ = 0 in-gap) distinguishes them.
 
 ## 7. Setup & caveats
 
