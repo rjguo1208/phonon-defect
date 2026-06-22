@@ -112,6 +112,9 @@ The real distinction is whether that hybrid corresponds to a state that physical
 
 So the static one-step treatment captures a real level when one exists (V$_S$, Si vacancy) but over-binds the band-edge coupling when none does (O$_S$). The checks below rule out every other candidate, leaving this defect-type mechanism.
 
+![Perturbation potential: V_S vs O_S](../assets/dV_compare.png)
+*The (local) perturbation potential $\Delta V=V_{\rm defect}-V_{\rm pristine}$ — in-plane slice at the defect (top) and a line cut through it (bottom). Both defects are localized to ~1–2 Å. The vacancy V$_S$ is a single large peak (+160 eV — the removed S ion); the substitution O$_S$ is **smaller** (+34 eV) with a node/double-hump (the O–S ionic difference). **The vacancy's $\Delta V$ is the larger and simpler, yet it yields the correct real level, while the weaker O$_S$ yields a spurious ghost — so the outcome is not set by the strength or shape of $\Delta V$, but by whether the defect binds a real state.** (Local part shown; O$_S$ also carries a nonlocal O-vs-S projector difference.)*
+
 - **Faithful elsewhere.** The 6×6 diag reproduces the DFT O$_S$ supercell band edges (VBM to ~10 meV, CBM to ~30 meV) and the valence bands to a few meV — it is faithful *everywhere except* the one spurious in-gap state.
 - **Reference ruled out.** Primitive potential tiled to 6×6 vs the supercell pristine: RMS **1.8 meV** (~300× smaller than the O$_S$ $\Delta V$, RMS 0.58 eV).
 - **Null/baseline test.** Pristine-vs-tiled-primitive ($\Delta V\approx0$) reproduces the host to **1.4 meV with zero in-gap states** — the method does not manufacture levels from nothing.
