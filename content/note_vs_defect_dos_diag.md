@@ -99,30 +99,32 @@ $^\dagger$the $a_1$ position is alignment-sensitive (`pot_align='none'` here vs 
 ![Si vacancy defect DOS (bra-fixed)](../assets/dos_si_brafixed.png)
 *Si vacancy (3D control): a $t_2$-derived in-gap manifold near the CBM — a genuine defect level present in the DFT supercell too.*
 
-**The bra-fix makes V$_S$ correct, but O$_S$ still shows a spurious +0.73 in-gap doublet** while the dilute-limit DFT (9×9, even unrelaxed) has **none**. This is not a code bug and not non-self-consistency ($\Delta V$ *is* the converged self-consistent difference potential); as analyzed below, it is a **basis-truncation (Ritz) ghost** — the strong, localized O perturbation projected onto an incomplete band manifold produces a spurious in-gap eigenvalue that a complete basis would remove. The Si-vacancy 3D control behaves like V$_S$ (a genuine in-gap $t_2$ manifold, present in both diag and DFT supercell).
+**The bra-fix makes V$_S$ correct, but O$_S$ still shows a spurious +0.73 in-gap doublet** while the dilute-limit DFT (9×9, even unrelaxed) has **none**. This is not a code bug, not the potential reference, and — as the band-character test below shows — **not the band-basis size either**. It is **defect-type-dependent**: whether the perturbation actually binds a state.
 
-### Where does the spurious O$_S$ level come from? (band convergence to 90)
+### Why O$_S$ fails: a real bound state vs a spurious band-edge hybrid
+
+The diagonalization builds an in-gap level by letting $\Delta V$ **mix the pristine valence-band maximum (VBM) and conduction-band minimum (CBM)** into a state inside the gap. Decomposing the in-gap eigenvectors by band shows that **both** the V$_S$ $e$ and the O$_S$ "+0.73" peak at the band-edge states (band 13–14) with essentially **zero weight above band 30** — they are the *same kind* of low-band VBM–CBM hybrid. So the difference is **not** that O$_S$ "needs more bands" (an earlier, incorrect reading of mine): the 66-band basis represents both equally well.
+
+The real distinction is whether that hybrid corresponds to a state that physically exists:
+
+- **V$_S$ (vacancy)** removes an atom and leaves real dangling bonds; the VBM–CBM mixing produces a **genuine** bound state ($a_1$+$e$), confirmed by the DFT supercell. The diag reproduces it.
+- **O$_S$ (isovalent substitution)** introduces no deep level: the *self-consistent* supercell redistributes charge and keeps the gap **clean**. But the diag applies the frozen $\Delta V$ as a **one-shot, static** perturbation to the *unperturbed* band edges and **over-mixes** VBM↔CBM, manufacturing an in-gap state the self-consistent DFT does not have.
+
+So the static one-step treatment captures a real level when one exists (V$_S$, Si vacancy) but over-binds the band-edge coupling when none does (O$_S$). The checks below rule out every other candidate, leaving this defect-type mechanism.
+
+- **Faithful elsewhere.** The 6×6 diag reproduces the DFT O$_S$ supercell band edges (VBM to ~10 meV, CBM to ~30 meV) and the valence bands to a few meV — it is faithful *everywhere except* the one spurious in-gap state.
+- **Reference ruled out.** Primitive potential tiled to 6×6 vs the supercell pristine: RMS **1.8 meV** (~300× smaller than the O$_S$ $\Delta V$, RMS 0.58 eV).
+- **Null/baseline test.** Pristine-vs-tiled-primitive ($\Delta V\approx0$) reproduces the host to **1.4 meV with zero in-gap states** — the method does not manufacture levels from nothing.
+- **Sign test.** $-\Delta V$ does not remove the level, it relocates it (+0.73 → +1.0–1.15): a strong band-edge perturbation of *either* sign over-mixes.
+- **$k$-grid test.** 12×12 → 6×6 leaves V$_S$ $e$ (+1.196→+1.191) and the O$_S$ doublet (+0.729→+0.729) fixed (figure below) — the level is set by the per-cell potential, not the supercell size.
 
 ![Convergence of in-gap levels to 90 bands: V_S vs O_S](../assets/conv90_viz.png)
-*1–90 band convergence. (a) all in-gap levels; (b) the top ($e$-doublet) level. Both descend monotonically from above and are **still descending at 90 bands** — V$_S$ toward the DFT range (residual shrinking, a real state), O$_S$ slowly plateauing near +0.73 (DFT: none).*
-
-The method is an exact identity, $H_{\rm SC}=H_0+\Delta V$ with $\Delta V=V_d-V_p$, diagonalized as a **Ritz projection** $P\,H_{\rm SC}\,P$ onto the lowest-$N$ pristine bands. In a *complete* basis it must reproduce the self-consistent DFT supercell — i.e. **zero** in-gap states for O$_S$. Two things could spoil that:
-
-1. **Reference mismatch** — the $\varepsilon_{n\mathbf k}$ are primitive bands but $\Delta V$ is referenced to the *supercell* pristine $V_p$. Directly comparing the primitive potential tiled to 6×6 against the supercell pristine gives **RMS = 1.8 meV** (max 0.11 eV at isolated core points) — ~300× smaller than the O$_S$ perturbation ($\Delta V$ RMS 0.58 eV) and than +0.73. **Reference mismatch is ruled out.**
-2. **Basis truncation** — with the reference negligible, the exact identity then forces the conclusion: the O$_S$ +0.73 is a **slow-converging basis-truncation (Ritz) "ghost"** — the strong, localized O perturbation projected onto an incomplete Bloch basis (90 of ~500 bands) produces a spurious in-gap eigenvalue that would migrate out of the gap as the basis is completed.
-
-Two independent checks confirm this:
-
-- **Null/baseline test.** Run the *pristine* supercell against the tiled primitive ($\Delta V = V_p^{\rm SC}-V_p^{\rm prim}\approx 0$). The diagonalization reproduces the host bands to **1.4 meV with zero in-gap states** ($|g|\!\sim\!0.7$ meV). So the method does **not** manufacture in-gap levels from a null perturbation — the supercell-pristine Hamiltonian *does* reproduce the primitive one — and the O$_S$ +0.73 genuinely comes from the real, large O perturbation, not a baseline inconsistency.
-- **Sign test.** Flipping the perturbation ($-\Delta V$) does **not** remove the O$_S$ in-gap level — it relocates it (+0.73 doublet → a +1.0–1.15 set). A strong localized perturbation of *either* sign produces in-gap ghosts; the level is not the sign-specific bound state of a real attractive defect.
-- **k-grid test.** The defect *level* is set by the per-cell local potential, so it should be ~independent of the coarse $k$-grid (= effective supercell size) — and it is. Going 12×12 → 6×6 ($N_{\mathbf k}$ 144 → 36) leaves both the V$_S$ $e$ (+1.196 → +1.191) and the O$_S$ ghost (+0.729 → +0.729) essentially fixed; the *coarser* grid merely adds **more** ghosts near the CBM (O$_S$: an extra +1.65 doublet). So a denser $k$-grid cannot cure the ghost (a coarser one makes it worse) — only the band count $N_b$ can.
+*1–90 band convergence: both the V$_S$ $e$ and the O$_S$ doublet descend and stabilize. The O$_S$ doublet plateaus near +0.73 — it does not migrate out of the gap with more bands, consistent with a low-band band-edge hybrid (not a high-band effect).*
 
 ![Defect DOS vs k-grid: 6×6 vs 12×12](../assets/dos6_vs12.png)
-*Defect DOS at 12×12 (solid) vs 6×6 (dashed). The in-gap peaks (V$_S$ $a_1$+$e$; O$_S$ +0.73) sit at the **same** energies for both grids — the level is $k$-grid-independent. The coarser 6×6 adds extra near-CBM ghosts (O$_S$ +1.65), confirming the ghost is a band-basis (not $k$-grid) artifact.*
+*Defect DOS at 12×12 (solid) vs 6×6 (dashed): the in-gap peaks sit at the **same** energies for both grids — $k$-grid-independent.*
 
-Why it *looks* converged at 90 bands but isn't: a **real** bound state (V$_S$ $e$) is captured once enough bands span it (residual shrinks, → DFT); a **ghost** (O$_S$) must instead push out into the *continuum*, which needs many high bands to represent — so it descends very slowly and plateaus prematurely. Both are still descending at $N=90$ (V$_S$ step 0.0045 eV, O$_S$ 0.0018 eV); 90 ≪ complete.
-
-**Takeaway: apparent convergence in band space does not validate an in-gap level.** A real level (V$_S$) and a slow truncation ghost (O$_S$) look alike over 11–90 bands; only the DFT supercell ([9×9 bands](supercell-bands.html), O$_S$ = 0 in-gap) distinguishes them.
+**Takeaway: the diagonalization cannot, on its own, tell a real defect level from a spurious band-edge hybrid.** Band convergence, $k$-grid, sign, and a clean baseline all look fine for V$_S$ (real) and O$_S$ (spurious) alike; only the DFT supercell ([9×9 bands](supercell-bands.html), O$_S$ = 0 in-gap) distinguishes them. The method is reliable for defects that bind a real level (V$_S$, Si vacancy) and over-binds isovalent perturbations that do not (O$_S$).
 
 ## 7. Setup & caveats
 
