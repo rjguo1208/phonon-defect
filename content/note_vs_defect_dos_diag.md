@@ -115,6 +115,10 @@ Two independent checks confirm this:
 
 - **Null/baseline test.** Run the *pristine* supercell against the tiled primitive ($\Delta V = V_p^{\rm SC}-V_p^{\rm prim}\approx 0$). The diagonalization reproduces the host bands to **1.4 meV with zero in-gap states** ($|g|\!\sim\!0.7$ meV). So the method does **not** manufacture in-gap levels from a null perturbation — the supercell-pristine Hamiltonian *does* reproduce the primitive one — and the O$_S$ +0.73 genuinely comes from the real, large O perturbation, not a baseline inconsistency.
 - **Sign test.** Flipping the perturbation ($-\Delta V$) does **not** remove the O$_S$ in-gap level — it relocates it (+0.73 doublet → a +1.0–1.15 set). A strong localized perturbation of *either* sign produces in-gap ghosts; the level is not the sign-specific bound state of a real attractive defect.
+- **k-grid test.** The defect *level* is set by the per-cell local potential, so it should be ~independent of the coarse $k$-grid (= effective supercell size) — and it is. Going 12×12 → 6×6 ($N_{\mathbf k}$ 144 → 36) leaves both the V$_S$ $e$ (+1.196 → +1.191) and the O$_S$ ghost (+0.729 → +0.729) essentially fixed; the *coarser* grid merely adds **more** ghosts near the CBM (O$_S$: an extra +1.65 doublet). So a denser $k$-grid cannot cure the ghost (a coarser one makes it worse) — only the band count $N_b$ can.
+
+![Defect DOS vs k-grid: 6×6 vs 12×12](../assets/dos6_vs12.png)
+*Defect DOS at 12×12 (solid) vs 6×6 (dashed). The in-gap peaks (V$_S$ $a_1$+$e$; O$_S$ +0.73) sit at the **same** energies for both grids — the level is $k$-grid-independent. The coarser 6×6 adds extra near-CBM ghosts (O$_S$ +1.65), confirming the ghost is a band-basis (not $k$-grid) artifact.*
 
 Why it *looks* converged at 90 bands but isn't: a **real** bound state (V$_S$ $e$) is captured once enough bands span it (residual shrinks, → DFT); a **ghost** (O$_S$) must instead push out into the *continuum*, which needs many high bands to represent — so it descends very slowly and plateaus prematurely. Both are still descending at $N=90$ (V$_S$ step 0.0045 eV, O$_S$ 0.0018 eV); 90 ≪ complete.
 
