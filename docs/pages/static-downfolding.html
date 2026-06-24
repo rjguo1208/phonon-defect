@@ -1,0 +1,84 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phonon-Defect — Static vs dynamic rest-space in the downfolded T-matrix</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body>
+<nav class="topnav"><div class="inner"><span class="brand">Phonon&nbsp;Defect</span><a href="../index.html">Home</a><a href="../pages/fm-phonon-defect.html">FM self-energy &amp; defect phonons</a><a href="../pages/mos2-vs-phonon-plan.html">V<sub>S</sub>@MoS&#8322; phonons: plan</a><a href="../pages/mos2-vs-phonon-results.html">V<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-os-phonon-results.html">O<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-pristine-baseline.html">Pristine baseline</a><a href="../pages/supercell-bands.html">Electronic bands</a><a href="../pages/vs-defect-dos-diag.html">V<sub>S</sub> defect DOS (diag)</a><a href="../pages/tmatrix.html">T-matrix &amp; spectral function</a><a href="../pages/static-downfolding.html" style="color:#fff;text-decoration:underline">Static vs dynamic downfolding</a></div></nav>
+<header><div class="header-inner"><h1>Static vs dynamic rest-space in the downfolded $T$-matrix</h1><p class="subtitle">Derivation: the rest dressing $T^R=[1-gG^R(\omega_0)]^{-1}g$, its static limit at a single reference $\omega_0$, the exact frequency-dependent form $T^R(\omega)$, and the proof that the two-layer split $T=[1-T^R G^A]^{-1}T^R$ is exact iff $T^R$ runs with $\omega$. Static error $\delta T^R\!\approx\!(\omega-\omega_0)\,T^R(\partial_\omega G^R)T^R$ &rArr; valid only when $W_A/\Delta\ll1$, so it degrades as the active space grows.</p><div class="meta"><span class="pill">Theory / downfolding</span><span class="pill">7 sections</span><span class="pill">MathJax v3</span><span class="pill">Generated 2026-06-10</span></div></div></header>
+<main>
+<section id="contents"><h2>Contents</h2><div class="toc"><a href="#sec-1">1. Two-layer $T$-matrix and the static approximation</a><a href="#sec-2">2. Bridge to the Feshbach self-energy</a><a href="#sec-3">3. The two-layer split is exact — iff $T^R$ runs with $\omega$</a><a href="#sec-4">4. The exact (dynamic) rest dressing</a><a href="#sec-5">5. Error of the static approximation and validity condition</a><a href="#sec-6">6. Where the static error shows up (and where it doesn't)</a><a href="#sec-7">7. Proposed comparison</a></div></section>
+<h3>Derivation: the rest dressing $T^R$, its static limit at $\omega_0$, the exact frequency-dependent form, and the validity condition $W_A/\Delta\ll1$</h3>
+<p>The electron–defect $T$-matrix is built in two layers (active/rest, cRPA-style): the <strong>rest</strong> bands renormalize the bare defect potential into an effective potential $T^R$, then the <strong>active</strong> multiple scattering is resummed exactly. The production pipeline freezes the rest dressing at a single reference energy $\omega_0$ — a <strong>static approximation</strong>. This note derives where that approximation enters, writes the exact (frequency-dependent) alternative, and quantifies the error: it is controlled by $W_A/\Delta$ (active bandwidth over the active–rest gap), so it degrades as the active space grows.</p>
+<section id="sec-1"><h2>1. Two-layer $T$-matrix and the static approximation</h2>
+<p>With $g$ the bare defect potential ($V$ / the EDI matrix element $M$), $G^R$ the <strong>rest</strong>-space host propagator (bands 18–70), and $G^A$ the <strong>active</strong>-space host propagator (the 11 Wannier bands 7–17):</p>
+<div class="math">
+$$T^R=[\,1-g\,G^R(\omega_0)\,]^{-1}g,\qquad T^A(\omega)=[\,1-T^R\,G^A(\omega)\,]^{-1}T^R.$$
+</div>
+<p>Layer 1 ($T^R$) folds the rest bands into a dressed potential; Layer 2 ($T^A$) resums the active dynamics. The <strong>static approximation</strong> is the freezing of the rest dressing at $\omega_0$ (here $\omega_0=-5.955$ eV, near the VBM): $T^R\equiv T^R(\omega_0)$, computed <strong>once</strong>, while $G^A(\omega)$ is kept fully dynamic.</p>
+</section>
+<section id="sec-2"><h2>2. Bridge to the Feshbach self-energy</h2>
+<p>Projecting $T^R$ onto the active block $P$ (block algebra with $G^R=Q(\omega-E_Q)^{-1}Q$):</p>
+<div class="math">
+$$P\,T^R P=g_{PP}+g_{PQ}\,G^R\,[1-g_{QQ}G^R]^{-1}g_{QP}
+=g_{PP}+g_{PQ}(\omega_0-E_Q-g_{QQ})^{-1}g_{QP}=W_{PP}+\Sigma_P(\omega_0)\equiv\tilde V.$$
+</div>
+<p>So the rest $T$-matrix (resummed to <strong>all orders</strong> in the rest self-block $g_{QQ}$) is <em>identically</em> the Feshbach downfolded effective potential $\tilde V=W_{PP}+\Sigma_P$, with</p>
+<div class="math">
+$$\Sigma_P(\omega)=W_{PQ}\,(\omega-H_{QQ})^{-1}W_{QP}=B^\dagger\,\mathrm{diag}\!\Big(\tfrac{1}{\omega-\lambda_r}\Big)B,\qquad H_{QQ}=U\,\mathrm{diag}(\lambda_r)\,U^\dagger,\ \ B=U^\dagger W_{QP}.$$
+</div>
+<p>The two languages — rest $T$-matrix and Feshbach self-energy — are the same object. (Here $W=M\,\mathrm{Ry}/N_{\mathbf k}$, the physically normalized matrix element.)</p>
+</section>
+<section id="sec-3"><h2>3. The two-layer split is exact — iff $T^R$ runs with $\omega$</h2>
+<p>Because the host $H_0$ is diagonal in the band basis, $G_0=G^A\oplus G^R$ (no active–rest cross terms). The full $T$-matrix $T(\omega)=[1-g\,G_0(\omega)]^{-1}g$ factorizes exactly. Using</p>
+<div class="math">
+$$1-g(G^A+G^R)=(1-gG^R)\,\big[\,1-(1-gG^R)^{-1}g\,G^A\,\big],\qquad (1-gG^R)^{-1}g=T^R,$$
+</div>
+<p>one obtains</p>
+<div class="math">
+$$\boxed{\;T(\omega)=[\,1-T^R(\omega)\,G^A(\omega)\,]^{-1}T^R(\omega),\qquad T^R(\omega)=[\,1-g\,G^R(\omega)\,]^{-1}g\;}$$
+</div>
+<p>This is an <strong>exact identity</strong> (resum rest, then active = resum $G_0$ at once) — <em>provided $T^R$ is evaluated at the same running $\omega$ as $G^A$</em>. Therefore the static replacement $T^R(\omega)\!\to\!T^R(\omega_0)$ is the <strong>only</strong> frequency approximation in Layer 1; Layer 2 is exact. Remove it (and take enough rest bands) and the two-layer scheme returns the exact full $T$-matrix.</p>
+</section>
+<section id="sec-4"><h2>4. The exact (dynamic) rest dressing</h2>
+<p>Removing the static approximation means re-evaluating the rest dressing at every probe frequency:</p>
+<div class="math">
+$$\boxed{\;T^A(\omega)=[\,1-T^R(\omega)\,G^A(\omega)\,]^{-1}T^R(\omega),\qquad
+T^R(\omega)=W_{PP}+\Sigma_P(\omega),\ \ \Sigma_P(\omega)=B^\dagger\,\mathrm{diag}\!\Big(\tfrac{1}{\omega-\lambda_r}\Big)B\;}$$
+</div>
+<p>Because the eigendecomposition $(B,\lambda_r)$ of $H_{QQ}$ is computed once, $\Sigma_P(\omega)$ at any $\omega$ costs a single matrix product — so going dynamic is cheap; the only added work per $\omega$ is recomputing $T^R(\omega)$ and its rotation into the defect block before the Koster–Slater inversion.</p>
+</section>
+<section id="sec-5"><h2>5. Error of the static approximation and validity condition</h2>
+<p>Differentiating $T^R=[1-gG^R]^{-1}g$ (with $\partial_\omega A^{-1}=-A^{-1}(\partial_\omega A)A^{-1}$, $\partial_\omega A=-g\,\partial_\omega G^R$):</p>
+<div class="math">
+$$\partial_\omega T^R=T^R\,(\partial_\omega G^R)\,T^R,\qquad
+\partial_\omega G^R(\omega)=-\sum_r\frac{|r\rangle\langle r|}{(\omega-\lambda_r)^2}\preceq0.$$
+</div>
+<p>Hence the static error to leading order,</p>
+<div class="math">
+$$\delta T^R=T^R(\omega)-T^R(\omega_0)\approx(\omega-\omega_0)\,T^R(\partial_\omega G^R)T^R,\qquad \|\partial_\omega G^R\|\sim\frac{1}{\Delta^2},$$
+</div>
+<p>so the relative error scales as $(\omega-\omega_0)\,\|T^RG^R\|/\Delta\sim W_A/\Delta$:</p>
+<div class="math">
+$$\boxed{\ \text{static approximation valid}\iff W_A/\Delta\ll1\ }$$
+</div>
+<p>with $W_A$ the active frequency window of interest and $\Delta$ the gap from the active window to the rest bands (18+). Enlarging the active space — or pushing the $P/Q$ boundary up — increases $W_A$ and shrinks $\Delta$, so the static dressing degrades. This is the precise statement of the intuition that a large active space breaks the static approximation.</p>
+<p><strong>Equivalently, in self-energy / $Z$-factor form.</strong> With $\beta_n=-\langle\psi_n|\Sigma_P'(\omega)|\psi_n\rangle=\sum_r|(B\psi_n)_r|^2/(\omega-\lambda_r)^2\ge0$ and $Z_n=(1+\beta_n)^{-1}\le1$, the static level error is</p>
+<div class="math">
+$$\omega_n^{\rm stat}-\omega_n\approx(1-Z_n)\,[\lambda_n(\omega_0)-\omega_0]\approx\beta_n\,(\omega_n-\omega_0),$$
+</div>
+<p>i.e. it vanishes for a level sitting at $\omega_0$ and grows linearly with its distance from $\omega_0$ (worst case $\sim W_A$), weighted by the self-energy slope $\beta_n\sim\|W_{PQ}\|^2/\Delta^2$.</p>
+</section>
+<section id="sec-6"><h2>6. Where the static error shows up (and where it doesn't)</h2>
+<p>The static approximation acts only on $T^R$ (Layer 1); the bound-state poles are set mainly by the dynamic $G^A(\omega)$ (Layer 2, exact). So:</p>
+<ul><li><strong>Pole positions are weakly affected.</strong> For MoS$_2$ V$_S$ the $e$ level sits $\sim1.21$ eV from $\omega_0$, yet static ($+1.209$) vs self-consistent/dynamic ($+1.192$) differ by only $\sim17$ meV — $Z\approx0.99$ for this 11-band partition.</li><li><strong>Spectral weight and satellites are more affected.</strong> A static $T^R$ gives the active quasiparticle peaks weight $1$ (over-weighted: misses the $Z<1$ renormalization), and omits the rest/satellite structure, so $\int A(\mathbf k,\omega)\,d\omega$ is not exactly satisfied. The spectral function exposes the static approximation more than any single pole.</li><li><strong>Large active space.</strong> Both pole and weight errors grow as $W_A/\Delta$.</li></ul>
+<div class="table-wrap"><table><thead><tr><th>Treatment</th><th>Layer-1 dressing</th><th>Cost</th><th>Error</th></tr></thead><tbody><tr><td><strong>Static (production)</strong></td><td>$T^R(\omega_0)$, computed once</td><td>1 dressing</td><td>$O(W_A/\Delta)$</td></tr><tr><td>Linearized + $Z$</td><td>$T^R(\omega_0)+(\omega-\omega_0)\partial_\omega T^R$</td><td>+ one $\partial_\omega T^R$</td><td>$O((W_A/\Delta)^2)$</td></tr><tr><td><strong>Dynamic (exact)</strong></td><td>$T^R(\omega)$ at each $\omega$</td><td>one GEMM per $\omega$</td><td>exact (within rest-band truncation)</td></tr></tbody></table></div>
+</section>
+<section id="sec-7"><h2>7. Proposed comparison</h2>
+<p>On the $\Gamma$–M–K path, contrast static $T^R(\omega_0)$ vs dynamic $T^R(\omega)$ for: (1) defect-pole position vs $|\omega_n-\omega_0|$; (2) the spectral function $A(\mathbf k,\omega)$ (peak shift, $Z$ weight, satellites, $\int A$ sum rule); (3) a sweep of the active-space size (11 → 15 → 21 bands) to trace the static error against $W_A/\Delta$. Expectation: with the current 11-band, large-$\Delta$ partition the static dressing is good to $\sim$15 meV on the pole but already shows weight deviations; enlarging the active space degrades both as $W_A/\Delta$. <em>(Derivation only — not yet run.)</em></p>
+</section>
+</main>
+<footer>Generated 2026-06-10. Static HTML; equations rendered client-side with MathJax v3.
+No raw wavefunctions, cubes, binaries, or logs are published.</footer>
+</body></html>

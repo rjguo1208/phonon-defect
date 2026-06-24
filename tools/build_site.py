@@ -240,6 +240,7 @@ NAV = [
     ("pages/supercell-bands.html", "Electronic bands", "bands"),
     ("pages/vs-defect-dos-diag.html", "V<sub>S</sub> defect DOS (diag)", "dosdiag"),
     ("pages/tmatrix.html", "T-matrix &amp; spectral function", "tmat"),
+    ("pages/static-downfolding.html", "Static vs dynamic downfolding", "statdf"),
 ]
 
 def _topnav(active, prefix=""):
@@ -366,6 +367,18 @@ PAGES = [
                   r"~3&ndash;4&times; harder than V$_S$; V$_S$ carries the stronger rest-space dressing."),
         pill="Beyond-Born / T-matrix",
     ),
+    dict(
+        key="statdf",
+        md=os.path.join(ROOT, "content", "note_static_downfolding.md"),
+        out=os.path.join(PAGES_DIR, "static-downfolding.html"),
+        html_title=SITE_TITLE + " — Static vs dynamic rest-space in the downfolded T-matrix",
+        subtitle=(r"Derivation: the rest dressing $T^R=[1-gG^R(\omega_0)]^{-1}g$, its static limit at a single "
+                  r"reference $\omega_0$, the exact frequency-dependent form $T^R(\omega)$, and the proof that the "
+                  r"two-layer split $T=[1-T^R G^A]^{-1}T^R$ is exact iff $T^R$ runs with $\omega$. Static error "
+                  r"$\delta T^R\!\approx\!(\omega-\omega_0)\,T^R(\partial_\omega G^R)T^R$ &rArr; valid only when "
+                  r"$W_A/\Delta\ll1$, so it degrades as the active space grows."),
+        pill="Theory / downfolding",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -425,6 +438,17 @@ CATALOG = [
      r"scatters the VBM ~3.7&times; harder than V$_S$ (Im $T$ at K $-0.24$ vs $-0.065$ Ry; defect broadening "
      r"~90 vs ~31 meV at $n_d=2.78\%$); rest-space dressing strong for V$_S$, mild for O$_S$.",
      '<a href="pages/tmatrix.html">Open T-matrix &rarr;</a>'),
+    (r"Static vs dynamic rest-space in the downfolded $T$-matrix", "Theory", "2026-06-24", "ok", "Complete",
+     r"Derivation note. The two-layer $T$-matrix $T=[1-T^R G^A(\omega)]^{-1}T^R$ with rest dressing "
+     r"$T^R=[1-gG^R(\omega_0)]^{-1}g$: shown identical to the Feshbach self-energy $\tilde V=W_{PP}+\Sigma_P$, "
+     r"and the split proven exact iff $T^R$ is taken at the running $\omega$ &mdash; so freezing $T^R(\omega_0)$ "
+     r"is the only frequency approximation in Layer 1. Static error "
+     r"$\delta T^R\approx(\omega-\omega_0)T^R(\partial_\omega G^R)T^R$, equivalently a $Z=(1+\beta)^{-1}<1$ "
+     r"renormalization, valid only for $W_A/\Delta\ll1$ (degrades as the active space grows). Pole positions are "
+     r"weakly affected (V$_S$: static $+1.209$ vs dynamic $+1.192$ eV, $Z\approx0.99$); spectral weight and "
+     r"satellites are not. Includes the exact dynamic $T^R(\omega)$ form (cheap: one GEMM/$\omega$) and a "
+     r"comparison plan. Derivation only &mdash; not yet run.",
+     '<a href="pages/static-downfolding.html">Open derivation &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "
