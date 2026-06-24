@@ -239,6 +239,7 @@ NAV = [
     ("pages/mos2-pristine-baseline.html", "Pristine baseline", "prist"),
     ("pages/supercell-bands.html", "Electronic bands", "bands"),
     ("pages/vs-defect-dos-diag.html", "V<sub>S</sub> defect DOS (diag)", "dosdiag"),
+    ("pages/tmatrix.html", "T-matrix &amp; spectral function", "tmat"),
 ]
 
 def _topnav(active, prefix=""):
@@ -353,6 +354,18 @@ PAGES = [
                   r"$+1.196$ eV (EDT: $+1.205$); $C_3$ restored (143/144). Earlier numbers retracted."),
         pill="Method / electronic structure",
     ),
+    dict(
+        key="tmat",
+        md=os.path.join(ROOT, "content", "note_tmatrix.md"),
+        out=os.path.join(PAGES_DIR, "tmatrix.html"),
+        html_title=SITE_TITLE + " — Electron-defect T-matrix, self-energy & spectral function (MoS2 V_S, O_S)",
+        subtitle=(r"Beyond-Born electron&ndash;defect scattering by explicit-summation downfolding + Wannier "
+                  r"interpolation (Anvil EDT path, ported to Kestrel, validated to the meV): the on-shell "
+                  r"diagonal $T(\mathbf k,\mathbf k;\omega)$, defect self-energy $n_d T$, and spectral function "
+                  r"$A(\mathbf k,\omega)$ along $\Gamma$&ndash;M&ndash;K&ndash;$\Gamma$. O$_S$ scatters the VBM "
+                  r"~3&ndash;4&times; harder than V$_S$; V$_S$ carries the stronger rest-space dressing."),
+        pill="Beyond-Born / T-matrix",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -404,6 +417,14 @@ CATALOG = [
      r"$a_1$ + a **degenerate $e$-doublet at $+1.196$ eV** (EDT $+1.205$; DFT 1.06&ndash;1.15) &mdash; the correct "
      r"defect structure. Earlier tables retracted.",
      '<a href="pages/vs-defect-dos-diag.html">Open defect DOS &rarr;</a>'),
+    (r"Electron&ndash;defect $T$-matrix, self-energy &amp; spectral function (MoS$_2$ V$_S$, O$_S$)", "Result", "2026-06-24", "prod", "Complete",
+     r"Beyond-Born: explicit-summation downfolding (11 active Wannier bands + exact static rest "
+     r"$\Sigma(\omega_0)$, 60$\to$11) + Wannier interpolation, ported from the independent Anvil EDT code and "
+     r"validated to the meV (V$_S$ $+1.21$, O$_S$ $+0.73$ eV). On-shell diagonal $T(\mathbf k,\mathbf k;\omega)$, "
+     r"self-energy $n_d T$, and $A(\mathbf k,\omega)$ along $\Gamma$&ndash;M&ndash;K&ndash;$\Gamma$: O$_S$ "
+     r"scatters the VBM ~3.7&times; harder than V$_S$ (Im $T$ at K $-0.24$ vs $-0.065$ Ry; defect broadening "
+     r"~90 vs ~31 meV at $n_d=2.78\%$); rest-space dressing strong for V$_S$, mild for O$_S$.",
+     '<a href="pages/tmatrix.html">Open T-matrix &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "

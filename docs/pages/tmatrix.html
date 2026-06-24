@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phonon-Defect — Electron-defect T-matrix, self-energy &amp; spectral function (MoS2 V_S, O_S)</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head><body>
+<nav class="topnav"><div class="inner"><span class="brand">Phonon&nbsp;Defect</span><a href="../index.html">Home</a><a href="../pages/fm-phonon-defect.html">FM self-energy &amp; defect phonons</a><a href="../pages/mos2-vs-phonon-plan.html">V<sub>S</sub>@MoS&#8322; phonons: plan</a><a href="../pages/mos2-vs-phonon-results.html">V<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-os-phonon-results.html">O<sub>S</sub>@MoS&#8322; phonons: results</a><a href="../pages/mos2-pristine-baseline.html">Pristine baseline</a><a href="../pages/supercell-bands.html">Electronic bands</a><a href="../pages/vs-defect-dos-diag.html">V<sub>S</sub> defect DOS (diag)</a><a href="../pages/tmatrix.html" style="color:#fff;text-decoration:underline">T-matrix &amp; spectral function</a></div></nav>
+<header><div class="header-inner"><h1>Electron–defect $T$-matrix: diagonal $T$, self-energy &amp; spectral function (MoS₂ V$_S$, O$_S$)</h1><p class="subtitle">Beyond-Born electron&ndash;defect scattering by explicit-summation downfolding + Wannier interpolation (Anvil EDT path, ported to Kestrel, validated to the meV): the on-shell diagonal $T(\mathbf k,\mathbf k;\omega)$, defect self-energy $n_d T$, and spectral function $A(\mathbf k,\omega)$ along $\Gamma$&ndash;M&ndash;K&ndash;$\Gamma$. O$_S$ scatters the VBM ~3&ndash;4&times; harder than V$_S$; V$_S$ carries the stronger rest-space dressing.</p><div class="meta"><span class="pill">Beyond-Born / T-matrix</span><span class="pill">5 sections</span><span class="pill">MathJax v3</span><span class="pill">Generated 2026-06-10</span></div></div></header>
+<main>
+<section id="contents"><h2>Contents</h2><div class="toc"><a href="#sec-1">1. Method — explicit-summation downfolding + Wannier interpolation</a><a href="#sec-2">2. Diagonal $T$-matrix along $\Gamma$–M–K–$\Gamma$</a><a href="#sec-3">3. Defect self-energy $n_d\Sigma_{\rm VBM}(\mathbf k)$</a><a href="#sec-4">4. Spectral function $A(\mathbf k,\omega)$</a><a href="#sec-5">5. Summary</a></div></section>
+<p>Beyond-Born electron–defect scattering for monolayer MoS₂, computed by <strong>explicit-summation downfolding</strong> + <strong>Wannier interpolation</strong> — the production path of the Anvil EDT project, ported to Kestrel and validated against it to the meV. From the same EDI matrix element $M_{n\mathbf k,m\mathbf k'}=\langle n\mathbf k|\Delta V|m\mathbf k'\rangle$ used for the <a href="vs-defect-dos-diag.html">defect-DOS diagonalization</a>, we resum <strong>all orders</strong> of multiple scattering and obtain the on-shell diagonal $T$-matrix, the defect self-energy, and the spectral function $A(k,\omega)$ along $\Gamma$–M–K–$\Gamma$.</p>
+<section id="sec-1"><h2>1. Method — explicit-summation downfolding + Wannier interpolation</h2>
+<p>The bare $M$ over $\sim$60 bands is split into an <strong>active</strong> block $P$ (the 11 Wannier bands 7–17 spanning the gap region) and a <strong>rest</strong> block $Q$ (bands 18–70). The rest is folded into an <em>exact</em> energy-dependent self-energy on the active space (Feshbach), evaluated statically at a reference energy $\omega_0=-5.955$ eV (near the VBM):</p>
+<div class="math">
+$$\Sigma(\omega_0)=W_{PQ}\,(\omega_0-E_Q-W_{QQ})^{-1}\,W_{QP},\qquad W=M\,\mathrm{Ry}/N_{\mathbf k}$$
+</div>
+<p>computed by <strong>one</strong> eigendecomposition of $H_{QQ}=E_Q+W_{QQ}$ (no Krylov/Sternheimer — that route stagnates at the gap). This gives the dressed 11-band potential $\tilde V = M_{PP}+N_{\mathbf k}\Sigma(\omega_0)$. The active block is then Wannier-interpolated to arbitrary $\mathbf k$ and the multiple scattering resummed exactly by a small inversion (Koster–Slater):</p>
+<div class="math">
+$$T(\mathbf k,\mathbf k;\omega)=\big[\,1-\tilde V\,G^{A}(\omega)\,\big]^{-1}\tilde V,\qquad
+\Sigma_{\rm defect}(\mathbf k,\omega)=n_d\,T(\mathbf k,\mathbf k;\omega),\qquad
+A(\mathbf k,\omega)=-\frac{1}{\pi}\,\mathrm{Im}\,\mathrm{Tr}\,\big[\omega-H_0(\mathbf k)-n_d T\big]^{-1}.$$
+</div>
+<p><strong>Validation (exact vs Anvil).</strong> The downfolded in-gap levels reproduce the independent EDT code: V$_S$ $+1.209$ eV (Anvil explicit-60 $+1.205$, DFT $+1.19$); O$_S$ $+0.730/+0.725$ eV (Anvil unrelaxed $+0.731/+0.725$ — our O$_S$ is frozen geometry). The rest-space dressing moves the <em>bare</em> 11-band level (V$_S$ $+1.484$) down to the band-converged value — the beyond-Born content this captures.</p>
+</section>
+<section id="sec-2"><h2>2. Diagonal $T$-matrix along $\Gamma$–M–K–$\Gamma$</h2>
+<p>On-shell $T(\mathbf k,\mathbf k;\varepsilon_{\rm top}(\mathbf k))$ for the top valence band, <strong>with</strong> rest-space ($\tilde V$, solid) vs <strong>without</strong> (bare $M$, dashed).</p>
+<p><img src="../assets/tmat_tpath_vs.png" alt="V_S diagonal T-matrix" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>MoS₂ <strong>V$_S$</strong>: the $T$-matrix peaks sharply at <strong>K</strong> (the VBM), Im $T_{PP}\approx-0.065$ Ry. The rest-space curves (solid) are systematically stronger than bare (dashed) — V$_S$ carries a <strong>strong</strong> rest dressing.</em></p>
+<p><img src="../assets/tmat_tpath_os.png" alt="O_S diagonal T-matrix" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>MoS₂ <strong>O$_S$</strong>: $\sim$3–4× stronger scattering (Im $T_{PP}\approx-0.24$ Ry at K), but solid$\approx$dashed — the rest dressing is <strong>mild</strong> for the isovalent substitution.</em></p>
+</section>
+<section id="sec-3"><h2>3. Defect self-energy $n_d\Sigma_{\rm VBM}(\mathbf k)$</h2>
+<p>On-shell self-energy of the VBM band at defect density $n_d=2.78\%$ (one defect per $6\times6$ cell): <strong>Re = level shift</strong>, <strong>Im = defect-limited broadening</strong>.</p>
+<p><img src="../assets/tmat_selfe_vs.png" alt="V_S self-energy" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>V$_S$: VBM broadening peaks near K at $\sim$31 meV (shift $\sim$38 meV); elsewhere only a few meV.</em></p>
+<p><img src="../assets/tmat_selfe_os.png" alt="O_S self-energy" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>O$_S$: much stronger — broadening up to $\sim$90 meV near K (shift $\sim$55 meV). The K-point VBM is most affected because that is where the defect states derive from.</em></p>
+</section>
+<section id="sec-4"><h2>4. Spectral function $A(\mathbf k,\omega)$</h2>
+<p>$A(\mathbf k,\omega)=-\frac{1}{\pi}\mathrm{Im}\,\mathrm{Tr}\,[\omega-H_0-n_d T]^{-1}$ along $\Gamma$–M–K–$\Gamma$, <strong>with</strong> vs <strong>without</strong> rest-space (log color; cyan dashed = bare $\varepsilon_{n\mathbf k}$).</p>
+<p><img src="../assets/tmat_spectral_vs.png" alt="V_S spectral function" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>V$_S$: host bands acquire a $\mathbf k$-dependent defect linewidth, plus a flat <strong>in-gap defect resonance</strong> ($\sim$VBM$+1.2$ eV).</em></p>
+<p><img src="../assets/tmat_spectral_os.png" alt="O_S spectral function" style="max-width:100%;height:auto;display:block;margin:1.2rem auto;border:1px solid #d0d7de;border-radius:6px"> <em>O$_S$: visibly heavier band-edge smearing near K, tracking its larger $T$-matrix.</em></p>
+</section>
+<section id="sec-5"><h2>5. Summary</h2>
+<div class="table-wrap"><table><thead><tr><th>Quantity</th><th>V$_S$ (vacancy)</th><th>O$_S$ (substitution)</th></tr></thead><tbody><tr><td>Downfolded in-gap level (vs Anvil)</td><td>$+1.21$ eV ✓ ($+1.205$)</td><td>$+0.73$ eV ✓ ($+0.731$)</td></tr><tr><td>Im $T_{PP}$ near K</td><td>$\approx-0.065$ Ry</td><td>$\approx-0.24$ Ry (~3.7×)</td></tr><tr><td>VBM broadening near K ($n_d=2.78\%$)</td><td>$\sim$31 meV</td><td>$\sim$90 meV</td></tr><tr><td>Rest-space dressing</td><td><strong>strong</strong> ($\sim$1.7×)</td><td>mild</td></tr></tbody></table></div>
+<p><strong>Headline:</strong> the isovalent <strong>O$_S$ scatters the valence-band edge far harder than the V$_S$ vacancy</strong>, while <strong>V$_S$'s scattering depends much more on the rest-space dressing</strong> — precisely the beyond-Born physics the explicit-summation $T$-matrix resolves. Pipeline and matrix elements are in place to repeat this for WS₂ V$_S$/O$_S$.</p>
+</section>
+</main>
+<footer>Generated 2026-06-10. Static HTML; equations rendered client-side with MathJax v3.
+No raw wavefunctions, cubes, binaries, or logs are published.</footer>
+</body></html>
