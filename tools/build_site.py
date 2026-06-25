@@ -241,6 +241,7 @@ NAV = [
     ("pages/vs-defect-dos-diag.html", "V<sub>S</sub> defect DOS (diag)", "dosdiag"),
     ("pages/tmatrix.html", "T-matrix &amp; spectral function", "tmat"),
     ("pages/static-downfolding.html", "Static vs dynamic downfolding", "statdf"),
+    ("pages/self-consistent-tmatrix.html", "Self-consistent T-matrix", "sctma"),
 ]
 
 def _topnav(active, prefix=""):
@@ -379,6 +380,18 @@ PAGES = [
                   r"$W_A/\Delta\ll1$, so it degrades as the active space grows."),
         pill="Theory / downfolding",
     ),
+    dict(
+        key="sctma",
+        md=os.path.join(ROOT, "content", "note_self_consistent_tmatrix.md"),
+        out=os.path.join(PAGES_DIR, "self-consistent-tmatrix.html"),
+        html_title=SITE_TITLE + " — Born, self-consistent Born, and the self-consistent T-matrix",
+        subtitle=(r"Derivation of the disorder self-energy hierarchy for dilute defects — 1st Born &rarr; SCBA "
+                  r"&rarr; $T$-matrix &rarr; self-consistent $T$-matrix (SCTMA), $\Sigma=n_d\,v[1-\mathcal G v]^{-1}$ "
+                  r"with $\mathcal G=[(G^A)^{-1}-\Sigma]^{-1}$. Shown to be the dilute limit of CPA, mapped onto the "
+                  r"downfolded Koster&ndash;Slater pipeline, with what it can fix (the V$_S$ $a_1$ under-binding) "
+                  r"and cannot (inter-defect interference, full DFT self-consistency)."),
+        pill="Theory / beyond-Born",
+    ),
 ]
 
 # Landing-page catalog rows: (item, type, date, badge_class, badge_label, summary, link_html)
@@ -449,6 +462,14 @@ CATALOG = [
      r"satellites are not. Includes the exact dynamic $T^R(\omega)$ form (cheap: one GEMM/$\omega$) and a "
      r"comparison plan. Derivation only &mdash; not yet run.",
      '<a href="pages/static-downfolding.html">Open derivation &rarr;</a>'),
+    (r"Born, self-consistent Born &amp; the self-consistent $T$-matrix (SCTMA)", "Theory", "2026-06-24", "ok", "Complete",
+     r"Derivation of the dilute-defect self-energy hierarchy: 1st Born ($n_d vG_0v$, = golden-rule EDI) &rarr; SCBA "
+     r"($n_d v\bar G v$, rainbow diagrams, no bound states) &rarr; $T$-matrix ($n_d v[1-G_0v]^{-1}$, our current "
+     r"beyond-Born result) &rarr; SCTMA ($n_d v[1-\mathcal G v]^{-1}$ with $\mathcal G=[(G^A)^{-1}-\Sigma]^{-1}$, "
+     r"self-consistent). Proven to be the $O(n_d)$ limit of CPA; mapped onto the Koster&ndash;Slater pipeline "
+     r"(one extra self-consistency loop, $G^A\!\to\!\mathcal G$). Discusses whether SCTMA can lift the $\sim$0.15 eV "
+     r"under-binding of the occupied V$_S$ $a_1$ band-edge state. Derivation only.",
+     '<a href="pages/self-consistent-tmatrix.html">Open derivation &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
      r"NC stringent pseudos, $E_{\rm cut}=100$ Ry, 2D Coulomb cutoff): host DFPT ($6\times6\times1$ q-grid, "
