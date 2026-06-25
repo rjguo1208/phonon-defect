@@ -91,4 +91,19 @@ $$\Sigma=n_d\,v\,[1-\mathcal G v]^{-1}+O(n_d^2),$$
 - **Magnitude caveat.** The self-consistent correction scales as $\sim\Sigma\,\partial_\omega G\propto n_d$; at dilute $n_d$ it is small, so the improvement to the $a_1$ splitting may be modest — which makes a non-SC-vs-SCTMA comparison a clean quantitative test of how much of the band-edge under-binding is a self-consistency effect.
 - **Beyond reach.** SCTMA is still **non-crossing**: it omits inter-defect interference (Anderson localization, coherent backscattering) and $O(n_d^2)$ cluster effects, and it is *not* DFT self-consistency (no charge-density / $\Delta V$ update). Splitting off the occupied $a_1$ exactly is ultimately a self-consistent **DFT supercell** task; SCTMA is the in-between rung that tests how far propagator dressing alone gets.
 
-**Summary.** SCTMA solves the single-site $T$-matrix $T=v[1-\mathcal G v]^{-1}$ together with the dressed propagator $\mathcal G=[(G^A)^{-1}-n_dT]^{-1}$ self-consistently — the dilute limit of CPA, one rung above our current $\Sigma=n_dT[G^A]$. Implementation is a single extra self-consistency loop ($G^A\to\mathcal G$) inside the $\omega$-loop; *(derivation only — not yet run).*
+**Summary.** SCTMA solves the single-site $T$-matrix $T=v[1-\mathcal G v]^{-1}$ together with the dressed propagator $\mathcal G=[(G^A)^{-1}-n_dT]^{-1}$ self-consistently — the dilute limit of CPA, one rung above our current $\Sigma=n_dT[G^A]$. Implementation is a single extra self-consistency loop ($G^A\to\mathcal G$) inside the $\omega$-loop. The numerical test below was run for MoS$_2$ V$_S$.
+
+## 9. Numerical test: does SCTMA fix the $a_1$ under-binding? (MoS$_2$ V$_S$)
+
+Implemented on the gauge-locked Koster–Slater pipeline with the on-site closure $\Sigma_{\rm loc}(\omega)=n_d\,T_{00}(\omega)$ (the $R{=}0$ cell, which carries 99% of $\tilde V$) and the dressed local resolvent $\mathcal G(\omega)=\frac1{N_f}\sum_{\mathbf k}[\omega+i\eta-H_W(\mathbf k)-\Sigma_{\rm loc}(\omega)]^{-1}$, iterated to self-consistency at each $\omega$. Defect levels are read off as dips of $\sigma_{\min}[1-\tilde V\,\mathcal G(\omega)]$ (a $T$-matrix pole drives this to zero). Run at the physical density $n_d=1/36=2.78\%$:
+
+| | $a_1$ (eV rel VBM) | $e$ (eV rel VBM) |
+|---|---|---|
+| non-SC $T$-matrix | $-0.011$ (shallow dip, $\sigma_{\min}{=}0.18$ — band-edge resonance) | $+1.206$ (sharp, $\sigma_{\min}{=}0.012$) |
+| **SCTMA** ($n_d{=}2.78\%$) | $-0.020$ (**shift $-0.009$**) | $+1.33$, **broadened** |
+| DFT 9×9 (reference) | $+0.14$ (flat localized band) | $+1.18$ |
+
+![SCTMA vs non-SC T-matrix: a1 and e](../assets/sctma_vs.png)
+*Top: $\sigma_{\min}[1-\tilde V G(\omega)]$ (dips = levels). In the $a_1$ region (near 0) the SCTMA (blue) and non-SC (black) curves essentially **coincide** — self-consistency does **not** move the $a_1$ toward DFT's $+0.14$. The deep $e$ dip (sharp at $+1.21$ for non-SC) is **broadened and slightly shifted up** by SCTMA. Bottom: defect DOS $\Delta\rho$ — the sharp non-SC $e$ peak ($\Delta\rho{\approx}285$) is smeared into a broad band ($\Delta\rho{\approx}55$) by the finite-$n_d$ disorder self-energy.*
+
+**Verdict.** SCTMA does **not** cure the $a_1$ under-binding: at the physical density the $a_1$ moves by only $-9$ meV (negligible, and the wrong way), staying pinned at the band edge far from the DFT value $+0.14$ — exactly the $\mathcal O(n_d)$ smallness the §8 estimate predicted. What SCTMA *does* produce at $n_d=2.78\%$ is a **disorder broadening of the deep $e$ level** (a finite-concentration lifetime), not a repair of the band-edge state. (Convergence is also only partial — 114/221 $\omega$, failing precisely in the large-$\Sigma$ band-edge region where $a_1$ lives.) The conclusion is sharp: **the occupied, band-edge $a_1$ needs genuine DFT-supercell self-consistency (charge-density relaxation); propagator dressing at the $T$-matrix level cannot split it off.** Deep, well-separated states (the empty $e$) are accurate already; the $T$-matrix's limitation is specifically the shallow occupied band-edge state.
