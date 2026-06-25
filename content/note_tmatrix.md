@@ -61,10 +61,21 @@ The deep, empty $e$ is captured accurately; the shallow, **occupied** $a_1$ is *
 ![V_S defect-induced ΔA(k,ω): weight redistributes along the valence band, a1 does not split off](../assets/tmat_dA_vs.png)
 *Defect-induced $\Delta A=A_{\rm def}-A_{\rm host}$ for V$_S$: the added weight (red) **traces the dispersive valence band**, not a flat horizontal $a_1$ line — the hallmark of an **un-split band-edge state**. (Black = the $T$-matrix $a_1$ at $+0.001$; the $e$ at $+1.21$ is the clean split-off state seen in §4.)*
 
-This is the same band-edge difficulty that produced the O$_S$ ghost: the frozen-host, statically-dressed, 11-band $T$-matrix handles **deep, well-separated** states (the empty $e$) accurately, but **under-binds shallow occupied states sitting in the valence continuum** (the $a_1$) — which a self-consistent DFT supercell, with charge relaxation of the occupied level, splits off correctly. The $a_1$ is still *counted* (it appears in the diagonalization DOS, the Koster–Slater poles, and the $\mathbf k$-integrated defect DOS below), but the $T$-matrix places it $\sim$0.15 eV too low to separate from the band in the $\mathbf k$-resolved map.
+This is the same band-edge difficulty that produced the O$_S$ ghost: the frozen-host, statically-dressed, 11-band $T$-matrix handles **deep, well-separated** states (the empty $e$) accurately, but **under-binds shallow occupied states sitting in the valence continuum** (the $a_1$) — which a self-consistent DFT supercell, with charge relaxation of the occupied level, splits off correctly.
 
-![a1 vs e: spectral map vs k-integrated defect DOS](../assets/tmat_a1_vs_e.png)
-*Left — the $\mathbf k$-resolved $A(\mathbf k,\omega)$: only the gap-isolated $e$ (green, $+1.21$) is visible; the under-bound $a_1$ sits on the VBM edge. Right — the $\mathbf k$-integrated defect DOS $\Delta\rho(\omega)$: **both** appear, the $a_1$ feature at the VBM ($\Delta\rho\approx830$) even larger than the $e$ peak ($\approx60$) — it is counted, just riding on the intense valence-band DOS at the band edge where the $T$-matrix placed it.* (The $T$-map of §5 suppresses $a_1$ further, as it is projected on the $e$-symmetric VBM band.) The fix for a clean $a_1$ flat line is the same as for the level itself: a self-consistent DFT supercell (which puts $a_1\approx+0.14$ eV, split off above the valence manifold) rather than the frozen-host $T$-matrix.
+**The $a_1$ is therefore not a distinct feature anywhere in the *continuum* $T$-matrix — neither the spectral function nor the DOS.** Computing the proper $\mathbf k$-integrated DOS on a 2D BZ grid confirms this:
+
+![diagonalization DOS vs downfolding T-matrix DOS: no a1 peak](../assets/tmat_dos_compare.png)
+*Left: full DOS. Right: defect-induced $\Delta\rho=\rho-\rho_{\rm host}$. The $e$ doublet gives a clean peak at $+1.21$ eV in **both** the discrete-grid diagonalization DOS and the continuum $T$-matrix DOS ($\Delta\rho$ peak height $\approx0.37$). In the $a_1$ region just above the VBM there is **no peak** — the continuum $T$-matrix $\Delta\rho$ is $\approx0.01$ there (the sub-VBM wiggles are valence Friedel redistribution). In the diagonalization the $a_1$ exists only as a discrete eigenvalue at $+0.001$, buried in the dense valence-band-top cluster (eigenvalues at $-0.05,-0.02,+0.00$), not a resolved peak.*
+
+So the honest tally:
+
+| | diagonalization (discrete 144-k) | $T$-matrix DOS / $A(\mathbf k,\omega)$ (continuum) |
+|---|---|---|
+| $e$ ($+1.21$, gap) | peak / eigenvalue ✓ | DOS peak ✓ + flat line in $A$ ✓ |
+| $a_1$ ($+0.001$, VBM edge) | discrete eigenvalue (buried, no clean peak) | **no DOS peak, no flat line** |
+
+(An earlier version of this note showed a large "$a_1$ DOS peak" — that was a $\mathbf k$-path-sum artifact at the valence van Hove edge; the proper 2D-BZ integration above shows no such peak.) The under-bound $a_1$, pinned onto the valence-band edge ($+0.001$ vs DFT's $\approx+0.14$–$0.24$), dissolves into the valence continuum and forms a clean feature in **none** of the continuum observables; only the deep, split-off $e$ does. The fix is the same as for the level itself: a self-consistent **DFT supercell** (which splits the $a_1$ off as a flat localized band above the valence manifold) rather than the frozen-host $T$-matrix.
 
 ### 4.2 Why the spectral function uses the resummed Dyson form, not $G_0+G_0TG_0$
 
