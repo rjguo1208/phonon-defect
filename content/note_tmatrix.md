@@ -50,14 +50,21 @@ $A(\mathbf k,\omega)=-\frac{1}{\pi}\mathrm{Im}\,\mathrm{Tr}\,[\omega-H_0-n_d T]^
 
 ### 4.1 Why the spectral map shows the $e$ doublet but not the $a_1$
 
-The V$_S$ spectral map shows the deep $e$ resonance but no $a_1$ — even though the diagonalization DOS and the $T$-matrix level-finder both report an $a_1$. This is not an inconsistency: $a_1$ and $e$ are **different kinds of state**. Diagonalizing the dressed block places them at
+The V$_S$ spectral map shows the deep $e$ resonance but no $a_1$. Checking against the DFT supercell makes the reason precise — and it is a real (if modest) limitation, not just a display effect. In the converged **9×9 DFT** supercell the V$_S$ defect produces two flat, localized bands: the empty $e$ doublet, and — as the **highest occupied band** — a perfectly flat $a_1$, sitting $\approx0.1$–0.15 eV *above* the valence manifold (it is, in fact, the supercell's VBM). So in DFT the $a_1$ **is** a clean split-off flat band and *should* appear as a flat line, exactly as the user expects.
 
-$$e\text{-doublet}: \ +1.209\ \text{eV (deep in the gap)},\qquad a_1: \ +0.001\ \text{eV (pinned at the VBM)},$$
+The downfolded $T$-matrix reproduces the two states unevenly. Referenced to the pristine host VBM, diagonalizing the dressed block gives
 
-i.e. the $a_1$ is **degenerate with the valence continuum** (a band-edge resonance), while the $e$ is an isolated gap state. The spectral function $A(\mathbf k,\omega)$ displays spectral *weight* in the $(\mathbf k,\omega)$ plane: the $e$ sits in the dark gap, so even the faint dilute-defect weight ($n_d=2.78\%$) stands out as a flat line; the $a_1$ sits on top of the bright host valence manifold and is swamped/hybridized into it. A $\mathbf k$-summed observable, by contrast, just *counts* the state — so the diagonalization DOS, the Koster–Slater $\det[1-gV]{=}0$ poles, **and even the $\mathbf k$-integrated defect DOS** all recover the $a_1$.
+$$e\text{-doublet}: \ +1.21\ \text{eV} \ (\text{DFT}\approx+1.2,\ \checkmark),\qquad a_1: \ +0.001\ \text{eV} \ (\text{DFT}\approx+0.14).$$
+
+The deep, empty $e$ is captured accurately; the shallow, **occupied** $a_1$ is **under-bound by $\sim$0.15 eV** and pinned right onto the host valence-band edge. Because it lands *on* the band rather than above it, the defect weight does not split off into an isolated line — it redistributes *along* the host valence band:
+
+![V_S defect-induced ΔA(k,ω): weight redistributes along the valence band, a1 does not split off](../assets/tmat_dA_vs.png)
+*Defect-induced $\Delta A=A_{\rm def}-A_{\rm host}$ for V$_S$: the added weight (red) **traces the dispersive valence band**, not a flat horizontal $a_1$ line — the hallmark of an **un-split band-edge state**. (Black = the $T$-matrix $a_1$ at $+0.001$; the $e$ at $+1.21$ is the clean split-off state seen in §4.)*
+
+This is the same band-edge difficulty that produced the O$_S$ ghost: the frozen-host, statically-dressed, 11-band $T$-matrix handles **deep, well-separated** states (the empty $e$) accurately, but **under-binds shallow occupied states sitting in the valence continuum** (the $a_1$) — which a self-consistent DFT supercell, with charge relaxation of the occupied level, splits off correctly. The $a_1$ is still *counted* (it appears in the diagonalization DOS, the Koster–Slater poles, and the $\mathbf k$-integrated defect DOS below), but the $T$-matrix places it $\sim$0.15 eV too low to separate from the band in the $\mathbf k$-resolved map.
 
 ![a1 vs e: spectral map vs k-integrated defect DOS](../assets/tmat_a1_vs_e.png)
-*Left — the $\mathbf k$-resolved $A(\mathbf k,\omega)$: only the gap-isolated $e$ (green, $+1.21$) is visible; the $a_1$ is buried in the VBM. Right — the $\mathbf k$-integrated defect DOS $\Delta\rho(\omega)$: **both** appear, and the $a_1$ feature at the VBM ($\Delta\rho\approx830$) is in fact larger than the $e$ peak in the gap ($\approx60$) — it is simply riding on the intense valence-band DOS. So $a_1$ is present in every state-counting measure; it is invisible only in the $\mathbf k$-resolved map because it is a valence-edge resonance, not a gap state.* (The $T$-map of §5 suppresses $a_1$ further still, as it is projected on the $e$-symmetric VBM band.) This matches the DFT picture — the empty $e$ doublet deep in the gap, the occupied $a_1$ at/below the VBM.
+*Left — the $\mathbf k$-resolved $A(\mathbf k,\omega)$: only the gap-isolated $e$ (green, $+1.21$) is visible; the under-bound $a_1$ sits on the VBM edge. Right — the $\mathbf k$-integrated defect DOS $\Delta\rho(\omega)$: **both** appear, the $a_1$ feature at the VBM ($\Delta\rho\approx830$) even larger than the $e$ peak ($\approx60$) — it is counted, just riding on the intense valence-band DOS at the band edge where the $T$-matrix placed it.* (The $T$-map of §5 suppresses $a_1$ further, as it is projected on the $e$-symmetric VBM band.) The fix for a clean $a_1$ flat line is the same as for the level itself: a self-consistent DFT supercell (which puts $a_1\approx+0.14$ eV, split off above the valence manifold) rather than the frozen-host $T$-matrix.
 
 ## 5. $T(nk,\omega)$ spectral map
 
