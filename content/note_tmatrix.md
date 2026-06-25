@@ -48,6 +48,17 @@ $A(\mathbf k,\omega)=-\frac{1}{\pi}\mathrm{Im}\,\mathrm{Tr}\,[\omega-H_0-n_d T]^
 ![O_S spectral function](../assets/tmat_spectral_os.png)
 *O$_S$: visibly heavier band-edge smearing near K, tracking its larger $T$-matrix.*
 
+### 4.1 Why the spectral map shows the $e$ doublet but not the $a_1$
+
+The V$_S$ spectral map shows the deep $e$ resonance but no $a_1$ — even though the diagonalization DOS and the $T$-matrix level-finder both report an $a_1$. This is not an inconsistency: $a_1$ and $e$ are **different kinds of state**. Diagonalizing the dressed block places them at
+
+$$e\text{-doublet}: \ +1.209\ \text{eV (deep in the gap)},\qquad a_1: \ +0.001\ \text{eV (pinned at the VBM)},$$
+
+i.e. the $a_1$ is **degenerate with the valence continuum** (a band-edge resonance), while the $e$ is an isolated gap state. The spectral function $A(\mathbf k,\omega)$ displays spectral *weight* in the $(\mathbf k,\omega)$ plane: the $e$ sits in the dark gap, so even the faint dilute-defect weight ($n_d=2.78\%$) stands out as a flat line; the $a_1$ sits on top of the bright host valence manifold and is swamped/hybridized into it. A $\mathbf k$-summed observable, by contrast, just *counts* the state — so the diagonalization DOS, the Koster–Slater $\det[1-gV]{=}0$ poles, **and even the $\mathbf k$-integrated defect DOS** all recover the $a_1$.
+
+![a1 vs e: spectral map vs k-integrated defect DOS](../assets/tmat_a1_vs_e.png)
+*Left — the $\mathbf k$-resolved $A(\mathbf k,\omega)$: only the gap-isolated $e$ (green, $+1.21$) is visible; the $a_1$ is buried in the VBM. Right — the $\mathbf k$-integrated defect DOS $\Delta\rho(\omega)$: **both** appear, and the $a_1$ feature at the VBM ($\Delta\rho\approx830$) is in fact larger than the $e$ peak in the gap ($\approx60$) — it is simply riding on the intense valence-band DOS. So $a_1$ is present in every state-counting measure; it is invisible only in the $\mathbf k$-resolved map because it is a valence-edge resonance, not a gap state.* (The $T$-map of §5 suppresses $a_1$ further still, as it is projected on the $e$-symmetric VBM band.) This matches the DFT picture — the empty $e$ doublet deep in the gap, the occupied $a_1$ at/below the VBM.
+
 ## 5. $T(nk,\omega)$ spectral map
 
 The full energy dependence of the VBM-band diagonal $T(nk,\omega)$ along $\Gamma$–M–K–$\Gamma$ — **Re** (level shift) and **Im** ($-$Im $\propto$ scattering rate) as separate maps; dashed = on-shell $\varepsilon_{\rm VBM}(k)$.
