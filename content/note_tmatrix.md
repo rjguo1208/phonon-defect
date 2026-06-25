@@ -66,6 +66,24 @@ This is the same band-edge difficulty that produced the O$_S$ ghost: the frozen-
 ![a1 vs e: spectral map vs k-integrated defect DOS](../assets/tmat_a1_vs_e.png)
 *Left — the $\mathbf k$-resolved $A(\mathbf k,\omega)$: only the gap-isolated $e$ (green, $+1.21$) is visible; the under-bound $a_1$ sits on the VBM edge. Right — the $\mathbf k$-integrated defect DOS $\Delta\rho(\omega)$: **both** appear, the $a_1$ feature at the VBM ($\Delta\rho\approx830$) even larger than the $e$ peak ($\approx60$) — it is counted, just riding on the intense valence-band DOS at the band edge where the $T$-matrix placed it.* (The $T$-map of §5 suppresses $a_1$ further, as it is projected on the $e$-symmetric VBM band.) The fix for a clean $a_1$ flat line is the same as for the level itself: a self-consistent DFT supercell (which puts $a_1\approx+0.14$ eV, split off above the valence manifold) rather than the frozen-host $T$-matrix.
 
+### 4.2 Why the spectral function uses the resummed Dyson form, not $G_0+G_0TG_0$
+
+The spectral function above uses the **resummed** Green's function $G=[\omega-H_0-n_dT]^{-1}$, not the single-defect, linear-in-$T$ form $G=G_0+G_0TG_0$. The two are the same to $\mathcal O(n_d)$ — expanding $[G_0^{-1}-n_dT]^{-1}=G_0+n_dG_0TG_0+\mathcal O(n_d^2)$ — but only the resummed form gives a physical ($A\geq0$) spectral function at finite concentration: at a host band $G_0\sim1/(\omega-\varepsilon)$, so the linear correction carries a double pole $1/(\omega-\varepsilon)^2$ whose dispersive imaginary part drives $A$ **negative**, whereas the resummation turns it into a finite Lorentzian (the band acquires width $\mathrm{Im}\,\Sigma=n_d\mathrm{Im}\,T$ instead of diverging).
+
+Computing both from the *same* band-space $T(\mathbf k,\omega)$ confirms this — and pins down *when* it matters:
+
+![resummed vs linear spectral function](../assets/tmat_alinear.png)
+*MoS$_2$ V$_S$. Left/middle: $A_{\rm res}$ and $A_{\rm lin}$ maps at the physical $n_d=2.78\%$ — **indistinguishable** (both $\geq0$). Right: a line cut at K as $n_d$ is raised — the linear $A_{\rm lin}$ dips **negative** (unphysical) more and more, while the resummed $A_{\rm res}$ stays positive.*
+
+| $n_d$ | $A_{\rm res}$ min | $A_{\rm lin}$ min | $A_{\rm lin}$ negative fraction |
+|---|---|---|---|
+| 2.78% (physical) | $+0.03$ | $+0.03$ | 0.0% |
+| 10% | $+0.04$ | $-6.5$ | 1.4% |
+| 30% | $+0.04$ | $-33.5$ | 4.7% |
+| 50% | $+0.04$ | $-64.4$ | 6.4% |
+
+So at the dilute physical concentration the linear and resummed spectral functions **agree** (the resummation is a negligible $\mathcal O(n_d^2)$ correction); the linear form's negative-$A$ pathology only sets in at high $n_d$, where resummation is mandatory. The resummed form is used throughout precisely so the result stays physical at any $n_d$.
+
 ## 5. $T(nk,\omega)$ spectral map
 
 The full energy dependence of the VBM-band diagonal $T(nk,\omega)$ along $\Gamma$–M–K–$\Gamma$ — **Re** (level shift) and **Im** ($-$Im $\propto$ scattering rate) as separate maps; dashed = on-shell $\varepsilon_{\rm VBM}(k)$.
