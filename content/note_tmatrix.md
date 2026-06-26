@@ -48,34 +48,32 @@ $A(\mathbf k,\omega)=-\frac{1}{\pi}\mathrm{Im}\,\mathrm{Tr}\,[\omega-H_0-n_d T]^
 ![O_S spectral function](../assets/tmat_spectral_os.png)
 *O$_S$: visibly heavier band-edge smearing near K, tracking its larger $T$-matrix.*
 
-### 4.1 Why the spectral map shows the $e$ doublet but not the $a_1$
+### 4.1 Why the spectral map showed only $e$: a deep-band rest-truncation bug (and its fix)
 
-The V$_S$ spectral map shows the deep $e$ resonance but no $a_1$. Checking against the DFT supercell makes the reason precise — and it is a real (if modest) limitation, not just a display effect. In the converged **9×9 DFT** supercell the V$_S$ defect produces two flat, localized bands: the empty $e$ doublet, and — as the **highest occupied band** — a perfectly flat $a_1$, sitting $\approx0.1$–0.15 eV *above* the valence manifold (it is, in fact, the supercell's VBM). So in DFT the $a_1$ **is** a clean split-off flat band and *should* appear as a flat line, exactly as the user expects.
+The V$_S$ spectral map shows the deep $e$ doublet but no $a_1$ — even though DFT puts $a_1$ at $\approx+0.24$ eV as a *flat localized band* that should appear like $e$. The cause is a **basis-truncation bug in the downfolding, not an intrinsic $T$-matrix limitation**: the rest space $Q$ omitted the **deep bands 1–6**, which are exactly what bind the $a_1$.
 
-The downfolded $T$-matrix reproduces the two states unevenly. Referenced to the pristine host VBM, diagonalizing the dressed block gives
+![a1 lost without deep bands 1-6, recovered +0.24 with them](../assets/tmat_a1_deepband.png)
+*$a_1$ and $e$ (rel. VBM) across treatments. $a_1$ is at $+0.24$ eV whenever the deep bands 1–6 are included (full diagonalization 1–66; downfolding with $Q\!\ni\!1$–6; DFT) and **falls below the VBM (vanishes) whenever they are excluded** (explicit 7–66; the original downfolding $Q=18$–70). The $e$ doublet sits at $\approx+1.2$ eV throughout — it needs no deep bands.*
 
-$$e\text{-doublet}: \ +1.21\ \text{eV} \ (\text{DFT}\approx+1.2,\ \checkmark),\qquad a_1: \ +0.001\ \text{eV} \ (\text{DFT}\approx+0.14).$$
+Diagonalizing the (bra-fixed) matrix element over band ranges makes it unambiguous:
 
-The deep, empty $e$ is captured accurately; the shallow, **occupied** $a_1$ is **under-bound by $\sim$0.15 eV** and pinned right onto the host valence-band edge. Because it lands *on* the band rather than above it, the defect weight does not split off into an isolated line — it redistributes *along* the host valence band:
+| bands | deep 1–6 | $a_1$ | $e$ |
+|---|---|---|---|
+| 1–66 (full) | in | $+0.238$ | $+1.196$ |
+| 7–66 | **out** | **gone (below VBM)** | $+1.194$ |
+| 7–17 (active only) | out | $+0.005$ | $+1.484$ |
 
-![V_S defect-induced ΔA(k,ω): weight redistributes along the valence band, a1 does not split off](../assets/tmat_dA_vs.png)
-*Defect-induced $\Delta A=A_{\rm def}-A_{\rm host}$ for V$_S$: the added weight (red) **traces the dispersive valence band**, not a flat horizontal $a_1$ line — the hallmark of an **un-split band-edge state**. (Black = the $T$-matrix $a_1$ at $+0.001$; the $e$ at $+1.21$ is the clean split-off state seen in §4.)*
+The active Wannier window is bands 7–17; the original downfolding took the rest as $Q=18$–70, **excluding 1–6**. Putting them back, $Q=\{1\text{–}6\}\cup\{18\text{–}66\}$, the downfolded static self-energy recovers $a_1=+0.238$ (self-consistent) — exactly the full diagonalization and DFT $\approx+0.24$ — while $e$ is unchanged at $+1.21$. (Feshbach downfolding is exact when $P\cup Q$ spans the full band set, so a *complete* rest must reproduce the full diagonalization; the deep bands push the occupied $a_1$ up into the gap, the high bands alone push it down — both are needed.)
 
-This is the same band-edge difficulty that produced the O$_S$ ghost: the frozen-host, statically-dressed, 11-band $T$-matrix handles **deep, well-separated** states (the empty $e$) accurately, but **under-binds shallow occupied states sitting in the valence continuum** (the $a_1$) — which a self-consistent DFT supercell, with charge relaxation of the occupied level, splits off correctly.
+So $a_1$ is a genuine $+0.24$-eV gap state, and with the **complete** rest it is a clean split-off level that appears in the DOS and spectral function as a flat line, like $e$ (shallower). The two figures below were computed with the **truncated** rest ($Q=18$–70, no deep bands) — they show the *symptom* of the bug, with $a_1$ pinned onto the valence-band edge ($+0.001$) and therefore invisible; they are **not** the corrected result.
 
-**The $a_1$ is therefore not a distinct feature anywhere in the *continuum* $T$-matrix — neither the spectral function nor the DOS.** Computing the proper $\mathbf k$-integrated DOS on a 2D BZ grid confirms this:
+![V_S defect-induced ΔA(k,ω) with the truncated rest: a1 not split off](../assets/tmat_dA_vs.png)
+*(Truncated rest, no deep bands.) Defect-induced $\Delta A$: with $a_1$ mis-placed onto the band edge, the added weight (red) traces the dispersive valence band rather than forming a flat $a_1$ line. With the deep bands restored, $a_1$ moves to $+0.24$ (a clean gap level) and this pathology disappears.*
 
-![diagonalization DOS vs downfolding T-matrix DOS: no a1 peak](../assets/tmat_dos_compare.png)
-*Left: full DOS. Right: defect-induced $\Delta\rho=\rho-\rho_{\rm host}$. The $e$ doublet gives a clean peak at $+1.21$ eV in **both** the discrete-grid diagonalization DOS and the continuum $T$-matrix DOS ($\Delta\rho$ peak height $\approx0.37$). In the $a_1$ region just above the VBM there is **no peak** — the continuum $T$-matrix $\Delta\rho$ is $\approx0.01$ there (the sub-VBM wiggles are valence Friedel redistribution). In the diagonalization the $a_1$ exists only as a discrete eigenvalue at $+0.001$, buried in the dense valence-band-top cluster (eigenvalues at $-0.05,-0.02,+0.00$), not a resolved peak.*
+![diagonalization DOS vs truncated-rest T-matrix DOS](../assets/tmat_dos_compare.png)
+*(Truncated rest.) With the deep bands omitted, $a_1$ sits on the valence edge and gives no DOS peak (continuum $\Delta\rho\approx0.01$ near the VBM), while $e$ ($+1.21$) gives a clean peak. With $Q\ni1$–6 the $a_1$ returns as a $+0.24$-eV gap feature.*
 
-So the honest tally:
-
-| | diagonalization (discrete 144-k) | $T$-matrix DOS / $A(\mathbf k,\omega)$ (continuum) |
-|---|---|---|
-| $e$ ($+1.21$, gap) | peak / eigenvalue ✓ | DOS peak ✓ + flat line in $A$ ✓ |
-| $a_1$ ($+0.001$, VBM edge) | discrete eigenvalue (buried, no clean peak) | **no DOS peak, no flat line** |
-
-(An earlier version of this note showed a large "$a_1$ DOS peak" — that was a $\mathbf k$-path-sum artifact at the valence van Hove edge; the proper 2D-BZ integration above shows no such peak.) The under-bound $a_1$, pinned onto the valence-band edge ($+0.001$ vs DFT's $\approx+0.14$–$0.24$), dissolves into the valence continuum and forms a clean feature in **none** of the continuum observables; only the deep, split-off $e$ does. The fix is the same as for the level itself: a self-consistent **DFT supercell** (which splits the $a_1$ off as a flat localized band above the valence manifold) rather than the frozen-host $T$-matrix.
+**Corrections to earlier versions of this note.** Two intermediate claims here were wrong and are retracted: (i) a large "$a_1$ DOS peak" from an earlier $\mathbf k$-path-sum (a valence van-Hove artifact), and (ii) the attribution of the missing $a_1$ to a "band-edge under-binding that needs DFT self-consistency." The true cause is the deep-band (1–6) truncation of the rest, and it is fixed **inside** the $T$-matrix by including those bands in $Q$ — no DFT self-consistency required. ($e$, the deep empty state, was always correct.)
 
 ### 4.2 Why the spectral function uses the resummed Dyson form, not $G_0+G_0TG_0$
 

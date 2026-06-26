@@ -468,8 +468,9 @@ CATALOG = [
      r"beyond-Born result) &rarr; SCTMA ($n_d v[1-\mathcal G v]^{-1}$ with $\mathcal G=[(G^A)^{-1}-\Sigma]^{-1}$, "
      r"self-consistent). Proven to be the $O(n_d)$ limit of CPA; mapped onto the Koster&ndash;Slater pipeline "
      r"(one extra self-consistency loop, $G^A\!\to\!\mathcal G$). Numerically tested on MoS$_2$ V$_S$: at the "
-     r"physical $n_d{=}2.78\%$ SCTMA moves the $a_1$ by only $-9$ meV (does NOT lift it toward DFT $+0.14$); its "
-     r"actual effect is a disorder broadening of the deep $e$ level. The band-edge $a_1$ needs DFT self-consistency.",
+     r"physical $n_d{=}2.78\%$ SCTMA moves the $a_1$ by only $-9$ meV; its actual effect is a disorder broadening "
+     r"of the deep $e$ level. (The $a_1$ mis-placement was later traced to a deep-band rest-truncation, fixed "
+     r"inside the $T$-matrix by including bands 1–6 — not a self-consistency issue.)",
      '<a href="pages/self-consistent-tmatrix.html">Open derivation &rarr;</a>'),
     (r"MoS&#8322; S-vacancy phonon spectral function &mdash; plan", "Plan", "2026-06-09", "ok", "Executed",
      r"Workflow P0&ndash;P6 reusing the EDI structural model ($a=3.185$ &#8491;, $6\times6$ supercells, "
