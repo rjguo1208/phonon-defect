@@ -65,7 +65,12 @@ Diagonalizing the (bra-fixed) matrix element over band ranges makes it unambiguo
 
 The active Wannier window is bands 7–17; the original downfolding took the rest as $Q=18$–70, **excluding 1–6**. Putting them back, $Q=\{1\text{–}6\}\cup\{18\text{–}66\}$, the downfolded static self-energy recovers $a_1=+0.238$ (self-consistent) — exactly the full diagonalization and DFT $\approx+0.24$ — while $e$ is unchanged at $+1.21$. (Feshbach downfolding is exact when $P\cup Q$ spans the full band set, so a *complete* rest must reproduce the full diagonalization; the deep bands push the occupied $a_1$ up into the gap, the high bands alone push it down — both are needed.)
 
-So $a_1$ is a genuine $+0.24$-eV gap state, and with the **complete** rest it is a clean split-off level that appears in the DOS and spectral function as a flat line, like $e$ (shallower). The two figures below were computed with the **truncated** rest ($Q=18$–70, no deep bands) — they show the *symptom* of the bug, with $a_1$ pinned onto the valence-band edge ($+0.001$) and therefore invisible; they are **not** the corrected result.
+So $a_1$ is a genuine gap state, and with the **complete** rest it is a clean split-off level that appears in the spectral function as a flat in-gap line, like $e$ — re-running $A(\mathbf k,\omega)$ with the corrected block confirms it:
+
+![V_S spectral function with the corrected rest: a1 now a flat in-gap line](../assets/tmat_spectral_deep.png)
+*Corrected rest ($Q=\{1\text{–}6\}\cup\{18\text{–}66\}$). The $a_1$ now appears as a **flat in-gap line** at $+0.33$ eV (the static value; self-consistent / DFT is $+0.24$ — the $\sim0.1$ eV overshoot is the static-$\Sigma$ error for a level $0.24$ eV from $\omega_0$), alongside the $e$ doublet at $+1.21$. Both defect states are now present, exactly as in DFT. Compare the truncated-rest result below, where $a_1$ is missing.*
+
+The two figures below were instead computed with the **truncated** rest ($Q=18$–70, no deep bands) — they show the *symptom* of the bug, with $a_1$ pinned onto the valence-band edge ($+0.001$) and therefore invisible; they are **not** the corrected result.
 
 ![V_S defect-induced ΔA(k,ω) with the truncated rest: a1 not split off](../assets/tmat_dA_vs.png)
 *(Truncated rest, no deep bands.) Defect-induced $\Delta A$: with $a_1$ mis-placed onto the band edge, the added weight (red) traces the dispersive valence band rather than forming a flat $a_1$ line. With the deep bands restored, $a_1$ moves to $+0.24$ (a clean gap level) and this pathology disappears.*
