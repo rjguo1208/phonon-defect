@@ -103,6 +103,15 @@ Computing both from the *same* band-space $T(\mathbf k,\omega)$ confirms this �
 
 So at the dilute physical concentration the linear and resummed spectral functions **agree** (the resummation is a negligible $\mathcal O(n_d^2)$ correction); the linear form's negative-$A$ pathology only sets in at high $n_d$, where resummation is mandatory. The resummed form is used throughout precisely so the result stays physical at any $n_d$.
 
+### 4.3 Matrix-element sanity check: O$_S$ vs V$_S$ along $\Gamma$–M–K–$\Gamma$
+
+A direct test that the new O pseudopotential enters the EDI matrix element cleanly: fix the initial state at $\Gamma$ and trace $|M(\Gamma\,n_i;\,\mathbf{k}_f\,n_f)|$ as $\mathbf{k}_f$ runs along $\Gamma$–M–K–$\Gamma$, for the first valence (VB1) and first conduction (CB1) bands.
+
+![O_S vs V_S matrix element along the k-path](../assets/tmat_mkpath_vs_os.png)
+*$|M(\Gamma,\mathbf{k}_f)|$ for V$_S$ (left) and O$_S$ (right), $\mathbf{k}_i=\Gamma$ fixed, for VB1–VB1, CB1–CB1, and VB1–CB1. The curves are **structurally identical** — every feature coincides: the symmetry-forced VB1–VB1 and VB1–CB1 zeros at K, the CB1 band-character jump along $\Gamma$–M, and the $\Gamma$-point ($\mathbf{k}_f=\mathbf{k}_i$) diagonal enhancement — and differ only in overall scale (V$_S\approx4.5\times$O$_S$), as expected from the vacancy being a stronger perturbation than the isovalent O$\to$S substitution. The new-pseudopotential matrix element thus carries **no defect-specific artifact**: it behaves exactly like the validated V$_S$ case.*
+
+The **nonlocal** part of $M$ (the O- vs S-projector term) separately equals the difference of single-atom *isolated* O and S Kleinman–Bylander projectors placed at the site, $\langle\psi|V_{NL}^{O}-V_{NL}^{S}|\psi\rangle$, to $2.7\times10^{-7}$ Ry over all 36 $\mathbf{k}$ and 66 bands — i.e. the supercell subtraction $m_{nl,d}-m_{nl,p}$ correctly isolates the atomic O$-$S difference. Together with the local-potential sum rule ($T+V_{\rm loc}+V_{NL}=\varepsilon$, to $\mu$eV) and the null-defect check ($V_d=V_p\Rightarrow M=0$ to machine precision), the O$_S$ matrix element is fully validated.
+
 ## 5. $T(nk,\omega)$ spectral map
 
 The full energy dependence of the VBM-band diagonal $T(nk,\omega)$ along $\Gamma$–M–K–$\Gamma$ — **Re** (level shift) and **Im** ($-$Im $\propto$ scattering rate) as separate maps; dashed = on-shell $\varepsilon_{\rm VBM}(k)$.
