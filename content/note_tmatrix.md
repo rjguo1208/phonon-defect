@@ -114,6 +114,8 @@ The **nonlocal** part of $M$ (the O- vs S-projector term) separately equals the 
 
 ### 4.4 Benchmark against supercell DFT: the deep in-gap levels are EDI finite-basis artifacts
 
+> **⚠ Substantially revised by §4.5.** A later full recompute with **SG15 ONCV pseudopotentials** ($E_{\rm cut}=75$ Ry) shows the dramatic over-binding documented in this section — O$_S$'s $+0.73$ and V$_S$'s $a_1=+0.33$ — was largely an artifact of the **old pseudopotential set**, *not* the finite-basis projection. With SG15 the EDI in-gap levels closely match DFT. The mechanism below (a localized level bound in the truncated basis) is real, but its magnitude was inflated by the old pseudopotentials.
+
 §4.3 confirms the matrix element $M$ is correct. The in-gap *levels*, however — obtained by diagonalizing $H=\mathrm{diag}(\varepsilon)+M\,\mathrm{Ry}/N_{\mathbf k}$ in the **pristine primitive Bloch basis** — do **not** match the defect's own supercell DFT. They over-bind, and O$_S$'s "$+0.73$" is spurious.
 
 **Supercell DFT (ground truth)** — frozen-geometry, $\Gamma$-only, same pseudopotentials/$E_{\rm cut}$:
@@ -136,6 +138,21 @@ O$_S$ is isovalent (O, S both 6 valence e⁻); DFT at both 2.78 % and the 4× mo
 The real O$_S$ band-edge states are **host-like** — the LUMO is the slightly-perturbed pristine CBM at K (confirmed independently by a pristine-supercell ↔ defect-supercell overlap: $U$ near-unitary, defect LUMO $94$ % the pristine CBM, $\mathrm{PR}\!\approx\!1$). The EDI's $+0.73$ is the opposite: spread near-uniformly across the **entire** BZ, i.e. **real-space localized** — a level the deep O potential binds inside the *truncated* primitive basis but that the exact self-consistent DFT does not have.
 
 **Mechanism.** $H=\mathrm{diag}(\varepsilon)+M$ is the defect Hamiltonian $H_0+\Delta V$ projected onto a *finite* set of pristine primitive Bloch states (a variational/Feshbach projection). For a deep, spatially sharp perturbation this projection over-binds — manufacturing a localized in-gap level as a loose variational upper bound — whereas DFT, in the defect's own self-consistent eigenbasis, has none. So the in-gap *levels* above, though reproduced code-to-code by Anvil, are a property of the **EDI's finite pristine-basis projection**, not the real defect: V$_S$'s $a_1$ is over-bound and O$_S$ has **no deep gap state**. (The matrix element §4.3 and the off-shell band-edge scattering it drives are correct; it is specifically the *bound in-gap pole* — hence the in-gap resonance in $A(\mathbf k,\omega)$ — that the finite-basis projection over-binds.)
+
+### 4.5 SG15 recompute: the over-binding was largely a pseudopotential artifact
+
+Re-running the **entire pipeline** (primitive SCF/NSCF, supercell SCFs, $\Delta V$ cubes, edmat, diagonalization) with **SG15 ONCV norm-conserving pseudopotentials** at $E_{\rm cut}=75$ Ry — same frozen geometry, same $6\times6$ $k$-grid, 70 primitive bands — overturns most of §4.4. The band structure is unchanged (VBM/CBM/gap identical to $10^{-3}$ eV), but the EDI in-gap levels move into close agreement with the supercell DFT:
+
+![DFT vs EDI 70-band DOS, SG15](../assets/dos_dft_edi70_sg15.png)
+*DOS (states/eV per $6\times6$ cell), SG15 / $E_{\rm cut}=75$ Ry: supercell DFT ($\Gamma$, gray) vs the EDI Hamiltonian $\mathrm{diag}(\varepsilon)+M$ diagonalized over **70 primitive bands** (red), both aligned at the bulk VBM (black dotted; blue dotted = bulk CBM). **V$_S$** (left): the occupied $a_1$ now sits at the DFT position; the empty $e$ doublet is $\sim$0.2 eV too high. **O$_S$** (right): the old spurious mid-gap $+0.73$ doublet is **gone** — the gap is clean, the only in-gap feature is a conduction-edge state ($\sim$+1.37 vs DFT LUMO $\sim$+1.6).*
+
+| in-gap level | old EDI (ecut 100) | **SG15 EDI (ecut 75)** | supercell DFT (SG15) |
+|---|---|---|---|
+| V$_S$ $a_1$ | $+0.33$ | **$+0.130$** | $+0.136$ ✓ |
+| V$_S$ $e$ | $+1.21$ | $+1.37$–$1.42$ | $\sim\!+1.2$ |
+| O$_S$ deep | **$+0.73$** | **none** (edges: $+0.089$, $+1.37$) | none |
+
+So the dramatic $+0.73$ (and the V$_S$ $a_1$ over-binding) was **largely a property of the old pseudopotential set** (and/or the higher $E_{\rm cut}$), not an intrinsic finite-basis limitation: with clean SG15 pseudopotentials the EDI reproduces DFT to $\sim$5 meV for the V$_S$ $a_1$ and correctly gives **no deep O$_S$ level**. A small residual ($\sim$0.2 eV) remains in the empty conduction-edge states — the genuine, much smaller finite-basis effect. (The §4.4 unfolding/rotation analyses were run on the *old-pseudopotential* edmat; the mechanism they identify is real but its scale was set by those pseudopotentials. 66- vs 70-band diagonalization shifts the SG15 levels by $<5$ meV — band-converged.)
 
 ## 5. $T(nk,\omega)$ spectral map
 
@@ -170,4 +187,4 @@ The Wannier interpolation and the $R_{\rm cut}$ truncation are only valid if the
 | Rest-space dressing | non-trivial | mild |
 | $\tilde V^W$ locality ($\lambda$; $R_{\rm cut}{=}4$ capture) | 1.5 Å; 100 % | 3.0 Å; 100 % |
 
-**Headline:** at the valence-band edge (K) the isovalent **O$_S$ scatters $\sim$19× harder than the V$_S$ vacancy** and shifts the VBM down markedly more, while the **rest-space dressing matters more for V$_S$** — the beyond-Born physics the explicit-summation $T$-matrix resolves. All quantities use the gauge-locked Wannier rotation (validated by the §6 real-space decay). **Caveat (§4.4):** the in-gap *levels* are over-bound by the EDI's finite pristine-basis projection — benchmarked against supercell DFT, O$_S$ has **no deep gap state** and V$_S$'s $a_1$ is $\sim$0.2 eV too deep; the matrix element and band-edge scattering are unaffected. Pipeline and matrix elements are in place to repeat this for WS₂ V$_S$/O$_S$.
+**Headline:** at the valence-band edge (K) the isovalent **O$_S$ scatters $\sim$19× harder than the V$_S$ vacancy** and shifts the VBM down markedly more, while the **rest-space dressing matters more for V$_S$** — the beyond-Born physics the explicit-summation $T$-matrix resolves. All quantities use the gauge-locked Wannier rotation (validated by the §6 real-space decay). **Caveat (§4.4–4.5):** with the *old* pseudopotentials the EDI in-gap *levels* over-bound (O$_S$ a spurious $+0.73$, V$_S$ $a_1=+0.33$ vs DFT). An **SG15 recompute (§4.5) shows this was largely a pseudopotential artifact** — the clean SG15 EDI matches DFT (V$_S$ $a_1$ to $\sim$5 meV; no deep O$_S$ level), leaving only a $\sim$0.2 eV residual in the empty states. The matrix element and band-edge scattering are unaffected throughout. Pipeline and matrix elements are in place to repeat this for WS₂ V$_S$/O$_S$.
