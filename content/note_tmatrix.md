@@ -154,6 +154,13 @@ Re-running the **entire pipeline** (primitive SCF/NSCF, supercell SCFs, $\Delta 
 
 So the dramatic $+0.73$ (and the V$_S$ $a_1$ over-binding) was **largely a property of the old pseudopotential set** (and/or the higher $E_{\rm cut}$), not an intrinsic finite-basis limitation: with clean SG15 pseudopotentials the EDI reproduces DFT to $\sim$5 meV for the V$_S$ $a_1$ and correctly gives **no deep O$_S$ level**. A small residual ($\sim$0.2 eV) remains in the empty conduction-edge states — the genuine, much smaller finite-basis effect. (The §4.4 unfolding/rotation analyses were run on the *old-pseudopotential* edmat; the mechanism they identify is real but its scale was set by those pseudopotentials. 66- vs 70-band diagonalization shifts the SG15 levels by $<5$ meV — band-converged.)
 
+**Full T-matrix path (SG15).** Running the complete EDT production path on the SG15 edmat — re-Wannierize ($\to$ `filukk_sg15`, 11 WF from bands 7–17), deep-band downfold ($Q=\{1\text{–}6\}\cup\{18\text{–}70\}$, exact static $\Sigma$), Koster–Slater resummation on a $24\times24$ BZ grid — gives the defect-concentration ($n_d=2.78\%$) spectral DOS:
+
+![SG15 T-matrix DOS](../assets/tmat_dos_sg15.png)
+*SG15 T-matrix DOS. Left ($\rho$): host (dashed) vs defect-dressed. Right: defect-induced $\Delta\rho$. **V$_S$** (top): $\Delta\rho$ peaks at the $a_1$ ($\sim+0.17$) and the $e$/CBM-edge ($\sim+1.4$). **O$_S$** (bottom): $\Delta\rho$ is **flat across the mid-gap (0.3–1.2 eV) — no deep state** — only band-edge redistribution. The resummed T-matrix DOS reproduces the direct-diagonalization / DFT picture: no spurious O$_S$ $+0.73$, V$_S$ $a_1$ near the VBM.*
+
+Two SG15 simplifications vs the §4.1 gauge gymnastics: (i) the deep bands 1–6 live in the *same* edmat (band range 1–70) and gauge as the active block, so no separate bra-fixed matrix element is needed; (ii) the SG15 re-Wannierization passes its NSCF-interpolation check directly ($<10^{-4}$ eV), so no $\Sigma_{\rm deep}$ re-gauging is required — both because the edmat and `filukk_sg15` derive from one self-consistent NSCF.
+
 ## 5. $T(nk,\omega)$ spectral map
 
 The full energy dependence of the VBM-band diagonal $T(nk,\omega)$ along $\Gamma$–M–K–$\Gamma$ — **Re** (level shift) and **Im** ($-$Im $\propto$ scattering rate) as separate maps; dashed = on-shell $\varepsilon_{\rm VBM}(k)$.
