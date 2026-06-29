@@ -161,6 +161,13 @@ So the dramatic $+0.73$ (and the V$_S$ $a_1$ over-binding) was **largely a prope
 
 Two SG15 simplifications vs the §4.1 gauge gymnastics: (i) the deep bands 1–6 live in the *same* edmat (band range 1–70) and gauge as the active block, so no separate bra-fixed matrix element is needed; (ii) the SG15 re-Wannierization passes its NSCF-interpolation check directly ($<10^{-4}$ eV), so no $\Sigma_{\rm deep}$ re-gauging is required — both because the edmat and `filukk_sg15` derive from one self-consistent NSCF.
 
+**Spectral function along Γ–M–K–Γ.** The same SG15 12×12 downfolded block (deep-band rest; reference energy $\omega_0=$ VBM) gives the resummed spectral function $A(\mathbf k,\omega)=-\frac1\pi\,\mathrm{Im\,Tr}\,[\omega-H_0-n_dT]^{-1}$:
+
+![SG15 spectral function](../assets/spectral_sg15.png)
+*$A(\mathbf k,\omega)$ along Γ–M–K–Γ (SG15, 12×12 $k$-grid, $\omega_0=$VBM, $n_d=2.78\%$), energy referenced to the VBM. **V$_S$** (left): host bands plus two flat in-gap resonances — the $a_1$ ($\sim$+0.1) and the $e$ ($\sim$+1.44). **O$_S$** (right): host bands with band-edge redistribution only — the mid-gap (around $+0.7$, where the *old* pseudopotentials placed the spurious level) is **clean, no deep state**. k-converged (6×6 ↔ 12×12) and robust to the reference energy ($\omega_0=-5.955$ ↔ VBM shifts the levels $<5$ meV).*
+
+Direct diagonalization, T-matrix DOS, and the spectral function — all three SG15 routes agree: **no deep O$_S$ level; V$_S$'s $a_1$ sits just above the VBM** — matching DFT.
+
 ## 5. $T(nk,\omega)$ spectral map
 
 The full energy dependence of the VBM-band diagonal $T(nk,\omega)$ along $\Gamma$–M–K–$\Gamma$ — **Re** (level shift) and **Im** ($-$Im $\propto$ scattering rate) as separate maps; dashed = on-shell $\varepsilon_{\rm VBM}(k)$.
