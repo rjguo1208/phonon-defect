@@ -141,6 +141,8 @@ The real O$_S$ band-edge states are **host-like** — the LUMO is the slightly-p
 
 ### 4.5 SG15 recompute: the over-binding was largely a pseudopotential artifact
 
+> **⚠️ Attribution corrected in §4.6.** The *data* below is right (SG15 @ $E_{\rm cut}=75$ Ry has no O$_S$ $+0.73$), but the cause is **not** the pseudopotential: switching dojo→SG15 also switched $E_{\rm cut}$ (100→75). A controlled $E_{\rm cut}$/grid study (§4.6) shows the $+0.73$ is an **$E_{\rm cut}$-window artifact** — present only at $E_{\rm cut}\approx$ 90–100 Ry, and independent of pseudopotential, band count, and grid.
+
 Re-running the **entire pipeline** (primitive SCF/NSCF, supercell SCFs, $\Delta V$ cubes, edmat, diagonalization) with **SG15 ONCV norm-conserving pseudopotentials** at $E_{\rm cut}=75$ Ry — same frozen geometry, same $6\times6$ $k$-grid, 70 primitive bands — overturns most of §4.4. The band structure is unchanged (VBM/CBM/gap identical to $10^{-3}$ eV), but the EDI in-gap levels move into close agreement with the supercell DFT:
 
 ![DFT vs EDI 70-band DOS, SG15](../assets/dos_dft_edi70_sg15.png)
@@ -168,6 +170,28 @@ Two SG15 simplifications vs the §4.1 gauge gymnastics: (i) the deep bands 1–6
 
 Direct diagonalization, T-matrix DOS, and the spectral function — all three SG15 routes agree: **no deep O$_S$ level; V$_S$'s $a_1$ sits just above the VBM** — matching DFT.
 
+### 4.6 The $+0.73$ is an $E_{\rm cut}$-window artifact, not pseudopotential, grid, or band count
+
+A controlled factorial study — holding the EDI-required commensurate grid (supercell FFT $=6\times$ primitive) fixed while sweeping $E_{\rm cut}$, then holding $E_{\rm cut}$ fixed while changing the grid — pins the origin of the spurious O$_S$ deep level.
+
+**Ground truth (DFT supercell, $E_{\rm cut}$-converged).** The $\Gamma$ eigenvalues of the 108-atom O$_S$ supercell are *identical* at $E_{\rm cut}=$ 75, 100, 120 Ry. O$_S$ is isovalent (O, S both group VI), so it binds **no deep gap state**: the only in-gap feature is a CBM-derived $e$-doublet at **$+1.625$ eV above VBM ($0.035$ eV below the CBM)** — the host-CBM-like LUMO of §4.4.
+
+![O_S defect DOS vs ecut](../assets/dos_ecut_os.png)
+*EDI direct-diagonalization defect DOS $\mathrm{diag}(\varepsilon)+M\cdot\mathrm{Ry}/N_k$ for O$_S$ at $E_{\rm cut}=$ 75/100/120 Ry (all commensurate grids) vs the DFT supercell (black dashed = truth). Left: full spectrum (grey = host VB/CB). Right: gap zoom. The spurious isolated mid-gap peak at **$+0.73$ eV appears only in the $E_{\rm cut}\approx$ 90–100 window**; at 75 and 120 Ry the defect doublet stays near the CBM (gap otherwise empty), matching DFT ($+1.625$, magenta).*
+
+So the famous $+0.73$ (and the Anvil EDT $+0.725$, computed at $E_{\rm cut}=100$) is a **numerical artifact of the EDI explicit summation in a narrow $E_{\rm cut}$ window**, correlated with an anomalous high-band matrix-element norm: $\lVert M\rVert_{[27\text{–}70]}=911$ eV at $E_{\rm cut}=100$ vs $\sim$347 at 75/120 Ry, while the low-band $\lVert M\rVert_{[1\text{–}26]}$ stays smooth ($\sim$600).
+
+| ruled-out cause | test | result |
+|---|---|---|
+| pseudopotential | SG15 vs dojo at same $E_{\rm cut}$ | identical (eig $M$ corr 0.99) |
+| band count | dojo 66 vs 70 bands | identical (no deep at $E_{\rm cut}$ 75) |
+| grid commensurability | force super $=6\times$prim at $E_{\rm cut}$ 75 | same as natural grid$^\dagger$ |
+| grid resolution | grid 40 vs 48 at $E_{\rm cut}$ 100 | identical ($+0.728$) |
+
+$^\dagger$The local-potential fold in `ed_coarse.f90` (≈ line 2225) maps the supercell $\Delta V$ onto the primitive grid by a pure `MOD` index map (no interpolation), so it *does* require $n^{\rm super}_{\rm FFT}=(\text{size})\times n^{\rm prim}_{\rm FFT}$ — a genuine gotcha — but every run here satisfied it exactly (verified in the cube headers and the `edi.x` log; `good_fft_dimension`$=n$, no padding, on this Kestrel build). The nonlocal part (`get_betavkb`) is built analytically in primitive $G$-space and needs no commensurability.
+
+**Takeaway.** The EDI explicit-summation level for an isovalent, CBM-resonant defect is *not* $E_{\rm cut}$-robust — it can spuriously bind a mid-gap state in a particular $E_{\rm cut}$ window. The DFT supercell is the reference; EDI in-gap levels must be cross-checked against it and tested for $E_{\rm cut}$ sensitivity. (V$_S$ has genuine vacancy-derived deep states, but the same caution applies to their exact positions.)
+
 ## 5. $T(nk,\omega)$ spectral map
 
 The full energy dependence of the VBM-band diagonal $T(nk,\omega)$ along $\Gamma$–M–K–$\Gamma$ — **Re** (level shift) and **Im** ($-$Im $\propto$ scattering rate) as separate maps; dashed = on-shell $\varepsilon_{\rm VBM}(k)$.
@@ -193,7 +217,7 @@ The Wannier interpolation and the $R_{\rm cut}$ truncation are only valid if the
 | Quantity | V$_S$ (vacancy) | O$_S$ (substitution) |
 |---|---|---|
 | Downfolded in-gap level (vs Anvil) | $+1.21$ eV ✓ ($+1.205$) | $+0.73$ eV ✓ ($+0.731$) |
-| **vs supercell DFT (§4.4)** | $e$ agrees; **$a_1$ over-bound** ($+0.33$ vs DFT $+0.116$) | **spurious** — DFT has **no deep state** |
+| **vs supercell DFT (§4.4)** | $e$ agrees; **$a_1$ over-bound** ($+0.33$ vs DFT $+0.116$; $E_{\rm cut}$-dependent, →$+0.13$ at 75 Ry) | **spurious** ($E_{\rm cut}$-window artifact, §4.6) — DFT has **no deep state** |
 | $\|T_{PP}\|$ at K (VBM) | $\approx0.004$ Ry | $\approx0.080$ Ry (**$\sim$19×**) |
 | $\|T_{PP}\|$ max on path | $\approx0.035$ Ry | $\approx0.080$ Ry |
 | VBM broadening $\|{\rm Im}\,n_d\Sigma\|$ max ($n_d=2.78\%$) | $\sim$9.5 meV | $\sim$13 meV |
