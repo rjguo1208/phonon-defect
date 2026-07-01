@@ -190,7 +190,18 @@ So the famous $+0.73$ (and the Anvil EDT $+0.725$, computed at $E_{\rm cut}=100$
 
 $^\dagger$The local-potential fold in `ed_coarse.f90` (≈ line 2225) maps the supercell $\Delta V$ onto the primitive grid by a pure `MOD` index map (no interpolation), so it *does* require $n^{\rm super}_{\rm FFT}=(\text{size})\times n^{\rm prim}_{\rm FFT}$ — a genuine gotcha — but every run here satisfied it exactly (verified in the cube headers and the `edi.x` log; `good_fft_dimension`$=n$, no padding, on this Kestrel build). The nonlocal part (`get_betavkb`) is built analytically in primitive $G$-space and needs no commensurability.
 
-**Takeaway.** The EDI explicit-summation level for an isovalent, CBM-resonant defect is *not* $E_{\rm cut}$-robust — it can spuriously bind a mid-gap state in a particular $E_{\rm cut}$ window. The DFT supercell is the reference; EDI in-gap levels must be cross-checked against it and tested for $E_{\rm cut}$ sensitivity. (V$_S$ has genuine vacancy-derived deep states, but the same caution applies to their exact positions.)
+**Takeaway.** The EDI explicit-summation level for an isovalent, CBM-resonant defect is *not* $E_{\rm cut}$-robust — it can spuriously bind a mid-gap state in a particular $E_{\rm cut}$ window. The DFT supercell is the reference; EDI in-gap levels must be cross-checked against it and tested for $E_{\rm cut}$ sensitivity. (V$_S$ has genuine vacancy-derived deep states, but the same caution applies — see §4.7.)
+
+### 4.7 V$_S$: the same $E_{\rm cut}$-100 anomaly hits the CBM-derived $e$-doublet ($a_1$ is robust)
+
+Repeating the controlled $E_{\rm cut}$ study for the V$_S$ vacancy — which, unlike isovalent O$_S$, has *genuine* deep states — shows the $E_{\rm cut}$-100 anomaly is **not O$_S$-specific**.
+
+**Ground truth (DFT supercell, $E_{\rm cut}$-converged — Γ eigenvalues identical at 75/100/120 Ry):** V$_S$ has a filled $a_1$ at **+0.115 eV** above VBM and an empty $e$-doublet at **+1.174 eV** (0.48 eV below the CBM).
+
+![V_S defect DOS vs ecut](../assets/dos_ecut_vs.png)
+*EDI direct-diagonalization defect DOS for V$_S$ at $E_{\rm cut}=$ 75/100/120 Ry (all commensurate 6×6). Purple/magenta dashed = DFT $a_1$/$e$. The matrix-element norm **spikes 3× at $E_{\rm cut}=100$** ($\lVert M\rVert$ = 882 → 2882 → 916 eV), and the CBM-derived $e$-doublet is pulled from the CB edge ($\sim$+1.6 at 75/120) down to **+1.19 at $E_{\rm cut}=100$** — the same $E_{\rm cut}$-100 anomaly as O$_S$ (§4.6). The deep $a_1$ (near VBM) is comparatively robust. (The 6×6 subset of the independent 12×12 production edmat reproduces $\lVert M\rVert=2883$ exactly, confirming this is the genuine V$_S$@100, not a setup artifact.)*
+
+So the $E_{\rm cut}\approx$90–100 EDI anomaly is **systematic** — the matrix-element norm and the CBM-derived states of *both* O$_S$ and V$_S$ are affected. The deep, localized $a_1$ (the state most relevant to the localized-phonon coupling) is comparatively robust, but **$\lVert M\rVert$-dependent quantities — the diagonal $T$, self-energy, scattering rates, spectral function (§2–5) — inherit this $E_{\rm cut}$ sensitivity**, since the production edmats were computed at $E_{\rm cut}=100$. Cross-checking against the DFT supercell and testing $E_{\rm cut}$ sensitivity is warranted for any quantitative CBM-region result; the deep $a_1$ is the more trustworthy quantity.
 
 ## 5. $T(nk,\omega)$ spectral map
 
