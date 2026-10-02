@@ -6,7 +6,7 @@
 <body><a class="skip-link" href="#content">Skip to content</a>
 <nav class="site-nav" aria-label="Site pages"><strong>Pages</strong><ul>
 <li><a href="index.html">Overview</a></li><li><a href="method.html" aria-current="page">Method</a></li>
-<li><a href="toy.html">Toy validation</a></li><li><a href="lihm-park.html">Lihm–Park notes</a></li>
+<li><a href="toy.html">Toy validation</a></li><li><a href="plasmon-phonon.html">Plasmon–phonon notes</a></li>
 <li><a href="plan.html">MoS₂ plan</a></li>
 </ul></nav><main id="content">
 <header>
@@ -14,7 +14,7 @@
 <p>How the phonons of a crystal with a point defect are written as one static, frequency-independent matrix, how electrons couple to its modes, and how the result enters electron transport. Updated 2026-10-01.</p>
 <p><strong>Design document. The phonon upfolding is validated on a <a href="toy.html">toy lattice</a>; the electron side has not been implemented.</strong></p>
 </header>
-<nav aria-label="Contents"><ol><li><a href="#scope">Scope and order</a></li><li><a href="#difference">What differs from Lihm–Park</a></li><li><a href="#downfold">Exact downfold onto the cluster</a></li><li><a href="#upfold">Upfold: cluster plus Krylov chain</a></li><li><a href="#mapping">Correspondence with Lihm–Park</a></li><li><a href="#continuum">Continuum and damping</a></li><li><a href="#vertices">Static electron–phonon vertices</a></li><li><a href="#electrons">Scattering states and the one-phonon amplitude</a></li><li><a href="#transport">Transport and the rest space</a></li><li><a href="#nonadiabatic">Nonadiabatic extension</a></li><li><a href="#lifshitz">Relation to the host-mass form</a></li></ol></nav>
+<nav aria-label="Contents"><ol><li><a href="#scope">Scope and order</a></li><li><a href="#difference">What differs from the plasmon–phonon case</a></li><li><a href="#downfold">Exact downfold onto the cluster</a></li><li><a href="#upfold">Upfold: cluster plus Krylov chain</a></li><li><a href="#mapping">Correspondence with the plasmon–phonon upfolding</a></li><li><a href="#continuum">Continuum and damping</a></li><li><a href="#vertices">Static electron–phonon vertices</a></li><li><a href="#electrons">Scattering states and the one-phonon amplitude</a></li><li><a href="#transport">Transport and the rest space</a></li><li><a href="#nonadiabatic">Nonadiabatic extension</a></li><li><a href="#lifshitz">Relation to the host-mass form</a></li></ol></nav>
 <section id="scope"><h2>Scope and order</h2>
 <ul>
 <li>Harmonic lattice; point defects at concentration \(n_d\to0\) (defects per primitive cell), keeping terms of order \(n_d\).</li>
@@ -23,8 +23,8 @@
 <li>Carriers near band edges or a Fermi surface; transport needs on-shell rates. Units with \(\hbar=1\).</li>
 </ul>
 </section>
-<section id="difference"><h2>What differs from Lihm–Park</h2>
-<p>In Lihm–Park the phonon self-energy is \(\Pi_{\mu\nu}(\omega)=c^{*}_{\mathbf q\mu}D^0_{00}(\omega)\,c_{\mathbf q\nu}\): its frequency dependence comes from an external response, the plasmon, and translation symmetry reduces the problem to one \((N_{\mathrm{ph}}+1)\)-dimensional matrix per \(\mathbf q\). A point defect breaks translation symmetry, and its harmonic phonons are static. With the defect masses \(M\) and force constants \(\Phi=\Phi^0+\Delta\Phi\),</p>
+<section id="difference"><h2>What differs from the plasmon–phonon case</h2>
+<p>In the plasmon–phonon case of Lihm and Park the phonon self-energy is \(\Pi_{\mu\nu}(\omega)=c^{*}_{\mathbf q\mu}D^0_{00}(\omega)\,c_{\mathbf q\nu}\): its frequency dependence comes from an external response, the plasmon, and translation symmetry reduces the problem to one \((N_{\mathrm{ph}}+1)\)-dimensional matrix per \(\mathbf q\). A point defect breaks translation symmetry, and its harmonic phonons are static. With the defect masses \(M\) and force constants \(\Phi=\Phi^0+\Delta\Phi\),</p>
 \[\big[\omega^2-\mathcal D\big]x=0,\qquad \mathcal D=M^{-1/2}\,\Phi\,M^{-1/2},\qquad x=M^{1/2}u .\]
 <p>There is no external pole to add. Frequency dependence appears only after the infinite host is folded onto a finite cluster around the defect, so the object to upfold is the host phonon bath.</p>
 </section>
@@ -38,7 +38,7 @@
 \[\Pi^{(m)}_b(z)=B_0^{\dagger}\big[(z-L_m)^{-1}\big]_{11}B_0 .\]
 <p>The same quantity is the cluster block of the resolvent of one static matrix,</p>
 \[\tilde C=\begin{pmatrix}\mathcal D_{cc}&B_0^{\dagger}E_1^{\dagger}\\ E_1B_0&L_m\end{pmatrix},\qquad D_{cc}(z)=\big[(z-\tilde C)^{-1}\big]_{cc},\]
-<p>where \(E_1\) places a block on the first chain site. This is the analogue of the plasmon–phonon dynamical matrix of Lihm–Park (SM Eq. S18): the cluster plays the role of the phonons, the chain sites the role of the plasmon, and \(B_0\) the role of the couplings \(c_{\mathbf q\nu}\).</p>
+<p>where \(E_1\) places a block on the first chain site. This is the analogue of the plasmon–phonon dynamical matrix of Lihm and Park (SM Eq. S18): the cluster plays the role of the phonons, the chain sites the role of the plasmon, and \(B_0\) the role of the couplings \(c_{\mathbf q\nu}\).</p>
 <ul>
 <li><strong>The chain does not depend on the defect.</strong> It depends only on \(\mathcal D_{bb}\) and \(\mathcal D_{bc}\). It is built once per host and cluster and reused for every defect on the same site; a different defect changes only the block \(\mathcal D_{cc}\). The pristine reference \(\tilde C_0\) uses the host block \(\mathcal D^0_{cc}\) with the same chain.</li>
 <li><strong>One diagonalization gives every frequency.</strong> With \(\tilde C e_\beta=\tilde\omega_\beta^2e_\beta\), the cluster propagator is a sum over defect-dressed modes,
@@ -47,9 +47,9 @@
 <li><strong>Without diagonalization.</strong> The block continued fraction gives the same \(D_{cc}(z)\) by one small recursion per frequency; on the toy lattice the two agree to \(10^{-13}\).</li>
 </ul>
 </section>
-<section id="mapping"><h2>Correspondence with Lihm–Park</h2>
-<div class="table-scroll"><table><caption>Plasmon–phonon upfolding (Lihm–Park) and defect–phonon upfolding (this work)</caption>
-<thead><tr><th scope="col">Lihm–Park</th><th scope="col">This work</th></tr></thead><tbody>
+<section id="mapping"><h2>Correspondence with the plasmon–phonon upfolding</h2>
+<div class="table-scroll"><table><caption>Plasmon–phonon upfolding (Lihm and Park) and defect–phonon upfolding (this work)</caption>
+<thead><tr><th scope="col">Plasmon–phonon (Lihm and Park)</th><th scope="col">This work</th></tr></thead><tbody>
 <tr><td>Phonon block \(\mathrm{diag}(\omega^2_{\mathbf q\nu})\)</td><td>Cluster block \(\mathcal D_{cc}\) with defect masses and force constants</td></tr>
 <tr><td>Plasmon: one auxiliary mode per \(\mathbf q\), one per pole in the multipole model</td><td>Krylov chain sites: the compressed host bath</td></tr>
 <tr><td>Couplings \(c_{\mathbf q\nu}\)</td><td>\(B_0\)</td></tr>
@@ -66,7 +66,7 @@
 <li>the block continued fraction, evaluated per frequency;</li>
 <li>a constant damping \(\Gamma\) on the last chain block, which turns \(z-\tilde C\) into \((\omega+i\tilde\Gamma)^2-\tilde C\).</li>
 </ol>
-<p>Option 3 is linearized exactly as in Lihm–Park Eq. 9:</p>
+<p>Option 3 is linearized exactly as in Eq. 9 of Lihm and Park:</p>
 \[K=\begin{pmatrix}-i\tilde\Gamma&I\\ \tilde C&-i\tilde\Gamma\end{pmatrix},\qquad \big[(\omega+i\tilde\Gamma)^2-\tilde C\big]^{-1}=\begin{pmatrix}I&0\end{pmatrix}(\omega-K)^{-1}\begin{pmatrix}0\\ I\end{pmatrix} .\]
 <p>The eigenvalues \(\tilde\omega_\beta-i\tilde\gamma_\beta\) of \(K\) give the energies and lifetimes of resonant modes. A constant damping is a Markovian terminator and therefore an approximation; options 1 and 2 converge to the exact cluster resolvent.</p>
 </section>
@@ -83,7 +83,7 @@
 <p>storing the \(Q_j\) or regenerating them in a second Lanczos pass. A first version keeps only the cluster vertices and converges the result in the cluster radius.</p>
 <h3>Dressed modes and the defect correction</h3>
 \[\tilde g_{mn,\beta}=\sum_a\frac{g_{mn,a}\,(e_\beta)_a}{\sqrt{2\tilde\omega_\beta}}\]
-<p>is Lihm–Park SM Eq. S66 with the hybrid eigenvectors replaced by the dressed defect modes. The defect contribution is the difference of two mode sums, one over \(\tilde C\) and one over \(\tilde C_0\), with the same chain and the same chain vertices. Host modes outside the Krylov space generated from \(\mathcal D_{bc}\) neither couple to the cluster nor change with the defect, so they cancel exactly in the difference.</p>
+<p>is SM Eq. S66 of Lihm and Park with the hybrid eigenvectors replaced by the dressed defect modes. The defect contribution is the difference of two mode sums, one over \(\tilde C\) and one over \(\tilde C_0\), with the same chain and the same chain vertices. Host modes outside the Krylov space generated from \(\mathcal D_{bc}\) neither couple to the cluster nor change with the defect, so they cancel exactly in the difference.</p>
 </section>
 <section id="electrons"><h2>Scattering states and the one-phonon amplitude</h2>
 <p>The electron side reuses the downfolded electron–defect T-matrix. With the Bloch states split into an active window \(A\) and a rest space \(R\),</p>
@@ -110,7 +110,7 @@ which uses the same block-Lanczos machinery as the rest-space self-energy.</li>
 </ul>
 </section>
 <section id="nonadiabatic"><h2>Nonadiabatic extension</h2>
-<p>Finite-displacement force constants are adiabatic. When electronic excitations localized at the defect fall inside the phonon window (free carriers excited into a shallow resonance, a defect level at the Fermi energy of a metal, or the free-carrier plasmon of a doped semiconductor), the phonons acquire a nonadiabatic self-energy. Its poles are added to \(\tilde C\) as auxiliary modes exactly as in Lihm–Park SM Eq. S50, with pole-resolved couplings \(c_{p\nu}\) (see the <a href="lihm-park.html#notes">Lihm–Park notes</a>). The first version is adiabatic.</p>
+<p>Finite-displacement force constants are adiabatic. When electronic excitations localized at the defect fall inside the phonon window (free carriers excited into a shallow resonance, a defect level at the Fermi energy of a metal, or the free-carrier plasmon of a doped semiconductor), the phonons acquire a nonadiabatic self-energy. Its poles are added to \(\tilde C\) as auxiliary modes exactly as in SM Eq. S50 of Lihm and Park, with pole-resolved couplings \(c_{p\nu}\) (see the <a href="plasmon-phonon.html#notes">Plasmon–phonon notes</a>). The first version is adiabatic.</p>
 </section>
 <section id="lifshitz"><h2>Relation to the host-mass form</h2>
 <p>The earlier phonon T-matrix of this repository (tag <a href="https://github.com/rjguo1208/phonon-defect/tree/archive/2026-07-01">archive/2026-07-01</a>) scaled the equations of motion by the host masses, which makes a mass change a frequency-dependent perturbation,</p>
