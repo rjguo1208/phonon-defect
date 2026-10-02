@@ -78,8 +78,9 @@ def cluster_green_cf(D_CC, B0, A, B, z):
 
 
 def damped_companion(Ct, gamma):
-    """Lihm-Park Eq. 9 / S23: K = [[-i G, 1], [Ct, -i G]] with G = diag(gamma).
+    """Damped companion matrix K = [[-i G, 1], [Ct, -i G]] with G = diag(gamma).
 
+    Eq. 9 / S23 of Lihm & Park (arXiv:2409.07393):
     [(omega + i G)^2 - Ct]^-1 = (1 0) (omega - K)^-1 (0 1)^T, and the complex
     eigenvalues of K, omega~ - i gamma~, are the damped mode frequencies.
     """

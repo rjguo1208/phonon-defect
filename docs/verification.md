@@ -29,7 +29,7 @@ eigenvalues in the lower half plane.
 
 Continued fraction vs mode sum at 40 blocks: 1.3e-15 (light), 4.7e-14 (heavy).
 
-## Lihm–Park checks (`reference/lihm_park_2024/`)
+## Plasmon–phonon upfolding checks (`reference/plasmon_phonon_upfolding/`)
 
 `check_upfold.py`: S14->S15 5.62e-16; Eq. 9 eigen-expansion 1.46e-13; pairing
 7.14e-14 with max Im(lambda) = -0.302; S59 vs S58 with static conjugation 8.33e-16

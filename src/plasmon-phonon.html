@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Reading notes on the Lihm-Park plasmon-phonon upfolding (arXiv:2409.07393v1): the construction, two notes on the printed equations, and numerical checks.">
-<title>Reading notes: the Lihm–Park upfolding</title>
+<meta name="description" content="Reading notes on the plasmon-phonon upfolding of arXiv:2409.07393v1: the construction, two notes on the printed equations, and numerical checks.">
+<title>Reading notes: plasmon–phonon upfolding</title>
 <link rel="stylesheet" href="assets/katex/katex.min.css"><link rel="stylesheet" href="assets/style.css"></head>
 <body><a class="skip-link" href="#content">Skip to content</a>
 <nav class="site-nav" aria-label="Site pages"><strong>Pages</strong><ul>
 <li><a href="index.html">Overview</a></li><li><a href="method.html">Method</a></li>
-<li><a href="toy.html">Toy validation</a></li><li><a href="lihm-park.html" aria-current="page">Lihm–Park notes</a></li>
+<li><a href="toy.html">Toy validation</a></li><li><a href="plasmon-phonon.html" aria-current="page">Plasmon–phonon notes</a></li>
 <li><a href="plan.html">MoS₂ plan</a></li>
 </ul></nav><main id="content">
 <header>
-<h1>Reading notes: the Lihm–Park upfolding</h1>
+<h1>Reading notes: plasmon–phonon upfolding</h1>
 <p>J.-M. Lihm and C.-H. Park, <a href="https://arxiv.org/abs/2409.07393">Plasmon–phonon hybridization in doped semiconductors from first principles, arXiv:2409.07393v1</a> (2024), published in Phys. Rev. Lett. 133, 116402. These notes refer to arXiv v1 and its Supplemental Material (SM); the published version was not compared. Updated 2026-10-01.</p>
 <p><strong>The construction was re-derived and every identity below was checked numerically on a toy model; two printed equations need care when implemented.</strong></p>
 </header>
@@ -53,7 +53,7 @@
 <tr><td>S75 against the closed form \(W_b/(1-\delta\chi_0W_b)\)</td><td>4.5e-15</td></tr>
 <tr><td>Multipole with pole-resolved couplings against the direct Dyson solution</td><td>7e-16</td></tr>
 </tbody></table></div>
-<p>The scripts are in <code>reference/lihm_park_2024/</code> (<code>check_upfold.py</code>, <code>check_loss.py</code>); each runs in seconds.</p>
+<p>The scripts are in <code>reference/plasmon_phonon_upfolding/</code> (<code>check_upfold.py</code>, <code>check_loss.py</code>); each runs in seconds.</p>
 </section>
 <section id="use"><h2>What we take from it</h2>
 <p>The move, not the plasmon: write a frequency-dependent self-energy as the exchange of auxiliary modes with static couplings, so that one static matrix replaces a frequency loop and electrons couple through static vertices. For a point defect the auxiliary modes are the sites of a Krylov chain of the host bath rather than a plasmon pole; see the <a href="method.html#upfold">Method</a>.</p>

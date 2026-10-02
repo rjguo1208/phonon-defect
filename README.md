@@ -24,8 +24,8 @@ phonon bath, attached to the defect cluster.
   lattice a local mode is exact with 10 chain blocks and an in-band resonance
   converges to a relative error of 5e-6 with 160 blocks, with one chain shared by
   all defects (`src/toy.html`).
-- Lihm–Park construction: re-derived and checked numerically, with two notes on the
-  printed equations (`src/lihm-park.html`).
+- Plasmon–phonon upfolding (Lihm and Park): re-derived and checked numerically, with two notes on the
+  printed equations (`src/plasmon-phonon.html`).
 - First-principles MoS2 (O_S, V_S): planned, not run (`src/plan.html`).
 
 ## Layout
@@ -35,7 +35,7 @@ phonon bath, attached to the defect cluster.
 | `phdef/` | block Lanczos chain, upfolded matrix, cluster Green function (mode sum and continued fraction), damped companion matrix, toy models |
 | `examples/square_lattice_toy.py` | toy validation (about one minute) |
 | `tests/` | unit tests: `python -m pytest tests` |
-| `reference/lihm_park_2024/` | numerical checks of the Lihm–Park identities |
+| `reference/plasmon_phonon_upfolding/` | numerical checks of the plasmon–phonon upfolding identities (Lihm and Park) |
 | `src/`, `site/` | website source and generated website |
 | `scripts/` | website build (`build.mjs`) and checks (`check_site.py`) |
 | `docs/verification.md` | what was checked for the current version |
