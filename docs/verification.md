@@ -40,6 +40,23 @@ pole-resolved couplings 7.17e-16 (pole-independent 1.85e-2).
 1.64; loss-function integral 34.8712 (literal) vs 33.2308 (S75); peak 39.91 vs
 40.33.
 
+## Toy figures (`npm run figures`, added 2026-10-01)
+
+`scripts/toy_figures.py` reuses the toy lattice and chain and writes
+`site/results/toy-local-dos.{svg,pdf,png}`, `site/results/toy-convergence.{svg,pdf,png}`
+and the plotted numbers as CSV in `site/data/`. Full scan of the maximum relative
+error of G_00 (light / heavy): m = 5: 9.3e-1 / 9.5e-1; 20: 2.3e-1 / 2.1e-1;
+60: 1.1e-2 / 1.2e-2; 100: 6.1e-4 / 6.4e-4; 140: 2.4e-5 / 2.5e-5; 160: 4.9e-6 / 4.9e-6.
+Local-mode frequency error of the light defect: m = 1: 1.2e-6; 2: 2.0e-8; 3: 3.5e-10;
+4: 6.0e-12; 5: 1.1e-13; 6: 1.8e-15; 7-10: 8.9e-16 (double-precision floor).
+
+Colours were checked with the data-viz palette validator against the white page
+surface: the ordinal blue ramp `#86b6ef,#2a78d6,#104281` (m = 10, 40, 160) passes all
+ramp checks (light end 2.11:1); the categorical pair `#2a78d6,#eb6834` passes all
+categorical checks (worst CVD Delta E 24.7). The SVGs have a viewBox, no raster
+images and text converted to paths. The PNG renders were inspected for label
+collisions and clipping.
+
 ## Website
 
 `npm run build` → 5 pages, 195 LaTeX expressions rendered with KaTeX in strict
