@@ -1,0 +1,27 @@
+# Repository and website maintenance
+
+The website is English only.
+
+- Edit page content and markup in `src/*.html`; `site/` is generated. Do not add
+  translations, a translation catalog or a language switch. `npm run check`
+  rejects CJK text anywhere in the published pages.
+- Write equations as LaTeX between `\(...\)` (inline) or `\[...\]` (display).
+  They are rendered at build time with KaTeX (`throwOnError`, `strict: 'error'`),
+  so use only ASCII inside math and put units outside it.
+- Every page lists every page in its `site-nav` block and marks itself with
+  `aria-current="page"`. A new page needs that block on every page.
+- Run `npm run build` and `npm run check`, and commit the regenerated `site/`
+  together with the source change. CI rebuilds and fails if `site/` differs.
+  On Banff the system Node is broken; use the Node 22 in
+  `~/.local/opt/node-v22.23.3-linux-x64/bin/`.
+- Scientific plots go under `site/results/` as SVG with a PDF next to each, and
+  every image needs alternative text.
+- Run `python -m pytest tests` after changing `phdef/`.
+- The website is published only by running the "Deploy GitHub Pages" workflow.
+  Pushing does not publish.
+- Do not mark a calculation as validated because the build, unrelated tests or a
+  deployment succeeded. A step is validated when its gate on the Plan page passes.
+- Never commit raw research data (wavefunctions, `*.save/`, cubes, binary arrays,
+  scheduler logs); see `.gitignore`.
+- The previous content of this repository is preserved at the tag
+  `archive/2026-07-01`; do not delete or move it.
