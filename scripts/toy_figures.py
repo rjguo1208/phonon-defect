@@ -3,7 +3,9 @@
 
 Writes site/results/toy-local-dos.{svg,pdf,png}, site/results/toy-convergence.{svg,pdf,png},
 site/results/toy-dispersion.{svg,pdf,png} (host dispersion beside the local densities of
-states) and the plotted numbers as CSV under site/data/. Same lattice, defects, cluster
+states), site/results/toy-spectral.{svg,pdf,png} (A(k, w) at a defect concentration n_d in the
+dilute limit, Sigma = n_d T, with the T-matrix in site/data/toy-tmatrix.csv) and the plotted
+numbers as CSV under site/data/. Same lattice, defects, cluster
 and chain as examples/square_lattice_toy.py.
 
 Colour: the chain length m is ordered, so the upfolded curves use one blue ramp
@@ -133,6 +135,108 @@ def dispersion_figure(s, w_band, ticks, w_dos, rho, w_local):
                  fontsize=9, ha="center", va="bottom", arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.75, shrinkB=2))
     axd.legend(loc="upper right", bbox_to_anchor=(1.0, 0.79), fontsize=9.5, labelcolor=INK2)
     save(fig, "toy-dispersion")
+
+
+# ---- spectral function at a finite defect concentration (dilute limit, Sigma = n_d T) ----
+SUPPORT = np.array([(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1)])   # sites where V(z) acts
+SHELLS = [(0, 0), (1, 0), (1, 1), (2, 0)]                          # distinct |r_a - r_b| on SUPPORT
+ND, ETA_A = 0.02, 0.01                                             # concentration and broadening of A(k, w)
+SEQ = ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"]   # sequential blue, steps 100/250/400/550/700
+A_LEVELS = [0.1, 0.3, 1.0, 3.0, 10.0, 1e6]
+
+
+def host_green(omegas, eta, nky=32768, chunk=64):
+    """Infinite-lattice host Green function g0(r; z) = (1/N) sum_k e^{ik.r} / (z - w_k^2), z = (w + i eta)^2,
+    for r in SHELLS: the k_x integral is done exactly, the k_y integral by the trapezoid rule on [0, pi]."""
+    ky = np.linspace(0.0, np.pi, nky + 1)
+    wts = np.full(nky + 1, 1.0 / nky)
+    wts[[0, -1]] *= 0.5
+    om = np.atleast_1d(np.asarray(omegas, float))
+    out = np.empty((len(om), len(SHELLS)), complex)
+    for i in range(0, len(om), chunk):
+        w = (om[i:i + chunk, None] + 1j * eta) ** 2 - 4.0 + 2.0 * np.cos(ky)[None, :]
+        r = (-w + np.sqrt(w * w - 4.0 + 0j)) / 2.0
+        r = np.where(np.abs(r) < 1.0, r, 1.0 / r)              # root of x^2 + w x + 1 inside the unit circle
+        base = 1.0 / (r - 1.0 / r)
+        for j, (m, n) in enumerate(SHELLS):
+            out[i:i + chunk, j] = (r ** m * base * np.cos(n * ky)[None, :]) @ wts
+    return out
+
+
+def defect_tmatrix(omegas, eta, Md, Kd, g):
+    """Single-defect T-matrix on SUPPORT in displacement coordinates (host masses 1).
+
+    V(z) = dPhi - z dM: the mass change at the defect and the spring change on its four bonds;
+    T(z) = [1 - V(z) g0(z)]^-1 V(z). Returns T and the 5 x 5 host block g0 on SUPPORT."""
+    z = (np.atleast_1d(np.asarray(omegas, float)) + 1j * eta) ** 2
+    dK, dM = Kd - 1.0, Md - 1.0
+    V = np.zeros((len(z), 5, 5), complex)
+    V[:, 0, 0] = 4 * dK - z * dM
+    V[:, 0, 1:] = -dK
+    V[:, 1:, 0] = -dK
+    V[:, np.arange(1, 5), np.arange(1, 5)] = dK
+    idx = np.array([[SHELLS.index(tuple(sorted(np.abs(a - b), reverse=True))) for b in SUPPORT] for a in SUPPORT])
+    G0 = g[:, idx]
+    return np.linalg.solve(np.eye(5) - V @ G0, V), G0
+
+
+def spectral_function(kpts, omegas, eta, T, nd, w_cut=np.inf):
+    """Configuration-averaged A(k, w) = -(2w/pi) Im <g(k, z)> to first order in the concentration n_d.
+
+    t_k(z) = sum_ab e^{-ik.r_a} T_ab(z) e^{ik.r_b}. Below w_cut: Dyson equation with Sigma = n_d t_k
+    (the host branch needs the resummation). Above w_cut (the gap below a local mode): the first-order
+    average g0 + n_d g0 t_k g0, which keeps the local mode at its isolated frequency; resumming n_d t_k
+    near the pole of T shifts it by an artificial level repulsion that random positions do not produce."""
+    om = np.asarray(omegas, float)
+    phase = np.exp(1j * kpts @ SUPPORT.T)
+    t = np.einsum("ka,wab,kb->kw", phase.conj(), T, phase)
+    wk2 = 2 * (2 - np.cos(kpts[:, 0]) - np.cos(kpts[:, 1]))
+    g0 = 1.0 / ((om[None, :] + 1j * eta) ** 2 - wk2[:, None])
+    g = np.where(om[None, :] > w_cut, g0 + nd * g0 ** 2 * t, 1.0 / (1.0 / g0 - nd * t))
+    return -(2 * om[None, :] / np.pi) * g.imag
+
+
+def spectral_figure(s, ticks, om, A, kz, omz, Az, w_isolated, w_res):
+    """A(k, w) along the path for both defects, and the heavy defect near Gamma along Gamma-X."""
+    fig = plt.figure(figsize=(10.0, 4.5), constrained_layout=True)
+    gs = fig.add_gridspec(1, 4, width_ratios=[1.0, 1.0, 0.68, 0.045])
+    axa = fig.add_subplot(gs[0])
+    axb = fig.add_subplot(gs[1], sharey=axa)
+    axc, cax = fig.add_subplot(gs[2]), fig.add_subplot(gs[3])
+    for ax, key, title in ((axa, "light", "Light defect"), (axb, "heavy", "Heavy defect")):
+        cs = ax.contourf(s, om, np.clip(A[key].T, 1e-12, None), levels=A_LEVELS, colors=SEQ)
+        ax.grid(False)
+        ax.set_xticks(ticks, [p[0] for p in PATH])
+        for t in ticks[1:-1]:
+            ax.axvline(t, color=AXIS, lw=0.75)
+        ax.axhline(2 * np.sqrt(2), color=AXIS, lw=0.75)
+        ax.set_xlim(0, ticks[-1])
+        ax.set_ylim(0, 4.9)
+        ax.set_title(f"{title}, $n_d$ = {ND}", loc="left", color=INK, fontsize=11)
+    axb.tick_params(labelleft=False)
+    axa.set_ylabel("Frequency ω")
+    axa.annotate(f"local modes: flat band at {w_isolated:.3f}", xy=(ticks[2] - 0.6, w_isolated - 0.03), xytext=(ticks[2] - 1.4, 3.6),
+                 color=INK2, fontsize=9, ha="center", va="center",
+                 arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.75, shrinkB=2))
+    axb.add_patch(matplotlib.patches.Rectangle((0.0, 0.0), kz[-1], omz[-1], fill=False, ec=INK2, lw=0.8))
+    axb.text(kz[-1] + 0.08, 0.04, "zoom", ha="left", va="bottom", color=INK2, fontsize=9)
+
+    axc.contourf(kz, omz, np.clip(Az.T, 1e-12, None), levels=A_LEVELS, colors=SEQ)
+    axc.grid(False)
+    axc.plot(kz, 2 * np.sin(kz / 2), color=INK2, lw=0.8, ls=(0, (4, 3)))
+    axc.text(kz[-1] - 0.03, 0.03, "dashed: host branch", ha="right", va="bottom", color=INK2, fontsize=9)
+    axc.axhline(w_res, color=INK2, lw=0.75)
+    axc.text(kz[-1] - 0.03, w_res + 0.02, f"one defect: {w_res:.2f}", ha="right", va="bottom", color=INK2, fontsize=9)
+    axc.set_xlim(0, kz[-1])
+    axc.set_ylim(0, omz[-1])
+    axc.set_xlabel("k along Γ–X")
+    axc.set_title("Heavy defect near Γ", loc="left", color=INK, fontsize=11)
+    cb = fig.colorbar(cs, cax=cax, ticks=A_LEVELS[:-1])
+    cb.ax.set_yticklabels(["0.1", "0.3", "1", "3", "10"])
+    cb.set_label("A(k, ω)", color=INK2)
+    cb.outline.set_visible(False)
+    with plt.rc_context({"path.simplify_threshold": 0.5}):
+        save(fig, "toy-spectral")
 
 
 def save(fig, name):
@@ -280,7 +384,46 @@ def main():
     jh = int(np.argmax(np.where(w_dos < 1.5, rho["heavy"], 0.0)))
     print(f"dispersion figure: local mode {w_local:.6f}; heavy resonance peak at {w_dos[jh]:.4f}; "
           f"host LDOS maximum at {w_dos[int(np.argmax(rho['host']))]:.4f}")
-    print("wrote site/results/toy-local-dos.*, toy-convergence.*, toy-dispersion.*, site/data/toy-*.csv")
+
+    # ---- figure 4: A(k, w) at a finite defect concentration, Sigma = n_d T ----
+    om, kA = np.arange(0.002, 4.9, 0.005), slice(None, None, 2)       # every second k of the path
+    omz, kz = np.arange(0.002, 1.2, 0.002), np.linspace(0.0, 1.3, 261)
+    gA, gz = host_green(om, ETA_A), host_green(omz, ETA_A)
+    A, T_out = {}, {}
+    w_cut = 0.5 * (2 * np.sqrt(2) + w_local)                          # middle of the gap below the local mode
+    for key, _, Md, Kd in DEFECTS:
+        T_out[key], _ = defect_tmatrix(om, ETA_A, Md, Kd, gA)
+        A[key] = spectral_function(kpath[kA], om, ETA_A, T_out[key], ND, w_cut)
+        sums = [float(np.trapezoid(A[key][int(np.argmin(np.abs(s[kA] - x)))], om)) for x in (s[2], ticks[1], ticks[2])]
+        print(f"A(k, w) {key}: weight near Γ / at X / at M {sums[0]:.4f} / {sums[1]:.4f} / {sums[2]:.4f}; "
+              f"1 + n_d (1/M' - 1) = {1 + ND * (1 / Md - 1):.4f}")
+    Md_h, Kd_h = [(d[2], d[3]) for d in DEFECTS if d[0] == "heavy"][0]
+    Tz, G0z = defect_tmatrix(omz, ETA_A, Md_h, Kd_h, gz)
+    Az = spectral_function(np.c_[kz, np.zeros_like(kz)], omz, ETA_A, Tz, ND)
+    g00 = G0z[:, 0, 0] + np.einsum("wa,wab,wb->w", G0z[:, 0, :], Tz, G0z[:, :, 0])
+    w_res = float(omz[np.argmax(-(2 * omz / np.pi) * (Md_h * g00).imag)])
+    spectral_figure(s[kA], ticks, om, A, kz, omz, Az, w_local, w_res)
+    comps = ((0, 0), (0, 1), (1, 1), (1, 2), (1, 3))
+    write_csv("toy-tmatrix.csv", ["defect", "omega"] + [f"{p}_T{a}{b}" for a, b in comps for p in ("re", "im")],
+              [(key, f"{w:.4f}", *[f"{v:.8e}" for a, b in comps for v in (T_out[key][i, a, b].real, T_out[key][i, a, b].imag)])
+               for key in T_out for i, w in enumerate(om)])
+    # the same T-matrix from the upfolded matrix (m = MMAX, eta = ETA) of the finite lattice
+    pos = {int(c): n for n, c in enumerate(C)}
+    sup = [pos[(L // 2 + dx) * L + (L // 2 + dy)] for dx, dy in SUPPORT]
+    zt = (TEST_OMEGAS + 1j * ETA) ** 2
+    G0c = cluster_green_modes(*modes_max["host"], len(C), zt)
+    G0inv = np.linalg.inv(G0c)
+    gt = host_green(TEST_OMEGAS, ETA)
+    for key, _, Md, Kd in DEFECTS:
+        mvec = np.ones(len(C))
+        mvec[i0] = Md
+        gu = cluster_green_modes(*modes_max[key], len(C), zt) / np.sqrt(np.outer(mvec, mvec))
+        Tc = (G0inv @ (gu - G0c) @ G0inv)[:, sup][:, :, sup]
+        Td, _ = defect_tmatrix(TEST_OMEGAS, ETA, Md, Kd, gt)
+        dev = np.linalg.norm(Tc - Td, axis=(1, 2)) / np.linalg.norm(Td, axis=(1, 2))
+        print(f"T-matrix {key}: upfolded (m={MMAX}, eta={ETA}) vs direct, max relative deviation {dev.max():.1e}")
+    print(f"spectral figure: n_d = {ND}, eta = {ETA_A}, first order above w = {w_cut:.3f}; heavy resonance of one defect at {w_res:.3f}")
+    print("wrote site/results/toy-local-dos.*, toy-convergence.*, toy-dispersion.*, toy-spectral.*, site/data/toy-*.csv")
 
 
 if __name__ == "__main__":

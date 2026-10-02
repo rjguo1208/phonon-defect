@@ -85,11 +85,40 @@ colour is the label text of M' and K', a darker orange #b4461a with contrast 5.4
 on white (the mark colour #eb6834 has 3.20:1). The PNG was inspected for collisions
 and clipping.
 
+## Spectral function at a finite concentration (added 2026-10-02)
+
+`scripts/toy_figures.py` writes `site/results/toy-spectral.{svg,pdf,png}` and the
+single-defect T-matrix in `site/data/toy-tmatrix.csv` (n_d = 0.02, eta = 0.01). The host
+Green function of the infinite lattice is computed with the k_x integral done exactly and
+the k_y integral by the trapezoid rule: the lattice identity (z - 4) g(0,0) + 4 g(1,0) = 1
+holds to 2e-14, 32768 and 131072 k_y points agree to 5e-14, and a 1024 x 1024 k-sum at
+eta = 0.05 agrees to 3e-14. The T-matrix V(z) = dPhi - z dM on the defect and its four
+neighbours gives the local mode from det(1 - V g0) = 0 at 4.348826043; it reproduces the
+defect-site density of states of the upfolded matrix (m = 160, eta = 0.05, 121 x 121) to
+6e-6 (light) and 6e-4 (heavy); the T-matrix extracted from the upfolded cluster Green
+function agrees with the direct one to 2.2e-5 and 5.9e-4 (the finite lattice).
+
+`examples/toy_spectral_check.py` (SLURM 627599, 134 s on 8 cores): 12 random configurations
+of 82 defects on a 64 x 64 torus, exact diagonalization, eigenvectors unfolded onto plane
+waves, averaged over configurations and the star of k. Light defect: the local-mode band
+peaks at 4.350 at Γ, X and M with weights 0.0299 / 0.0586 / 0.1244; the first-order
+average used in the figure gives 4.350 with 0.0301 / 0.0583 / 0.1292, while the Dyson
+equation with Sigma = n_d T used everywhere gives 4.414 / 4.450 / 4.510. This is why the
+figure resums only below the middle of the gap (3.589), where the two forms differ by
+less than 1e-3. Heavy defect: peaks along Γ–X agree within 0.004 for k = 0.20–0.98,
+including the split into 0.43 / 0.52 at k = 0.49. Median deviation on the host ridge:
+1.0 % (light) and 1.3 % (heavy). An ATA built from the torus host Green function instead
+of the infinite one shows spurious peaks from the discrete torus spectrum at eta = 0.01,
+which the disordered configurations do not; the infinite-lattice host is the right
+reference. Integrated weights per k are within 0.004 of 1 + n_d (1/M' - 1) inside the
+plotted window. The SVG (1.6 MB) uses filled contours on five logarithmic classes of the
+sequential blue ramp, because the site check rejects raster images inside SVG files.
+
 ## Website
 
-`npm run build` → 5 pages, 230 LaTeX expressions rendered with KaTeX in strict
-mode. `npm run check` → "OK: 5 English pages; 230 LaTeX expressions with MathML;
-4 scientific plots; page navigation, local links, anchors and fonts." No browser
+`npm run build` → 5 pages, 271 LaTeX expressions rendered with KaTeX in strict
+mode. `npm run check` → "OK: 5 English pages; 271 LaTeX expressions with MathML;
+5 scientific plots; page navigation, local links, anchors and fonts." No browser
 check was run.
 
 ## Not verified
