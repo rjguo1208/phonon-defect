@@ -57,11 +57,27 @@ categorical checks (worst CVD Delta E 24.7). The SVGs have a viewBox, no raster
 images and text converted to paths. The PNG renders were inspected for label
 collisions and clipping.
 
+## Toy schematic (`npm run schematic`, added 2026-10-01)
+
+`scripts/toy_schematic.tex` (standalone class, TikZ) is compiled by
+`scripts/toy_schematic.py` with pdfLaTeX (pdfTeX 1.40.29, TeX Live 2026 via TinyTeX, standalone class of 2025/02/22)
+without LaTeX warnings or over/underfull boxes; PyMuPDF 1.28.2 renders the SVG (text as
+paths, viewBox, no raster images) and a 300 dpi PNG. Two consecutive runs give
+byte-identical PDF, SVG and PNG. Every number in the figure was checked against the
+code with `phdef` on a 41 x 41 lattice: `D_bc` has 20 nonzero entries, all in rows of
+the 12 sites at Manhattan distance 3, and rank 8; the Lanczos weight of Q_1 is 8.0 on
+distance 3, of Q_2 8.0 on distance 4, and of Q_3 0.39 on distance 3 and 7.61 on
+distance 5 (block j reaches distance 2 + j); A_1 = 4 I. The colours are the validated
+ramp and categorical orange of `toy_figures.py` and its neutral inks; the only new
+colour is the label text of M' and K', a darker orange #b4461a with contrast 5.48:1
+on white (the mark colour #eb6834 has 3.20:1). The PNG was inspected for collisions
+and clipping.
+
 ## Website
 
-`npm run build` → 5 pages, 195 LaTeX expressions rendered with KaTeX in strict
-mode. `npm run check` → "OK: 5 English pages; 195 LaTeX expressions with MathML;
-0 scientific plots; page navigation, local links, anchors and fonts." No browser
+`npm run build` → 5 pages, 220 LaTeX expressions rendered with KaTeX in strict
+mode. `npm run check` → "OK: 5 English pages; 220 LaTeX expressions with MathML;
+3 scientific plots; page navigation, local links, anchors and fonts." No browser
 check was run.
 
 ## Not verified

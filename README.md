@@ -45,6 +45,7 @@ phonon bath, attached to the defect cluster.
 ```sh
 npm ci --ignore-scripts
 npm run figures  # toy-validation figures and CSV into site/results/ and site/data/ (about one minute)
+npm run schematic  # toy-model schematic from scripts/toy_schematic.tex (TikZ; needs pdflatex and PyMuPDF)
 npm run build    # KaTeX renders all LaTeX into site/ (HTML + MathML, no client JavaScript)
 npm run check    # rendered math, navigation, links, anchors, fonts, English-only text
 ```
