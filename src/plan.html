@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Plan for the first first-principles application: monolayer MoS2 with an oxygen substitution or a sulfur vacancy; steps, validation gates, cost and risks.">
+<title>Plan: MoS₂ with O_S and V_S</title>
+<link rel="stylesheet" href="assets/katex/katex.min.css"><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip-link" href="#content">Skip to content</a>
+<nav class="site-nav" aria-label="Site pages"><strong>Pages</strong><ul>
+<li><a href="index.html">Overview</a></li><li><a href="method.html">Method</a></li>
+<li><a href="toy.html">Toy validation</a></li><li><a href="lihm-park.html">Lihm–Park notes</a></li>
+<li><a href="plan.html" aria-current="page">MoS₂ plan</a></li>
+</ul></nav><main id="content">
+<header>
+<h1>Plan: MoS₂ with O<sub>S</sub> and V<sub>S</sub></h1>
+<p>First first-principles application: monolayer MoS₂ with an oxygen substitution (O<sub>S</sub>) or a sulfur vacancy (V<sub>S</sub>) at \(n_d=10^{12}\,\mathrm{cm^{-2}}\). Updated 2026-10-01.</p>
+<p><strong>Planned. Nothing on this page has been run yet.</strong></p>
+</header>
+<nav aria-label="Contents"><ol><li><a href="#targets">Why these two defects</a></li><li><a href="#steps">Steps</a></li><li><a href="#gates">Validation gates</a></li><li><a href="#cost">Cost</a></li><li><a href="#risks">Risks</a></li><li><a href="#todo">To do</a></li></ol></nav>
+<section id="targets"><h2>Why these two defects</h2>
+<ul>
+<li><strong>O<sub>S</sub></strong>: a light atom on stiffer bonds. The archived phonon T-matrix finds true local modes above the host spectrum (top 56.8 meV): an e doublet at 59.2 meV and an a<sub>1</sub> mode at 66.2 meV, confirmed by direct supercell diagonalization to 0.12–0.15 meV. On the electron side O<sub>S</sub> is isovalent, with a scattering resonance near the conduction-band edge. Both ingredients of a resonance-enhanced cross term are present.</li>
+<li><strong>V<sub>S</sub></strong>: no local modes, but in-band phonon resonances (a<sub>1</sub> 40.9 meV, e 42.2 and 46.7 meV) and deep electronic gap states. It tests the in-band part of the chain and the treatment of a removed atom.</li>
+</ul>
+</section>
+<section id="steps"><h2>Steps</h2>
+<ol>
+<li><strong>P0, host.</strong> Primitive-cell DFPT with the 2D Coulomb treatment, interatomic force constants with rotational sum rules for the flexural branch; Wannier electron–phonon matrix elements (EPW) for the host vertex and the bulk electron–phonon rates \(\Gamma^{\mathrm{ph}}_{\mathbf k}\).</li>
+<li><strong>P1, defect cluster.</strong> Relaxed defect supercell; symmetric displacements \(\pm\delta\) with \(\delta\) of about 0.01–0.02 Å for every cluster atom (defect plus neighbour shells, reduced by the \(C_{3v}\) symmetry). Keep both the forces and the self-consistent potentials of every displaced calculation.</li>
+<li><strong>P2, cluster block.</strong> Splice \(\Delta\Phi\) into the host force constants, re-impose the acoustic sum rule, weight by the defect masses: \(\mathcal D_{cc}\).</li>
+<li><strong>P3, chain.</strong> Block Lanczos on the host bath from \(\mathcal D_{bc}\), or the Stieltjes recursion on the cached cluster spectral density if the archived pipeline output is still available.</li>
+<li><strong>P4, upfolded phonons.</strong> \(\tilde C\) and \(\tilde C_0\); local and resonant modes; gates U1–U3 and U7.</li>
+<li><strong>P5, vertices.</strong> EDI matrix elements of the finite-difference potentials for the cluster coordinates; host vertex projected on the chain sites; rotation to the dressed modes; gate U4.</li>
+<li><strong>P6, electrons.</strong> Scattering states \(\Psi^{\pm}\) from the downfolded electron–defect T-matrix; distorted-wave amplitudes; \(\Delta\Gamma_{\mathbf k}\); gates U5, U6 and U8.</li>
+<li><strong>P7, transport.</strong> Energy-coupled Boltzmann equation with elastic and inelastic kernels; mobility versus temperature; comparison with Matthiessen addition.</li>
+</ol>
+</section>
+<section id="gates"><h2>Validation gates</h2>
+<div class="table-scroll"><table><caption>A step counts as validated only when its gate passes.</caption>
+<thead><tr><th scope="col">Gate</th><th scope="col">Check</th><th scope="col">Criterion</th><th scope="col">Status</th></tr></thead><tbody>
+<tr><td>U0</td><td>Toy lattice: local mode, in-band resonance, shared chain</td><td>Exact reference reproduced</td><td>Passed (<a href="toy.html">toy</a>)</td></tr>
+<tr><td>U1</td><td>Null test with no defect</td><td>\(\tilde C=\tilde C_0\) and \(\Delta\Gamma\equiv0\)</td><td>Open</td></tr>
+<tr><td>U2</td><td>Modes of \(\tilde C\) against the archived T-matrix and supercell diagonalization: O<sub>S</sub> 59.2 and 66.2 meV; V<sub>S</sub> 40.9, 42.2 and 46.7 meV</td><td>Within 0.5 meV</td><td>Open</td></tr>
+<tr><td>U3</td><td>Chain convergence: cluster density of states against \(m\); continued fraction against mode sum</td><td>Relative change below \(10^{-3}\)</td><td>Open</td></tr>
+<tr><td>U4</td><td>Vertex linearity: \(\pm\delta\) against \(\pm\delta/2\)</td><td>Below 1%</td><td>Open</td></tr>
+<tr><td>U5</td><td>Born limit of a weak defect; linearity in \(n_d\)</td><td>Second-order expressions recovered</td><td>Open</td></tr>
+<tr><td>U6</td><td>Matthiessen limit of a non-resonant defect</td><td>\(\Delta\Gamma\ll\Gamma^{\mathrm{el}}+\Gamma^{\mathrm{ph}}\)</td><td>Open</td></tr>
+<tr><td>U7</td><td>Acoustic sum rule of the spliced force constants; optical theorem of the elastic part</td><td>Residuals at the noise floor</td><td>Open</td></tr>
+<tr><td>U8</td><td>Active-space weight \(Z_A\) of every defect state used in the amplitudes</td><td>Downfolded vertex used when \(Z_A\lt0.9\)</td><td>Open</td></tr>
+</tbody></table></div>
+</section>
+<section id="cost"><h2>Cost</h2>
+<p>A rough estimate, to be refined after P0. The archived pipeline needed about 13 node-hours for V<sub>S</sub> and 12 for O<sub>S</sub>, most of it in about 125 finite displacements per defect. Here the displacements are limited to the cluster but each needs its potential and one matrix-element run as well as its forces:</p>
+<div class="table-scroll"><table><caption>Order-of-magnitude estimate</caption>
+<thead><tr><th scope="col">Step</th><th scope="col">Work</th><th scope="col">Estimate</th></tr></thead><tbody>
+<tr><td>P0</td><td>Host DFPT and Wannier electron–phonon matrix elements</td><td>a few node-hours</td></tr>
+<tr><td>P1 and P5</td><td>About 20–70 symmetry-reduced displaced supercells per defect, each with a potential extraction and a matrix-element run</td><td>tens of node-hours per defect</td></tr>
+<tr><td>P2–P4</td><td>Force-constant splicing, chain and diagonalization</td><td>minutes to an hour</td></tr>
+<tr><td>P6–P7</td><td>Amplitudes, rates and transport</td><td>to be measured</td></tr>
+</tbody></table></div>
+</section>
+<section id="risks"><h2>Risks</h2>
+<ul>
+<li>Splicing supercell force constants into the host breaks the acoustic sum rule unless it is re-imposed on the cluster atoms.</li>
+<li>A \(6\times6\) supercell is about 19 Å across; force constants and potentials near its boundary contain periodic images. Keep the cluster well inside and use host values for the cluster–bath coupling.</li>
+<li>A vacancy removes three coordinates, which the pristine reference \(\tilde C_0\) still contains; the subtraction must account for them.</li>
+<li>Finite-difference potentials must share one potential alignment, or a constant leaks into the vertex.</li>
+<li>The flexural ZA branch needs a long chain at low frequency.</li>
+<li>If thermal carriers reach a defect resonance, nonadiabatic effects enter (<a href="method.html#nonadiabatic">Method</a>).</li>
+</ul>
+</section>
+<section id="todo"><h2>To do</h2>
+<ul>
+<li>[done] T0: toy validation of the phonon upfolding (gate U0).</li>
+<li>[open] T1: P0 host DFPT and EPW on the production structure.</li>
+<li>[open] T2: P1 displaced O<sub>S</sub> cluster with forces and potentials.</li>
+<li>[open] T3: P2–P4 upfolded phonons of O<sub>S</sub>; gates U1–U3, U7.</li>
+<li>[open] T4: P5 cluster vertices through EDI; gate U4.</li>
+<li>[open] T5: P6 distorted-wave rates for conduction-band electrons; gates U5, U6, U8.</li>
+<li>[open] T6: repeat for V<sub>S</sub>; P7 transport for both defects.</li>
+</ul>
+</section>
+<footer><p><a href="method.html">Method</a> · <a href="https://github.com/rjguo1208/phonon-defect">Website source</a></p></footer>
+</main></body></html>

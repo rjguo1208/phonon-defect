@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Reading notes on the Lihm-Park plasmon-phonon upfolding (arXiv:2409.07393v1): the construction, two notes on the printed equations, and numerical checks.">
+<title>Reading notes: the Lihm–Park upfolding</title>
+<link rel="stylesheet" href="assets/katex/katex.min.css"><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip-link" href="#content">Skip to content</a>
+<nav class="site-nav" aria-label="Site pages"><strong>Pages</strong><ul>
+<li><a href="index.html">Overview</a></li><li><a href="method.html">Method</a></li>
+<li><a href="toy.html">Toy validation</a></li><li><a href="lihm-park.html" aria-current="page">Lihm–Park notes</a></li>
+<li><a href="plan.html">MoS₂ plan</a></li>
+</ul></nav><main id="content">
+<header>
+<h1>Reading notes: the Lihm–Park upfolding</h1>
+<p>J.-M. Lihm and C.-H. Park, <a href="https://arxiv.org/abs/2409.07393">Plasmon–phonon hybridization in doped semiconductors from first principles, arXiv:2409.07393v1</a> (2024), published in Phys. Rev. Lett. 133, 116402. These notes refer to arXiv v1 and its Supplemental Material (SM); the published version was not compared. Updated 2026-10-01.</p>
+<p><strong>The construction was re-derived and every identity below was checked numerically on a toy model; two printed equations need care when implemented.</strong></p>
+</header>
+<nav aria-label="Contents"><ol><li><a href="#construction">The construction</a></li><li><a href="#notes">Two notes on the printed equations</a></li><li><a href="#checks">Numerical checks</a></li><li><a href="#use">What we take from it</a></li></ol></nav>
+<section id="construction"><h2>The construction</h2>
+<p>The authors never use the word upfolding; the construction is their plasmon–phonon dynamical matrix. Read as the Schur complement used backwards, it has five steps.</p>
+<h3>1. The self-energy as exchange of an auxiliary boson (SM S8–S11)</h3>
+<p>With the plasmon-pole dielectric function, the long-range electron–plasmon vertex \(g^{\mathrm{lr}}_{\mathbf q0}=\Omega_{\mathbf q0}\sqrt{U_{\mathbf q}}\) and the coupling \(c_{\mathbf q\nu}=g^{\mathrm{lr}}_{\mathbf q0}g^{\mathrm{lr}}_{\mathbf q\nu}/U_{\mathbf q}\), the phonon self-energy factorizes into a scalar propagator between static couplings:</p>
+\[\Pi_{\mu\nu}(\mathbf q,\omega)=c^{*}_{\mathbf q\mu}\,D^0_{00}(\mathbf q,\omega)\,c_{\mathbf q\nu},\qquad D^0_{00}(\mathbf q,\omega)=\frac{1}{(\omega+i\gamma_{\mathbf q0})^2-\omega^2_{\mathbf q0}} .\]
+<h3>2. Enlarged inverse Green function (SM S14–S16)</h3>
+\[\tilde D^{-1}=\begin{pmatrix}(D^0_{00})^{-1}&-c\\ -c^{\dagger}&\mathrm{diag}\big[(D^0_{\nu\nu})^{-1}\big]\end{pmatrix}.\]
+<p>The Schur complement of the plasmon block gives back the Dyson solution, \(\tilde D_{\mu\nu}=D_{\mu\nu}\) (S15); the other blocks carry the plasmon content of the hybrid modes.</p>
+<h3>3. A frequency-independent dynamical matrix (SM S17–S21)</h3>
+<p>Every diagonal entry has the same form \((\omega+i\gamma_\alpha)^2-\omega_\alpha^2\) and the couplings are static, so</p>
+\[\tilde D^{-1}=(\omega+i\tilde\Gamma)^2-\tilde C,\qquad \tilde C=\begin{pmatrix}\omega^2_{\mathbf q0}&c\\ c^{\dagger}&\mathrm{diag}(\omega^2_{\mathbf q\nu})\end{pmatrix}.\]
+<p>Without damping one diagonalization of \(\tilde C\) gives the hybrid modes at every frequency.</p>
+<h3>4. Damping (Eq. 9, SM S22–S42)</h3>
+<p>Because \(\tilde\Gamma\) and \(\tilde C\) do not commute, the quadratic eigenvalue problem is linearized with a position–velocity companion matrix, brought to the form of time-dependent Hartree–Fock (eigenvalues in pairs \(\lambda\), \(-\lambda^*\)) and expanded in biorthogonal left and right eigenvectors. The eigenvalues \(\tilde\omega_\beta-i\tilde\gamma_\beta\) are the energies and linewidths of the damped hybrid modes.</p>
+<h3>5. Electrons (SM S53–S81)</h3>
+<p>Electrons couple to the enlarged space through unscreened, static vertices,</p>
+\[W(\mathbf q,\omega)=U_{\mathbf q}+\sum_{\alpha\alpha'}g_{mn\alpha}\,\tilde D_{\alpha\alpha'}(\mathbf q,\omega)\,g^{*}_{mn\alpha'}\qquad(\mathrm{S59}),\]
+<p>so the frequency-dependent screening of the electron–phonon vertex is absorbed into the off-diagonal blocks of \(\tilde D\). Rotating the vertices to the hybrid modes (S65, S66) turns the electron self-energy (S70, S71) and the loss function (S78, S81) into sums over modes with the same form as an electron–phonon calculation. The static approximation fits in the same machinery: an auxiliary mode pushed to very high frequency reproduces \(\Pi(\omega)\approx\Pi(0)\) (S45, S46).</p>
+</section>
+<section id="notes"><h2>Two notes on the printed equations</h2>
+<h3>Conjugation in S58 and S74</h3>
+<p>The phonon part of the screened interaction is printed as \(\sum_{\mu\nu}g^{\mathrm{scr}}_{mn\mu}(\omega)\,D_{\mu\nu}(\omega)\,[g^{\mathrm{scr}}_{mn\nu}(\omega)]^*\) with \(g^{\mathrm{scr}}=g+g_{mn0}D^0_{00}(\omega)\,c\). The complex conjugation must act on the static vertices only, not on the retarded screening factor \(D^0_{00}(\omega)\): this is how S60–S62 use it, and the upfolded forms S59 and S75 have it built in. Read literally, the expression mixes retarded and advanced functions whenever the plasmon linewidth is finite.</p>
+<p>On a toy model with three phonons and one damped plasmon at strong coupling, the upfolded S75 agrees with an independent closed form of the random-phase approximation, \(W_b/(1-\delta\chi_0W_b)\), to \(4.5\times10^{-15}\). The literal reading of S74 differs by up to 164% at single frequencies, shifts the loss-function peak by 0.4 meV and changes its integrated weight by 5%. To compute the loss function, use S75 or S78.</p>
+<h3>Pole index in the multipole couplings (S49–S51)</h3>
+<p>The multipole generalization is printed with couplings \(c_{\mathbf q\nu}\) that carry no pole index. Each pole needs its own strength,</p>
+\[c_{p\nu}=\frac{\bar\Omega_{\mathbf qp}\,g^{\mathrm{lr}}_{\mathbf q\nu}}{\sqrt{U_{\mathbf q}}} ,\]
+<p>otherwise every pole is forced to the same strength. With two poles of different strength, the pole-resolved couplings reproduce the direct Dyson solution to \(7\times10^{-16}\); the pole-independent couplings miss it by \(1.9\times10^{-2}\).</p>
+</section>
+<section id="checks"><h2>Numerical checks</h2>
+<div class="table-scroll"><table><caption>Toy model: three phonons and one damped plasmon pole (two poles for the multipole check), random complex vertices. Errors are maximum relative deviations over a frequency grid.</caption>
+<thead><tr><th scope="col">Identity</th><th scope="col">Result</th></tr></thead><tbody>
+<tr><td>Phonon block of \(\tilde D\) against the direct Dyson solution (S14, S15)</td><td>5.6e-16</td></tr>
+<tr><td>Eigen-expansion of the companion matrix against the direct inverse (Eq. 9, S23)</td><td>1.5e-13</td></tr>
+<tr><td>Eigenvalue pairing \(\lambda\leftrightarrow-\lambda^*\), all \(\mathrm{Im}\,\lambda\lt0\) (S32, S33)</td><td>7e-14</td></tr>
+<tr><td>S59 against S56–S58 with the static vertices conjugated</td><td>8e-16</td></tr>
+<tr><td>S75 against the closed form \(W_b/(1-\delta\chi_0W_b)\)</td><td>4.5e-15</td></tr>
+<tr><td>Multipole with pole-resolved couplings against the direct Dyson solution</td><td>7e-16</td></tr>
+</tbody></table></div>
+<p>The scripts are in <code>reference/lihm_park_2024/</code> (<code>check_upfold.py</code>, <code>check_loss.py</code>); each runs in seconds.</p>
+</section>
+<section id="use"><h2>What we take from it</h2>
+<p>The move, not the plasmon: write a frequency-dependent self-energy as the exchange of auxiliary modes with static couplings, so that one static matrix replaces a frequency loop and electrons couple through static vertices. For a point defect the auxiliary modes are the sites of a Krylov chain of the host bath rather than a plasmon pole; see the <a href="method.html#upfold">Method</a>.</p>
+</section>
+<footer><p><a href="method.html">Method</a> · <a href="https://github.com/rjguo1208/phonon-defect">Website source</a></p></footer>
+</main></body></html>

@@ -1,8 +1,15 @@
 # ============================================================================
-# Publish policy: the GitHub Pages site is docs/ only.
-# Tracked source: research.md, tools/, content/, README.md, CLAUDE.md.
+# Publish policy: the website is site/, generated from src/ by `npm run build`
+# and deployed by the manual Pages workflow. Code: phdef/, examples/, tests/.
 # Everything below is raw/large research data, logs, or secrets -> NEVER commit.
 # ============================================================================
+
+# --- Website tooling ---
+node_modules/
+.venv/
+playwright-report/
+test-results/
+.pytest_cache/
 
 # --- Raw / large research data ---
 *.wfc

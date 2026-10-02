@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Toy validation of the defect-phonon upfolding on a 121 x 121 square lattice: local mode exact with 10 chain blocks, in-band resonance converged to 5e-6 with 160 blocks, one chain shared by all defects.">
+<title>Toy validation of the phonon upfolding</title>
+<link rel="stylesheet" href="assets/katex/katex.min.css"><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip-link" href="#content">Skip to content</a>
+<nav class="site-nav" aria-label="Site pages"><strong>Pages</strong><ul>
+<li><a href="index.html">Overview</a></li><li><a href="method.html">Method</a></li>
+<li><a href="toy.html" aria-current="page">Toy validation</a></li><li><a href="lihm-park.html">Lihm–Park notes</a></li>
+<li><a href="plan.html">MoS₂ plan</a></li>
+</ul></nav><main id="content">
+<header>
+<h1>Toy validation of the phonon upfolding</h1>
+<p>A two-dimensional lattice small enough to compare every number with an exact calculation. Updated 2026-10-01.</p>
+<p><strong>All checks pass. The toy validates the phonon upfolding only; it contains no electrons, vertices or rates.</strong></p>
+</header>
+<nav aria-label="Contents"><ol><li><a href="#model">Model</a></li><li><a href="#partition">Cluster and chain</a></li><li><a href="#results">Results</a></li><li><a href="#resonance">Local density of states</a></li><li><a href="#tests">Unit tests</a></li><li><a href="#limits">What this does not validate</a></li><li><a href="#reproduce">Reproduce</a></li></ol></nav>
+<section id="model"><h2>Model</h2>
+<p>Square lattice of \(121\times121\) sites with open boundaries, one scalar displacement per site, nearest-neighbour springs \(K=1\) and masses \(M=1\). The defect sits at the centre: mass \(M'\) and spring \(K'\) on its four bonds. The on-site terms are built from the springs, so the acoustic sum rule holds, and the matrix is weighted by the defect masses, so it is static and Hermitian:</p>
+\[\mathcal D_{ij}=\frac{\Phi_{ij}}{\sqrt{M_iM_j}},\qquad \Phi_{ii}=\sum_{j\ne i}K_{ij},\qquad \Phi_{ij}=-K_{ij}\quad(i\ne j) .\]
+<p>The host band is \(0\le\omega\le2\sqrt2\approx2.828427\). Two defects are tested: a light defect \(M'=0.3,\ K'=1.3\), which pushes a local mode above the band, and a heavy defect \(M'=8,\ K'=0.6\), which produces a low-frequency resonance inside the band.</p>
+</section>
+<section id="partition"><h2>Cluster and chain</h2>
+<p>The cluster is the Manhattan ball of radius 2 around the defect (13 sites); it contains every mass and spring change. The bath is the remaining 14 628 sites. The coupling \(\mathcal D_{bc}\) has rank 8, the number of cluster sites on the cluster boundary, which sets the block width of the chain.</p>
+<p>The chain is built once, 160 blocks with full reorthogonalization in 15.5 s, and is used unchanged for both defects and for the pristine reference. The code asserts that \(\mathcal D_{bc}\) of each defective lattice equals the host coupling.</p>
+</section>
+<section id="results"><h2>Results</h2>
+<div class="table-scroll"><table><caption>Top mode of the upfolded matrix and the cluster Green function \(G_{00}(\omega+i\eta)\) against exact references. Frequencies \(\omega\in\{0.15,0.25,0.35,0.5,0.8,1.2,1.8,2.5\}\), \(\eta=0.05\). Exact \(G_{00}\) from sparse direct solves on the full lattice; exact top mode from the largest eigenvalue of the full lattice.</caption>
+<thead><tr><th scope="col">Defect</th><th scope="col">Chain blocks</th><th scope="col">Dimension</th><th scope="col">Top mode, upfolded</th><th scope="col">Top mode, exact</th><th scope="col">Max relative error of G₀₀</th></tr></thead><tbody>
+<tr><td>Light</td><td>10</td><td>93</td><td>4.348826</td><td>4.348826</td><td>6.0e-1</td></tr>
+<tr><td>Light</td><td>40</td><td>333</td><td>4.348826</td><td>4.348826</td><td>4.7e-2</td></tr>
+<tr><td>Light</td><td>160</td><td>1293</td><td>4.348826</td><td>4.348826</td><td>4.9e-6</td></tr>
+<tr><td>Heavy</td><td>10</td><td>93</td><td>2.812116</td><td>2.828119</td><td>4.8e-1</td></tr>
+<tr><td>Heavy</td><td>40</td><td>333</td><td>2.826994</td><td>2.828119</td><td>5.0e-2</td></tr>
+<tr><td>Heavy</td><td>160</td><td>1293</td><td>2.828119</td><td>2.828119</td><td>4.9e-6</td></tr>
+</tbody></table></div>
+<ul>
+<li>The local mode of the light defect at \(\omega=4.348826\), above the band, is a bound state: it is exact already with 10 chain blocks.</li>
+<li>The in-band response needs a longer chain: the error of \(G_{00}\) falls from about 50% (10 blocks) to 5% (40 blocks) to \(5\times10^{-6}\) (160 blocks) for both defects.</li>
+<li>The top mode of the heavy defect is the top of the finite host band and converges with the chain length.</li>
+<li>The block continued fraction and the mode sum agree to \(1.3\times10^{-15}\) (light) and \(4.7\times10^{-14}\) (heavy) with 40 blocks.</li>
+</ul>
+</section>
+<section id="resonance"><h2>Local density of states at the defect</h2>
+<p>Exact \(\rho_{00}(\omega)=-(2\omega/\pi)\,\mathrm{Im}\,G_{00}(\omega+i\eta)\) on the same frequency points. The heavy defect shows the in-band resonance near \(\omega=0.5\); the light defect moves weight out of the band into its local mode.</p>
+<div class="table-scroll"><table><caption>\(\rho_{00}(\omega)\), \(\eta=0.05\)</caption>
+<thead><tr><th scope="col">Defect</th><th scope="col">0.15</th><th scope="col">0.25</th><th scope="col">0.35</th><th scope="col">0.50</th><th scope="col">0.80</th><th scope="col">1.20</th><th scope="col">1.80</th><th scope="col">2.50</th></tr></thead><tbody>
+<tr><td>Light</td><td>0.006</td><td>0.010</td><td>0.014</td><td>0.020</td><td>0.029</td><td>0.037</td><td>0.040</td><td>0.054</td></tr>
+<tr><td>Heavy</td><td>0.239</td><td>0.656</td><td>1.559</td><td>2.285</td><td>0.443</td><td>0.113</td><td>0.033</td><td>0.014</td></tr>
+</tbody></table></div>
+</section>
+<section id="tests"><h2>Unit tests</h2>
+<p><code>python -m pytest tests</code> runs eight tests on a \(41\times41\) lattice in about 8 s:</p>
+<ul>
+<li>the Lanczos blocks are orthonormal;</li>
+<li>the coupling block is the same for the host and for both defects;</li>
+<li>with 12 chain blocks the local mode equals the largest eigenvalue of the full lattice to \(10^{-9}\);</li>
+<li>continued fraction and mode sum agree to \(10^{-10}\) relative;</li>
+<li>for the pristine lattice (null test), the light defect and the heavy defect, the continued fraction reproduces the exact cluster Green function at \(\eta=0.3\) to \(10^{-6}\) relative;</li>
+<li>the damped companion matrix (Lihm–Park Eq. 9) reproduces \(\big[(\omega+i\Gamma)^2-\tilde C\big]^{-1}\) to \(10^{-10}\), and its eigenvalues lie in the lower half plane.</li>
+</ul>
+</section>
+<section id="limits"><h2>What this does not validate</h2>
+<ul>
+<li>Scalar displacements: no tensor force constants, no rotational sum rules, no flexural ZA branch.</li>
+<li>A finite lattice with open boundaries. The exact reference uses the same lattice, so the comparison is like for like, but it is not the infinite-crystal limit.</li>
+<li>No electrons: the static vertices, the scattering states and the distorted-wave rates are untested.</li>
+<li>Full reorthogonalization: affordable here, but a first-principles bath with \(10^5\)–\(10^6\) coordinates needs partial reorthogonalization or the Stieltjes route from a cached spectral density.</li>
+</ul>
+</section>
+<section id="reproduce"><h2>Reproduce</h2>
+<p><code>python examples/square_lattice_toy.py</code> prints the tables above (about one minute, mostly building the chain). Environment for the numbers on this page: Python 3 with NumPy 2.4.0 and SciPy 1.16.3.</p>
+</section>
+<footer><p><a href="method.html">Method</a> · <a href="https://github.com/rjguo1208/phonon-defect">Website source</a></p></footer>
+</main></body></html>

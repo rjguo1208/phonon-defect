@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Method: the phonons of a crystal with a point defect as a static upfolded matrix (defect cluster plus a Krylov chain of the host), static electron-phonon vertices, and the distorted-wave cross term in electron transport.">
+<title>Method: upfolding the defect–phonon problem</title>
+<link rel="stylesheet" href="assets/katex/katex.min.css"><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip-link" href="#content">Skip to content</a>
+<nav class="site-nav" aria-label="Site pages"><strong>Pages</strong><ul>
+<li><a href="index.html">Overview</a></li><li><a href="method.html" aria-current="page">Method</a></li>
+<li><a href="toy.html">Toy validation</a></li><li><a href="lihm-park.html">Lihm–Park notes</a></li>
+<li><a href="plan.html">MoS₂ plan</a></li>
+</ul></nav><main id="content">
+<header>
+<h1>Method: upfolding the defect–phonon problem</h1>
+<p>How the phonons of a crystal with a point defect are written as one static, frequency-independent matrix, how electrons couple to its modes, and how the result enters electron transport. Updated 2026-10-01.</p>
+<p><strong>Design document. The phonon upfolding is validated on a <a href="toy.html">toy lattice</a>; the electron side has not been implemented.</strong></p>
+</header>
+<nav aria-label="Contents"><ol><li><a href="#scope">Scope and order</a></li><li><a href="#difference">What differs from Lihm–Park</a></li><li><a href="#downfold">Exact downfold onto the cluster</a></li><li><a href="#upfold">Upfold: cluster plus Krylov chain</a></li><li><a href="#mapping">Correspondence with Lihm–Park</a></li><li><a href="#continuum">Continuum and damping</a></li><li><a href="#vertices">Static electron–phonon vertices</a></li><li><a href="#electrons">Scattering states and the one-phonon amplitude</a></li><li><a href="#transport">Transport and the rest space</a></li><li><a href="#nonadiabatic">Nonadiabatic extension</a></li><li><a href="#lifshitz">Relation to the host-mass form</a></li></ol></nav>
+<section id="scope"><h2>Scope and order</h2>
+<ul>
+<li>Harmonic lattice; point defects at concentration \(n_d\to0\) (defects per primitive cell), keeping terms of order \(n_d\).</li>
+<li>Defect potential to all orders (electron–defect T-matrix); electron–phonon coupling to second order with bare vertices (Migdal).</li>
+<li>Adiabatic phonons from finite displacements; the nonadiabatic correction is treated in <a href="#nonadiabatic">its own section</a>.</li>
+<li>Carriers near band edges or a Fermi surface; transport needs on-shell rates. Units with \(\hbar=1\).</li>
+</ul>
+</section>
+<section id="difference"><h2>What differs from Lihm–Park</h2>
+<p>In Lihm–Park the phonon self-energy is \(\Pi_{\mu\nu}(\omega)=c^{*}_{\mathbf q\mu}D^0_{00}(\omega)\,c_{\mathbf q\nu}\): its frequency dependence comes from an external response, the plasmon, and translation symmetry reduces the problem to one \((N_{\mathrm{ph}}+1)\)-dimensional matrix per \(\mathbf q\). A point defect breaks translation symmetry, and its harmonic phonons are static. With the defect masses \(M\) and force constants \(\Phi=\Phi^0+\Delta\Phi\),</p>
+\[\big[\omega^2-\mathcal D\big]x=0,\qquad \mathcal D=M^{-1/2}\,\Phi\,M^{-1/2},\qquad x=M^{1/2}u .\]
+<p>There is no external pole to add. Frequency dependence appears only after the infinite host is folded onto a finite cluster around the defect, so the object to upfold is the host phonon bath.</p>
+</section>
+<section id="downfold"><h2>Exact downfold onto the defect cluster</h2>
+<p>Split the mass-weighted displacement coordinates into a cluster \(c\) and the host bath \(b\). The cluster contains the defect, every atom whose mass or force constants change, and every atom whose electron–phonon vertex changes. Because every change is inside the cluster, \(\mathcal D_{bb}\) and \(\mathcal D_{bc}\) are pure host quantities. Eliminating the bath exactly,</p>
+\[D_{cc}(z)=\big[z-\mathcal D_{cc}-\Pi_b(z)\big]^{-1},\qquad \Pi_b(z)=\mathcal D_{cb}\,\big(z-\mathcal D_{bb}\big)^{-1}\mathcal D_{bc},\qquad z=(\omega+i0^+)^2 .\]
+<p>\(\Pi_b\) is the phonon counterpart of the rest-space self-energy of an electronic downfolding: exact, frequency dependent, with poles at the eigenvalues of the bath.</p>
+</section>
+<section id="upfold"><h2>Upfold: the cluster plus a Krylov chain</h2>
+<p>Factor the coupling as \(\mathcal D_{bc}=Q_1B_0\) with a rank-revealing singular-value decomposition and run block Lanczos on \(\mathcal D_{bb}\) from \(Q_1\). After \(m\) steps the bath is represented by a block-tridiagonal matrix \(L_m\) with diagonal blocks \(A_j=Q_j^{\dagger}\mathcal D_{bb}Q_j\) and couplings \(B_j=Q_{j+1}^{\dagger}\mathcal D_{bb}Q_j\), and</p>
+\[\Pi^{(m)}_b(z)=B_0^{\dagger}\big[(z-L_m)^{-1}\big]_{11}B_0 .\]
+<p>The same quantity is the cluster block of the resolvent of one static matrix,</p>
+\[\tilde C=\begin{pmatrix}\mathcal D_{cc}&B_0^{\dagger}E_1^{\dagger}\\ E_1B_0&L_m\end{pmatrix},\qquad D_{cc}(z)=\big[(z-\tilde C)^{-1}\big]_{cc},\]
+<p>where \(E_1\) places a block on the first chain site. This is the analogue of the plasmon–phonon dynamical matrix of Lihm–Park (SM Eq. S18): the cluster plays the role of the phonons, the chain sites the role of the plasmon, and \(B_0\) the role of the couplings \(c_{\mathbf q\nu}\).</p>
+<ul>
+<li><strong>The chain does not depend on the defect.</strong> It depends only on \(\mathcal D_{bb}\) and \(\mathcal D_{bc}\). It is built once per host and cluster and reused for every defect on the same site; a different defect changes only the block \(\mathcal D_{cc}\). The pristine reference \(\tilde C_0\) uses the host block \(\mathcal D^0_{cc}\) with the same chain.</li>
+<li><strong>One diagonalization gives every frequency.</strong> With \(\tilde C e_\beta=\tilde\omega_\beta^2e_\beta\), the cluster propagator is a sum over defect-dressed modes,
+\[D_{cc}(z)=\sum_\beta\frac{e_{c\beta}\,e_{c\beta}^{\dagger}}{z-\tilde\omega_\beta^2} .\]</li>
+<li><strong>Convergence.</strong> Local modes outside the host spectrum are bound states and converge exponentially with \(m\). In-band resonances need a chain that resolves the bath at the chosen broadening, roughly \(m\sim\) bandwidth / \(\eta\). On the toy lattice 160 blocks give a relative error of \(5\times10^{-6}\) at \(\eta=0.05\), with the band top at \(2\sqrt2\).</li>
+<li><strong>Without diagonalization.</strong> The block continued fraction gives the same \(D_{cc}(z)\) by one small recursion per frequency; on the toy lattice the two agree to \(10^{-13}\).</li>
+</ul>
+</section>
+<section id="mapping"><h2>Correspondence with Lihm–Park</h2>
+<div class="table-scroll"><table><caption>Plasmon–phonon upfolding (Lihm–Park) and defect–phonon upfolding (this work)</caption>
+<thead><tr><th scope="col">Lihm–Park</th><th scope="col">This work</th></tr></thead><tbody>
+<tr><td>Phonon block \(\mathrm{diag}(\omega^2_{\mathbf q\nu})\)</td><td>Cluster block \(\mathcal D_{cc}\) with defect masses and force constants</td></tr>
+<tr><td>Plasmon: one auxiliary mode per \(\mathbf q\), one per pole in the multipole model</td><td>Krylov chain sites: the compressed host bath</td></tr>
+<tr><td>Couplings \(c_{\mathbf q\nu}\)</td><td>\(B_0\)</td></tr>
+<tr><td>One \((N_{\mathrm{ph}}+1)\)-dimensional matrix per \(\mathbf q\)</td><td>One real-space matrix of dimension \(d_c+\sum_j r_j\)</td></tr>
+<tr><td>Pole fit of the dielectric function (an approximation)</td><td>Block Lanczos, systematic in \(m\)</td></tr>
+<tr><td>Plasmon linewidth: damped \(2(N+1)\)-dimensional matrix, Eq. 9</td><td>Optional constant damping on the last chain block, same matrix</td></tr>
+<tr><td>Electron–hybrid vertex \(\tilde g_{mn\beta}=\sum_\alpha g_{mn\alpha}\tilde V_{\alpha\beta}\), SM Eq. S66</td><td>Electron–mode vertex \(\tilde g_{mn,\beta}\), <a href="#vertices">below</a></td></tr>
+</tbody></table></div>
+</section>
+<section id="continuum"><h2>Continuum and damping</h2>
+<p>A finite chain discretizes the host continuum. There are three ways to treat it:</p>
+<ol>
+<li>a long chain and a broadening \(\eta\);</li>
+<li>the block continued fraction, evaluated per frequency;</li>
+<li>a constant damping \(\Gamma\) on the last chain block, which turns \(z-\tilde C\) into \((\omega+i\tilde\Gamma)^2-\tilde C\).</li>
+</ol>
+<p>Option 3 is linearized exactly as in Lihm–Park Eq. 9:</p>
+\[K=\begin{pmatrix}-i\tilde\Gamma&I\\ \tilde C&-i\tilde\Gamma\end{pmatrix},\qquad \big[(\omega+i\tilde\Gamma)^2-\tilde C\big]^{-1}=\begin{pmatrix}I&0\end{pmatrix}(\omega-K)^{-1}\begin{pmatrix}0\\ I\end{pmatrix} .\]
+<p>The eigenvalues \(\tilde\omega_\beta-i\tilde\gamma_\beta\) of \(K\) give the energies and lifetimes of resonant modes. A constant damping is a Markovian terminator and therefore an approximation; options 1 and 2 converge to the exact cluster resolvent.</p>
+</section>
+<section id="vertices"><h2>Static electron–phonon vertices in the upfolded basis</h2>
+<p>Electrons couple linearly to the mass-weighted displacements \(x_a\) through</p>
+\[g_{mn,a}=\frac{1}{\sqrt{M_a}}\Big\langle m\Big|\frac{\partial V_{\mathrm{KS}}}{\partial u_a}\Big|n\Big\rangle .\]
+<h3>Cluster coordinates</h3>
+<p>Use symmetric finite differences of defect-supercell potentials,</p>
+\[\frac{\partial V_{\mathrm{KS}}}{\partial u_a}\approx\frac{V_{\mathrm{KS}}(u_a=+\delta)-V_{\mathrm{KS}}(u_a=-\delta)}{2\delta} .\]
+<p>Matrix elements of a supercell potential difference between host Bloch states are exactly what an electron–defect matrix-element code evaluates (here EDI), so no new matrix-element code is needed. The displaced self-consistent calculations give both the forces, hence the cluster force constants, and the potentials, hence the cluster vertices. The vertex includes the change of the defect potential itself. The displacement must be small and symmetric (about 0.01–0.02 Å), and both potentials must use the same alignment.</p>
+<h3>Chain coordinates</h3>
+<p>Contract the real-space host vertex of a Wannier electron–phonon code (EPW) with the Krylov vectors,</p>
+\[g_{mn,j}=\sum_{a\in b}g^{\mathrm{host}}_{mn,a}\,(Q_j)_a ,\]
+<p>storing the \(Q_j\) or regenerating them in a second Lanczos pass. A first version keeps only the cluster vertices and converges the result in the cluster radius.</p>
+<h3>Dressed modes and the defect correction</h3>
+\[\tilde g_{mn,\beta}=\sum_a\frac{g_{mn,a}\,(e_\beta)_a}{\sqrt{2\tilde\omega_\beta}}\]
+<p>is Lihm–Park SM Eq. S66 with the hybrid eigenvectors replaced by the dressed defect modes. The defect contribution is the difference of two mode sums, one over \(\tilde C\) and one over \(\tilde C_0\), with the same chain and the same chain vertices. Host modes outside the Krylov space generated from \(\mathcal D_{bc}\) neither couple to the cluster nor change with the defect, so they cancel exactly in the difference.</p>
+</section>
+<section id="electrons"><h2>Scattering states and the one-phonon amplitude</h2>
+<p>The electron side reuses the downfolded electron–defect T-matrix. With the Bloch states split into an active window \(A\) and a rest space \(R\),</p>
+\[\mathcal V_A(z)=\Delta V_{AA}+\Delta V_{AR}\big[z-H_{RR}\big]^{-1}\Delta V_{RA},\qquad \Omega_A(z)=\big[I-G^0_{AA}(z)\,\mathcal V_A(z)\big]^{-1},\]
+<p>and the scattering states are \(|\Psi^{\pm}_{\mathbf k}(\varepsilon)\rangle=\Omega_A(\varepsilon\pm i\eta)|\psi_{\mathbf k}\rangle\), where \(\mathbf k\) also carries the band index. Their rest-space components, when needed, are</p>
+\[|\Psi_R\rangle=\mathcal U(z)|\Psi_A\rangle,\qquad \mathcal U(z)=\big[z-H_{RR}\big]^{-1}\Delta V_{RA} .\]
+<p>To first order in the electron–phonon coupling and to all orders in the defect potential (distorted-wave Born approximation), the amplitude for emitting a dressed phonon \(\beta\) is</p>
+\[M^{\mathrm{em}}_{\mathbf k'\mathbf k,\beta}=\big\langle\Psi^-_{\mathbf k'}(\varepsilon_{\mathbf k}-\tilde\omega_\beta)\big|\,\tilde g_\beta\,\big|\Psi^+_{\mathbf k}(\varepsilon_{\mathbf k})\big\rangle ,\]
+<p>and the absorption amplitude has \(\varepsilon_{\mathbf k}+\tilde\omega_\beta\) and \(\tilde g_\beta^{\dagger}\). For non-degenerate carriers (Pauli factors as in the Fan–Migdal self-energy otherwise)</p>
+\[\Gamma_{\mathbf k}=2\pi\sum_{\mathbf k'\beta}\Big[\big|M^{\mathrm{em}}_{\mathbf k'\mathbf k,\beta}\big|^2(n_\beta+1)\,\delta(\varepsilon_{\mathbf k}-\varepsilon_{\mathbf k'}-\tilde\omega_\beta)+\big|M^{\mathrm{abs}}_{\mathbf k'\mathbf k,\beta}\big|^2\,n_\beta\,\delta(\varepsilon_{\mathbf k}-\varepsilon_{\mathbf k'}+\tilde\omega_\beta)\Big] .\]
+<p>For one defect in \(N_p\) cells the defect-dependent part of this rate is of order \(1/N_p\). The dilute rate is</p>
+\[\Gamma_{\mathbf k}=\Gamma^{\mathrm{ph}}_{\mathbf k}+n_d\big(\Gamma^{\mathrm{el}}_{\mathbf k}+\Delta\Gamma_{\mathbf k}\big),\qquad \Delta\Gamma_{\mathbf k}=N_p\big[\Gamma^{(1)}_{\mathbf k}-\Gamma^{(0)}_{\mathbf k}\big],\]
+<p>with \(\Gamma^{(1)}\) computed with one defect and \(\Gamma^{(0)}\) without. \(\Delta\Gamma\) contains the four processes listed on the <a href="index.html#problem">Overview</a>: resonance-enhanced emission and absorption (large amplitude of \(\Psi^{\pm}\) at a defect resonance), scattering from local and resonant modes (dressed modes with cluster weight), the defect-modified vertex (cluster vertices), and the interference between direct and defect-assisted amplitudes.</p>
+</section>
+<section id="transport"><h2>Transport and the rest space</h2>
+<ul>
+<li>Inelastic rates couple different energies, so the Boltzmann equation is solved with an energy-coupled kernel, as in electron–phonon transport, with the elastic defect kernel added.</li>
+<li>Only on-shell quantities enter transport. Intermediate electron energies lie within the phonon bandwidth of the carrier energy and therefore inside the active window, so no upper-Fan sum over the rest space is needed.</li>
+<li>The vertex between dressed states may still need the rest space. For a bound state at real energy \(E\) with \(\langle\Psi_A|\Psi_A\rangle=1\), the active-space weight is
+\[Z_A=\frac{1}{1-\langle\Psi_A|\partial_E\mathcal W_A|\Psi_A\rangle},\qquad \mathcal W_A=\mathcal V_A-\Delta V_{AA},\qquad -\partial_E\mathcal W_A=\mathcal U^{\dagger}\mathcal U ,\]
+which needs no rest-space vectors. If \(Z_A\) is well below 1, use the downfolded vertex
+\[g^{\mathrm{eff}}_{AA}(z',z)=g_{AA}+g_{AR}\,\mathcal U(z)+\mathcal U(z')^{\dagger}g_{RA}+\mathcal U(z')^{\dagger}g_{RR}\,\mathcal U(z),\]
+which uses the same block-Lanczos machinery as the rest-space self-energy.</li>
+</ul>
+</section>
+<section id="nonadiabatic"><h2>Nonadiabatic extension</h2>
+<p>Finite-displacement force constants are adiabatic. When electronic excitations localized at the defect fall inside the phonon window (free carriers excited into a shallow resonance, a defect level at the Fermi energy of a metal, or the free-carrier plasmon of a doped semiconductor), the phonons acquire a nonadiabatic self-energy. Its poles are added to \(\tilde C\) as auxiliary modes exactly as in Lihm–Park SM Eq. S50, with pole-resolved couplings \(c_{p\nu}\) (see the <a href="lihm-park.html#notes">Lihm–Park notes</a>). The first version is adiabatic.</p>
+</section>
+<section id="lifshitz"><h2>Relation to the host-mass form</h2>
+<p>The earlier phonon T-matrix of this repository (tag <a href="https://github.com/rjguo1208/phonon-defect/tree/archive/2026-07-01">archive/2026-07-01</a>) scaled the equations of motion by the host masses, which makes a mass change a frequency-dependent perturbation,</p>
+\[\big[z(I+\varepsilon)-\mathcal D_0-\Delta\mathcal D\big]\tilde u=0,\qquad V(z)=\Delta\mathcal D-z\,\varepsilon .\]
+<p>Rescaling the cluster coordinates by \((I+\varepsilon)^{-1/2}\) turns this into the static defect-mass form used here; both give the same modes, but the upfolded matrix needs the static form. When the atoms whose mass changes do not couple directly to the bath, the coupling block \(\mathcal D_{bc}\) is unchanged by the rescaling.</p>
+<p>The cluster spectral density \(\rho_{ab}(\lambda)\) cached by that pipeline is the matrix-valued spectral measure of the host restricted to the cluster. A block Lanczos (Stieltjes) recursion on that measure generates the same chain, with first block \(A_1=\mathcal D^0_{cc}\), without touching the bulk matrix.</p>
+</section>
+<footer><p><a href="toy.html">Toy validation</a> · <a href="plan.html">MoS₂ plan</a> · <a href="https://github.com/rjguo1208/phonon-defect">Website source</a></p></footer>
+</main></body></html>
