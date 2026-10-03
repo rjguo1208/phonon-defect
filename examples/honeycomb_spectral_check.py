@@ -79,15 +79,15 @@ def main():
     stars = [star(m) for m in path]
     qs = np.array([BMAT @ np.array(m, float) / L for m in path])
     labels = {"Γ": 0, "M": L // 2, "K": L // 2 + L // 6}
-    offs, subl, _, _ = hf.perturbation((0, (0, 0), 0.3, 1.3))
-    g0 = hf.host_green_support(OM, ETA, LQ, offs, subl)
+    offs, subl, _, _ = hc.perturbation((0, (0, 0), 0.3, 1.3))
+    g0 = hc.host_green_support(OM, ETA, LQ, offs, subl)
     near = (OM > 1.30) & (OM < 1.60)
     acoustic = OM < 0.5                    # the flexural branch, w^2 ~ q^4, is the most sensitive to the phase of Sigma(q)
     print(f"{L} x {L} torus, {round(ND * L * L)} A-site defects, {NCONF} configurations, eta = {ETA}")
     for key, _, Md, fac in hf.DEFECTS:
         brute = np.mean([configuration(Md, fac, 100 * (key == "heavy") + c, stars) for c in range(NCONF)], axis=0)
-        offs, subl, dPhi, dM = hf.perturbation((0, (0, 0), Md, fac))
-        T = hf.tmatrix_u(OM, ETA, g0, dPhi, dM)
+        offs, subl, dPhi, dM = hc.perturbation((0, (0, 0), Md, fac))
+        T = hc.tmatrix_u(OM, ETA, g0, dPhi, dM)
         rule = sum(hf.averaged_spectral(qs, OM, ETA, T, offs, subl, ND))
         saved = hf.FREE
         hf.FREE = []                                                        # Dyson everywhere

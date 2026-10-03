@@ -35,7 +35,7 @@ phonon bath, attached to the defect cluster.
 
 | Path | Content |
 | --- | --- |
-| `phdef/` | block Lanczos chain, upfolded matrix, cluster Green function (mode sum and continued fraction), damped companion matrix, toy models (`models.py`: square lattice; `honeycomb.py`: honeycomb lattice with three displacements per atom) |
+| `phdef/` | block Lanczos chain, upfolded matrix, cluster Green function (mode sum and continued fraction), damped companion matrix, toy models (`models.py`: square lattice; `honeycomb.py`: honeycomb lattice with three displacements per atom, its chain from the Bloch modes and the T-matrix of one substitution) |
 | `examples/square_lattice_toy.py` | toy validation (about one minute) |
 | `examples/toy_spectral_check.py` | brute-force check of the toy spectral function at a finite concentration (about two minutes) |
 | `examples/honeycomb_spectral_check.py` | the same check for the honeycomb toy (about twelve minutes on 16 cores) |

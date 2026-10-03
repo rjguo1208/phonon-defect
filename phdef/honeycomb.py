@@ -255,3 +255,64 @@ def rigid_motions(points):
     out = [np.tile(e, (len(r), 1)) for e in np.eye(3)]
     out += [np.cross(axis, r) for axis in np.eye(3)]
     return out
+
+
+# ---- one substitution in displacement coordinates: T-matrix and averaged self-energy ----
+def masses(p=DEFAULT):
+    """Masses of the six coordinates (A_x, A_y, A_z, B_x, B_y, B_z)."""
+    return np.repeat([p["mA"], p["mB"]], 3)
+
+
+def perturbation(defect, Lb=8, p=DEFAULT, polar=None, radius=2):
+    """Support of a substitution (atoms within `radius` bonds of the A defect in cell 0): cell offsets,
+    sublattices, and the change of the unweighted force constants dPhi (3n x 3n) and of the masses dM
+    (3n), taken from the real-space supercell; asserts that nothing changes outside the support."""
+    site = site_index(0, 0, 0, Lb)
+    atoms = np.where(hop_distance(site, Lb) <= radius)[0]
+    cell, s = np.divmod(atoms, 2)
+    n1, n2 = np.divmod(cell, Lb)
+    offs = np.c_[np.where(n1 > Lb // 2, n1 - Lb, n1), np.where(n2 > Lb // 2, n2 - Lb, n2)]
+    D0, m0 = supercell(Lb, p, polar=polar)
+    D, m = supercell(Lb, p, defect=defect, polar=polar)
+    D0, D = (X.toarray() if sp.issparse(X) else X for X in (D0, D))
+    Phi0 = D0 * np.outer(np.repeat(np.sqrt(m0), 3), np.repeat(np.sqrt(m0), 3))
+    Phi = D * np.outer(np.repeat(np.sqrt(m), 3), np.repeat(np.sqrt(m), 3))
+    C = coordinates(atoms)
+    rest = np.setdiff1d(np.arange(len(D)), C)
+    assert np.abs((Phi - Phi0)[rest]).max() < 1e-12
+    return offs, s, (Phi - Phi0)[np.ix_(C, C)], np.repeat(m[atoms] - m0[atoms], 3)
+
+
+def host_green_support(omegas, eta, Lq, offs, subl, p=DEFAULT, polar=None):
+    """Displacement Green function of the host between the support coordinates, (nw, 3n, 3n), from the Bloch
+    modes of an Lq x Lq mesh: g0(R_a - R_b) = (1/N) sum_q e^{iq.(R_a - R_b)} [z M - Phi(q)]^-1, by FFT."""
+    w2, eps, _ = bloch_modes(Lq, p, polar)
+    U = eps / np.sqrt(masses(p))[None, :, None]
+    n = len(offs)
+    d = (offs[:, None, :] - offs[None, :, :]) % Lq
+    idx = 3 * np.asarray(subl)[:, None] + np.arange(3)[None, :]
+    out = np.empty((len(omegas), 3 * n, 3 * n), complex)
+    for i, w in enumerate(omegas):
+        F = np.einsum("qik,qk,qjk->qij", U, 1.0 / ((w + 1j * eta) ** 2 - w2), U.conj()).reshape(Lq, Lq, 6, 6)
+        g = np.fft.ifft2(F, axes=(0, 1))[d[:, :, 0], d[:, :, 1]]            # (n, n, 6, 6)
+        out[i] = g[np.arange(n)[:, None, None, None], np.arange(n)[None, :, None, None],
+                   idx[:, None, :, None], idx[None, :, None, :]].transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
+    return out
+
+
+def tmatrix_u(omegas, eta, g0, dPhi, dM):
+    """T = (1 - V g0)^-1 V with V(z) = dPhi - z dM (displacement coordinates)."""
+    z = (np.asarray(omegas) + 1j * eta) ** 2
+    V = dPhi[None] - z[:, None, None] * np.diag(dM)[None]
+    return np.linalg.solve(np.eye(len(dM))[None] - V @ g0, V)
+
+
+def self_energy(q, T, offs, subl, nd):
+    """Sigma_st(q) = n_d sum_{a in s, b in t} e^{-iq.(R_a - R_b)} T_ab, (nw, 6, 6), in the convention of
+    bloch(gauge="cell"), D_st(q) = sum_R D(0s, Rt) e^{iq.R}. The lattice has no inversion centre, so the
+    sign of the phase matters: Sigma(-q) = Sigma(q)^T."""
+    ph = np.exp(1j * (offs @ np.array([q @ A1, q @ A2])))                   # <R_a s|q s> = e^{iq.R_a}
+    P = np.zeros((3 * len(offs), 6), complex)
+    for a in range(len(offs)):
+        P[3 * a:3 * a + 3, 3 * subl[a]:3 * subl[a] + 3] = ph[a] * np.eye(3)
+    return nd * np.einsum("ai,wab,bj->wij", P.conj(), T, P)

@@ -7,7 +7,14 @@
            q-mesh, upfolded defect Green functions against the exact 64 x 64 supercell; writes
            the numbers as CSV under site/data/ (a few minutes; run it on a compute node).
 --plot     site/results/honeycomb-ldos.* and honeycomb-convergence.* from those CSV files.
-Without options all three run. Same style and colours as scripts/toy_figures.py.
+Without options these three run.
+--polar    the same chain on the polar host (32 x 32 mesh, minutes), Figures 5 and 6;
+           --polar-plot redraws them from the CSV file.
+--spectral site/results/honeycomb-spectral.* : configuration-averaged A(q, w) at n_d = 0.02 per
+           cell from the T-matrix of one substitution (hc.perturbation, hc.tmatrix_u,
+           hc.self_energy; 15 minutes on 8 cores); --spectral-plot redraws it from the .npz file
+           named by HONEYCOMB_SPECTRAL_CACHE.
+Same style and colours as scripts/toy_figures.py.
 """
 import argparse
 import csv
@@ -378,68 +385,13 @@ def polar_figures():
 
 # ---------------------------------------------------------------- spectral function at a finite concentration
 SPEC_LQ, SPEC_ETA, SPEC_ND = 384, 0.01, 0.02       # host mesh, broadening, defects per cell (on A sites)
-MVEC = np.repeat([hc.DEFAULT["mA"], hc.DEFAULT["mB"]], 3)
+MVEC = hc.masses()
 FREE = [(1.3603, 1.5492), (1.8621, np.inf)]          # frequencies without host modes: gap and above the top
-
-
-def perturbation(defect, Lb=8, polar=None):
-    """Support of a substitution (atoms within two bonds of the A defect in cell 0): cell offsets, sublattices,
-    and the change of the unweighted force constants dPhi (3n x 3n) and of the masses dM (3n), taken from the
-    real-space supercell; asserts that nothing changes outside the support."""
-    site = hc.site_index(0, 0, 0, Lb)
-    atoms = np.where(hc.hop_distance(site, Lb) <= RADIUS)[0]
-    cell, s = np.divmod(atoms, 2)
-    n1, n2 = np.divmod(cell, Lb)
-    offs = np.c_[np.where(n1 > Lb // 2, n1 - Lb, n1), np.where(n2 > Lb // 2, n2 - Lb, n2)]
-    D0, m0 = hc.supercell(Lb, polar=polar)
-    D, m = hc.supercell(Lb, defect=defect, polar=polar)
-    D0, D = (X.toarray() if sp.issparse(X) else X for X in (D0, D))
-    Phi0 = D0 * np.outer(np.repeat(np.sqrt(m0), 3), np.repeat(np.sqrt(m0), 3))
-    Phi = D * np.outer(np.repeat(np.sqrt(m), 3), np.repeat(np.sqrt(m), 3))
-    C = hc.coordinates(atoms)
-    rest = np.setdiff1d(np.arange(len(D)), C)
-    assert np.abs((Phi - Phi0)[rest]).max() < 1e-12
-    return offs, s, (Phi - Phi0)[np.ix_(C, C)], np.repeat(m[atoms] - m0[atoms], 3)
-
-
-def host_green_support(omegas, eta, Lq, offs, subl, polar=None):
-    """Displacement Green function of the host between the support coordinates, (nw, 3n, 3n), from the Bloch
-    modes of an Lq x Lq mesh: g0(R_a - R_b) = (1/N) sum_q e^{iq.(R_a - R_b)} [z M - Phi(q)]^-1, by FFT."""
-    w2, eps, _ = hc.bloch_modes(Lq, polar=polar)
-    U = eps / np.sqrt(MVEC)[None, :, None]
-    n = len(offs)
-    d = (offs[:, None, :] - offs[None, :, :]) % Lq
-    idx = 3 * np.asarray(subl)[:, None] + np.arange(3)[None, :]
-    out = np.empty((len(omegas), 3 * n, 3 * n), complex)
-    for i, w in enumerate(omegas):
-        F = np.einsum("qik,qk,qjk->qij", U, 1.0 / ((w + 1j * eta) ** 2 - w2), U.conj()).reshape(Lq, Lq, 6, 6)
-        g = np.fft.ifft2(F, axes=(0, 1))[d[:, :, 0], d[:, :, 1]]            # (n, n, 6, 6)
-        out[i] = g[np.arange(n)[:, None, None, None], np.arange(n)[None, :, None, None],
-                   idx[:, None, :, None], idx[None, :, None, :]].transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
-    return out
-
-
-def tmatrix_u(omegas, eta, g0, dPhi, dM):
-    """T = (1 - V g0)^-1 V with V(z) = dPhi - z dM (displacement coordinates)."""
-    z = (np.asarray(omegas) + 1j * eta) ** 2
-    V = dPhi[None] - z[:, None, None] * np.diag(dM)[None]
-    return np.linalg.solve(np.eye(len(dM))[None] - V @ g0, V)
-
-
-def self_energy(q, T, offs, subl, nd):
-    """Sigma_st(q) = n_d sum_{a in s, b in t} e^{-iq.(R_a - R_b)} T_ab, (nw, 6, 6), in the convention of
-    hc.bloch(gauge="cell"), D_st(q) = sum_R D(0s, Rt) e^{iq.R}. The lattice has no inversion centre, so the
-    sign of the phase matters: Sigma(-q) = Sigma(q)^T."""
-    ph = np.exp(1j * (offs @ np.array([q @ hc.A1, q @ hc.A2])))              # <R_a s|q s> = e^{iq.R_a}
-    P = np.zeros((3 * len(offs), 6), complex)
-    for a in range(len(offs)):
-        P[3 * a:3 * a + 3, 3 * subl[a]:3 * subl[a] + 3] = ph[a] * np.eye(3)
-    return nd * np.einsum("ai,wab,bj->wij", P.conj(), T, P)
 
 
 def averaged_spectral(qs, omegas, eta, T, offs, subl, nd, polar=None):
     """Configuration-averaged A(q, w) = -(2w/pi) Im Tr[M^1/2 <g> M^1/2] (host masses), split into in-plane and
-    out-of-plane, with Sigma(q) from `self_energy`. Dyson equation where the host has modes; first order,
+    out-of-plane, with Sigma(q) from `hc.self_energy`. Dyson equation where the host has modes; first order,
     g0 + g0 Sigma g0, where it has none (FREE), which keeps bound states of a single defect at their
     frequencies (checked against random configurations, examples/honeycomb_spectral_check.py)."""
     om = np.asarray(omegas)
@@ -450,7 +402,7 @@ def averaged_spectral(qs, omegas, eta, T, offs, subl, nd, polar=None):
     Wm = np.sqrt(np.outer(MVEC, MVEC))
     A_in, A_out = np.empty((len(qs), len(om))), np.empty((len(qs), len(om)))
     for k, q in enumerate(qs):
-        Sig = self_energy(q, T, offs, subl, nd)
+        Sig = hc.self_energy(q, T, offs, subl, nd)
         Phiq = hc.bloch(q, gauge="cell", polar=polar) * Wm
         g0 = np.linalg.inv(z[:, None, None] * np.diag(MVEC)[None] - Phiq[None])
         g = np.where(free[:, None, None], g0 + g0 @ Sig @ g0, np.linalg.inv(np.linalg.inv(g0) - Sig))
@@ -466,19 +418,19 @@ def spectral_data():
     omz, kz = np.arange(0.001, 0.45, 0.001), np.linspace(0.0, 0.8, 161)
     qz = np.outer(kz, hc.POINTS["M"] / np.linalg.norm(hc.POINTS["M"]))      # along Γ-M
     out, cuts = {}, []
-    offs, subl, _, _ = perturbation((0, (0, 0), 0.3, 1.3))
-    g_main = host_green_support(om, SPEC_ETA, SPEC_LQ, offs, subl)
-    g_zoom = host_green_support(omz, SPEC_ETA, SPEC_LQ, offs, subl)
+    offs, subl, _, _ = hc.perturbation((0, (0, 0), 0.3, 1.3))
+    g_main = hc.host_green_support(om, SPEC_ETA, SPEC_LQ, offs, subl)
+    g_zoom = hc.host_green_support(omz, SPEC_ETA, SPEC_LQ, offs, subl)
     print(f"host Green functions on the support ({time.time() - t0:.0f} s)", flush=True)
     for key, _, Md, fac in DEFECTS:
-        offs, subl, dPhi, dM = perturbation((0, (0, 0), Md, fac))
-        T = tmatrix_u(om, SPEC_ETA, g_main, dPhi, dM)
+        offs, subl, dPhi, dM = hc.perturbation((0, (0, 0), Md, fac))
+        T = hc.tmatrix_u(om, SPEC_ETA, g_main, dPhi, dM)
         out[key] = sum(averaged_spectral(kpath, om, SPEC_ETA, T, offs, subl, SPEC_ND))
         for lab, q in (("Γ+0.05M", 0.05 * hc.POINTS["M"]), ("M", hc.POINTS["M"]), ("K", hc.POINTS["K"])):
             a_in, a_out = averaged_spectral(q[None], om, SPEC_ETA, T, offs, subl, SPEC_ND)
             cuts += [(key, lab, w, x, y) for w, x, y in zip(om, a_in[0], a_out[0])]
         if key == "heavy":
-            Tz = tmatrix_u(omz, SPEC_ETA, g_zoom, dPhi, dM)
+            Tz = hc.tmatrix_u(omz, SPEC_ETA, g_zoom, dPhi, dM)
             out["zoom"] = sum(averaged_spectral(qz, omz, SPEC_ETA, Tz, offs, subl, SPEC_ND))
         print(f"{key} done ({time.time() - t0:.0f} s)", flush=True)
     cache = os.environ.get("HONEYCOMB_SPECTRAL_CACHE")       # optional .npz outside the repository, for --spectral-plot
