@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Second toy model: a honeycomb lattice with two atoms per cell and displacements in x, y and z, with tensor force constants, exact sum rules and a quadratic flexural branch.">
+<title>Toy 2: honeycomb lattice</title>
+<link rel="stylesheet" href="assets/katex/katex.min.css"><link rel="stylesheet" href="assets/style.css"></head>
+<body><a class="skip-link" href="#content">Skip to content</a>
+<nav class="site-nav" aria-label="Site pages"><strong>Pages</strong><ul>
+<li><a href="index.html">Overview</a></li><li><a href="method.html">Method</a></li>
+<li><a href="toy.html">Toy validation</a></li><li><a href="honeycomb.html" aria-current="page">Honeycomb toy</a></li><li><a href="plasmon-phonon.html">Plasmon–phonon notes</a></li>
+<li><a href="plan.html">MoS₂ plan</a></li>
+</ul></nav><main id="content">
+<header>
+<h1>Toy 2: honeycomb lattice</h1>
+<p>A second toy model with two atoms per cell, like hexagonal boron nitride, and displacements in \(x\), \(y\) and \(z\). Updated 2026-10-02.</p>
+<p><strong>Status: the host model is built and checked. Defects and the upfolding are planned and have not been run.</strong></p>
+</header>
+<nav aria-label="Contents"><ol><li><a href="#why">Why a second toy</a></li><li><a href="#model">Model</a></li><li><a href="#host">Host phonons</a></li><li><a href="#checks">Checks</a></li><li><a href="#next">Next: defects and the chain</a></li><li><a href="#reproduce">Reproduce</a></li></ol></nav>
+<section id="why"><h2>Why a second toy</h2>
+<p>The <a href="toy.html">first toy</a> validates the upfolding on a square lattice with one scalar displacement per site. It does not test what the first-principles calculation needs:</p>
+<ul>
+<li>tensor force constants, \(3\times3\) blocks between atoms;</li>
+<li>two atoms per cell and six branches, with gaps between them;</li>
+<li>a flexural branch \(\omega_{\mathrm{ZA}}\propto q^2\), which exists only if the force constants obey the rotational sum rules;</li>
+<li>a periodic host sampled on a \(\mathbf q\)-mesh, as from DFPT, from which the chain can be built in reciprocal space.</li>
+</ul>
+</section>
+<section id="model"><h2>Model</h2>
+<p>A honeycomb lattice with bond length 1, lattice vectors \(\mathbf a_1=(\sqrt3,0)\) and \(\mathbf a_2=(\sqrt3/2,3/2)\), atom A at the origin and atom B at \((0,1)\). Each atom moves in three directions. The harmonic energy is</p>
+\[E=\frac12\sum_{\langle ij\rangle}k_1\big[\hat{\mathbf e}_{ij}\cdot(\mathbf u_j-\mathbf u_i)\big]^2+\frac12\sum_{\langle\langle ij\rangle\rangle}k_2\big[\hat{\mathbf e}_{ij}\cdot(\mathbf u_j-\mathbf u_i)\big]^2+\frac12\sum_i\kappa\Big(u^z_i-\frac13\sum_{j\in\mathrm{nn}(i)}u^z_j\Big)^2,\]
+<p>with central springs on the nearest-neighbour A–B bonds (\(k_1\)) and on the second-neighbour A–A and B–B bonds (\(k_2\)), and a bending term for every atom that measures how far it sits above or below the plane of its three neighbours. The parameters are \(m_A=1\), \(m_B=1.3\) (close to the boron-to-nitrogen mass ratio), \(k_1=1\), \(k_2=0.2\) and \(\kappa=0.3\), chosen so that the ratio of the ZO to the TO frequency at \(\Gamma\) is 0.63, close to that of h-BN.</p>
+<ul>
+<li><strong>Sum rules hold exactly.</strong> Every term is unchanged by the three rigid translations and the three rigid rotations, so the acoustic and the rotational sum rules hold term by term.</li>
+<li><strong>The flexural branch is quadratic.</strong> A displacement \(u^z\) that is linear in position costs no bending energy, because the three neighbours of an atom are centred on it.</li>
+<li><strong>In-plane and out-of-plane motion decouple.</strong> The mirror plane \(z\to-z\) splits the \(6\times6\) dynamical matrix into a \(4\times4\) in-plane block and a \(2\times2\) out-of-plane block.</li>
+<li><strong>Defects.</strong> A substitution changes the mass of one atom and multiplies every energy term that contains it by a common factor, so the sum rules still hold exactly and need not be imposed afterwards, unlike force constants spliced from a supercell.</li>
+</ul>
+</section>
+<section id="host"><h2>Host phonons</h2>
+<figure><div class="figure-scroll data"><img src="results/honeycomb-dispersion.svg" width="1000" height="440" alt="Two panels sharing the frequency axis. Left: six phonon branches along Gamma, M, K and back to Gamma; four in-plane branches in blue and two out-of-plane branches in orange. The out-of-plane acoustic branch ZA starts flat at Gamma (quadratic), the in-plane acoustic branches TA and LA start linearly, ZO starts at 1.03 and the in-plane optical branches LO and TO at 1.63 at Gamma; the spectrum ends at 1.86 at K, and there is a gap between 1.36 and 1.55. An inset shows the hexagonal Brillouin zone and the path. Right: the density of states per cell for in-plane and out-of-plane motion; the out-of-plane density is constant at low frequency, the in-plane density rises linearly, and both vanish in the gap."></div><figcaption>Figure 1. Host phonons of the honeycomb toy. Left: dispersion along \(\Gamma\)–M–K–\(\Gamma\), in-plane branches in blue and out-of-plane branches in orange; inset: Brillouin zone and path. Right: density of states per cell for in-plane and out-of-plane motion (\(300\times300\) \(\mathbf q\)-points, Gaussian broadening 0.006); the grey line marks the top of the spectrum.</figcaption><p class="figure-links"><a href="results/honeycomb-dispersion.svg">SVG</a><a href="results/honeycomb-dispersion.pdf">PDF</a><a href="results/honeycomb-dispersion.png">PNG</a><a href="data/honeycomb-dispersion.csv">CSV (left)</a><a href="data/honeycomb-dos.csv">CSV (right)</a></p></figure>
+<div class="table-scroll"><table><caption>Frequencies at the high-symmetry points</caption>
+<thead><tr><th scope="col">Point</th><th scope="col">Out-of-plane</th><th scope="col">In-plane</th></tr></thead><tbody>
+<tr><td>\(\Gamma\)</td><td>0 (ZA), 1.0303 (ZO)</td><td>0, 0 (TA, LA), 1.6291 (LO and TO, degenerate)</td></tr>
+<tr><td>M</td><td>0.3395, 0.6888</td><td>0.5891, 1.3603, 1.7107, 1.7362</td></tr>
+<tr><td>K</td><td>0.4804, 0.5477</td><td>0.8824, 1.3587, 1.5492, 1.8621</td></tr>
+</tbody></table></div>
+<ul>
+<li>Long wavelengths along \(x\): \(\omega_{\mathrm{ZA}}=0.1277\,q^2\), \(\omega_{\mathrm{TA}}=0.442\,q\), \(\omega_{\mathrm{LA}}=0.956\,q\). The out-of-plane density of states is therefore constant at low frequency and the in-plane one linear.</li>
+<li>The spectrum has a true gap between 1.360 (top of LA) and 1.549 (bottom of the optical branches), and the out-of-plane sector has its own gap at K between 0.480 (ZA) and 0.548 (ZO), from the mass difference.</li>
+<li>The top of the spectrum is 1.862, at K.</li>
+</ul>
+</section>
+<section id="checks"><h2>Checks</h2>
+<p><code>tests/test_honeycomb.py</code> runs six tests in about a second:</p>
+<ul>
+<li>every energy term annihilates the six rigid motions to \(10^{-14}\) (acoustic and rotational sum rules);</li>
+<li>\(D(\mathbf q)\) is Hermitian, its in-plane and out-of-plane blocks do not couple, the two phase conventions give the same eigenvalues, and there are exactly three zero frequencies at \(\Gamma\);</li>
+<li>\(\omega_{\mathrm{ZA}}/q^2\) and \(\omega_{\mathrm{TA}}/q\) are constant for \(q\) from 0.002 to 0.008, to \(10^{-3}\) and \(10^{-4}\);</li>
+<li>no negative \(\omega^2\) on a \(30\times30\) grid;</li>
+<li>the spectrum of a periodic \(5\times5\) supercell equals the Bloch spectrum on the \(5\times5\) grid to \(10^{-12}\);</li>
+<li>a substitution keeps exactly three zero modes and the uniform translations, and a light substitution (\(M'=0.4\), all its terms \(\times1.3\)) has a mode above the top of the host spectrum.</li>
+</ul>
+</section>
+<section id="next"><h2>Next: defects and the chain</h2>
+<ul>
+<li><strong>Defects.</strong> A light substitution on A, expected to give local modes above 1.86, modes in the gap 1.36–1.55, and out-of-plane modes in the ZA–ZO gap at K that the mirror symmetry keeps from mixing with in-plane motion. A heavy substitution, expected to give in-band resonances, among them a flexural one at low frequency. A vacancy, which removes three coordinates.</li>
+<li><strong>Cluster.</strong> The atoms within a few bonds of the defect; it contains every changed term.</li>
+<li><strong>Chain from the Bloch modes.</strong> On an \(L\times L\) \(\mathbf q\)-mesh the host is diagonal in \(\mathbf q\). Block Lanczos on the whole host, started from the cluster coordinates, then gives the cluster block first and the bath chain after it, without a real-space bath matrix. This is the reciprocal-space route planned for MoS₂.</li>
+<li><strong>Gates.</strong> With the chain built on the same \(L\times L\) mesh, the upfolded matrix must reproduce the defect supercell exactly, because the chain terminates. On larger meshes it should converge to the dilute limit. Further gates: local, gap and resonant modes against exact solutions, and convergence of the chain at low frequency, where the flexural branch has a constant density of states.</li>
+</ul>
+</section>
+<section id="reproduce"><h2>Reproduce</h2>
+<p>The model is <code>phdef/honeycomb.py</code>. <code>npm run honeycomb</code> (<code>python3 scripts/honeycomb_figures.py</code>) writes Figure 1 and its CSV files in a few seconds, and <code>python -m pytest tests</code> runs the checks above with the other unit tests.</p>
+</section>
+<footer><p><a href="toy.html">Toy validation</a> · <a href="method.html">Method</a> · <a href="https://github.com/rjguo1208/phonon-defect">Website source</a></p></footer>
+</main></body></html>

@@ -114,11 +114,28 @@ reference. Integrated weights per k are within 0.004 of 1 + n_d (1/M' - 1) insid
 plotted window. The SVG (1.6 MB) uses filled contours on five logarithmic classes of the
 sequential blue ramp, because the site check rejects raster images inside SVG files.
 
+## Honeycomb toy, host (added 2026-10-02)
+
+`phdef/honeycomb.py`: honeycomb lattice, two atoms per cell (m_A = 1, m_B = 1.3),
+displacements in x, y, z; nearest-neighbour central springs k1 = 1, second-neighbour
+central springs k2 = 0.2, a bending term kappa = 0.3 per atom. `tests/test_honeycomb.py`
+(6 tests; `python -m pytest tests` → 14 passed in 12.4 s on the Banff login node): every
+term annihilates the six rigid motions to 1e-14; D(q) Hermitian, mirror blocks decoupled,
+both phase conventions agree, three zero modes at Γ; omega_ZA / q^2 and omega_TA / q
+constant to 1e-3 and 1e-4 for q = 0.002-0.008; no negative omega^2 on a 30 x 30 grid; the
+5 x 5 torus spectrum equals the Bloch spectrum on the 5 x 5 grid to 1e-12; a substitution
+keeps exactly three zero modes. `scripts/honeycomb_figures.py` (seconds): frequencies at
+Γ, M, K as on the page; omega_ZA = 0.1277 q^2, TA 0.442 q, LA 0.956 q; gap 1.3603-1.5492;
+out-of-plane gap at K 0.4804-0.5477; top 1.8621. DOS weights 4.0000 (in-plane) and 1.9961
+(out-of-plane; the rest of the 2 lies below omega = 0 after the Gaussian broadening of the
+flexural modes near Γ). The categorical pair #2a78d6 / #eb6834 is reused (in-plane /
+out-of-plane); no new palette.
+
 ## Website
 
-`npm run build` → 5 pages, 271 LaTeX expressions rendered with KaTeX in strict
-mode. `npm run check` → "OK: 5 English pages; 271 LaTeX expressions with MathML;
-5 scientific plots; page navigation, local links, anchors and fonts." No browser
+`npm run build` → 6 pages, 323 LaTeX expressions rendered with KaTeX in strict
+mode. `npm run check` → "OK: 6 English pages; 323 LaTeX expressions with MathML;
+6 scientific plots; page navigation, local links, anchors and fonts." No browser
 check was run.
 
 ## Not verified

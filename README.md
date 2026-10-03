@@ -26,13 +26,15 @@ phonon bath, attached to the defect cluster.
   all defects (`src/toy.html`).
 - Plasmon–phonon upfolding (Lihm and Park): re-derived and checked numerically, with two notes on the
   printed equations (`src/plasmon-phonon.html`).
+- Honeycomb toy (two atoms per cell, displacements in x, y, z): host model built and tested
+  (exact sum rules, quadratic flexural branch); defects and the chain planned (`src/honeycomb.html`).
 - First-principles MoS2 (O_S, V_S): planned, not run (`src/plan.html`).
 
 ## Layout
 
 | Path | Content |
 | --- | --- |
-| `phdef/` | block Lanczos chain, upfolded matrix, cluster Green function (mode sum and continued fraction), damped companion matrix, toy models |
+| `phdef/` | block Lanczos chain, upfolded matrix, cluster Green function (mode sum and continued fraction), damped companion matrix, toy models (`models.py`: square lattice; `honeycomb.py`: honeycomb lattice with three displacements per atom) |
 | `examples/square_lattice_toy.py` | toy validation (about one minute) |
 | `examples/toy_spectral_check.py` | brute-force check of the toy spectral function at a finite concentration (about two minutes) |
 | `tests/` | unit tests: `python -m pytest tests` |
@@ -47,6 +49,7 @@ phonon bath, attached to the defect cluster.
 npm ci --ignore-scripts
 npm run figures  # toy-validation figures and CSV into site/results/ and site/data/ (about one minute)
 npm run schematic  # toy-model schematic from scripts/toy_schematic.tex (TikZ; needs pdflatex and PyMuPDF)
+npm run honeycomb  # honeycomb-toy figures and CSV into site/results/ and site/data/ (seconds)
 npm run build    # KaTeX renders all LaTeX into site/ (HTML + MathML, no client JavaScript)
 npm run check    # rendered math, navigation, links, anchors, fonts, English-only text
 ```

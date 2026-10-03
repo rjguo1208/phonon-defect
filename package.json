@@ -6,6 +6,7 @@
     "build": "node scripts/build.mjs",
     "figures": "python3 scripts/toy_figures.py",
     "schematic": "python3 scripts/toy_schematic.py",
+    "honeycomb": "python3 scripts/honeycomb_figures.py",
     "check": "python3 scripts/check_site.py"
   },
   "dependencies": {
