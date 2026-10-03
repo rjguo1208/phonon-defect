@@ -18,6 +18,7 @@ import time
 import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as sla
+import matplotlib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
@@ -375,16 +376,183 @@ def polar_figures():
     save(fig, "honeycomb-polar-convergence")
 
 
+# ---------------------------------------------------------------- spectral function at a finite concentration
+SPEC_LQ, SPEC_ETA, SPEC_ND = 384, 0.01, 0.02       # host mesh, broadening, defects per cell (on A sites)
+MVEC = np.repeat([hc.DEFAULT["mA"], hc.DEFAULT["mB"]], 3)
+FREE = [(1.3603, 1.5492), (1.8621, np.inf)]          # frequencies without host modes: gap and above the top
+
+
+def perturbation(defect, Lb=8, polar=None):
+    """Support of a substitution (atoms within two bonds of the A defect in cell 0): cell offsets, sublattices,
+    and the change of the unweighted force constants dPhi (3n x 3n) and of the masses dM (3n), taken from the
+    real-space supercell; asserts that nothing changes outside the support."""
+    site = hc.site_index(0, 0, 0, Lb)
+    atoms = np.where(hc.hop_distance(site, Lb) <= RADIUS)[0]
+    cell, s = np.divmod(atoms, 2)
+    n1, n2 = np.divmod(cell, Lb)
+    offs = np.c_[np.where(n1 > Lb // 2, n1 - Lb, n1), np.where(n2 > Lb // 2, n2 - Lb, n2)]
+    D0, m0 = hc.supercell(Lb, polar=polar)
+    D, m = hc.supercell(Lb, defect=defect, polar=polar)
+    D0, D = (X.toarray() if sp.issparse(X) else X for X in (D0, D))
+    Phi0 = D0 * np.outer(np.repeat(np.sqrt(m0), 3), np.repeat(np.sqrt(m0), 3))
+    Phi = D * np.outer(np.repeat(np.sqrt(m), 3), np.repeat(np.sqrt(m), 3))
+    C = hc.coordinates(atoms)
+    rest = np.setdiff1d(np.arange(len(D)), C)
+    assert np.abs((Phi - Phi0)[rest]).max() < 1e-12
+    return offs, s, (Phi - Phi0)[np.ix_(C, C)], np.repeat(m[atoms] - m0[atoms], 3)
+
+
+def host_green_support(omegas, eta, Lq, offs, subl, polar=None):
+    """Displacement Green function of the host between the support coordinates, (nw, 3n, 3n), from the Bloch
+    modes of an Lq x Lq mesh: g0(R_a - R_b) = (1/N) sum_q e^{iq.(R_a - R_b)} [z M - Phi(q)]^-1, by FFT."""
+    w2, eps, _ = hc.bloch_modes(Lq, polar=polar)
+    U = eps / np.sqrt(MVEC)[None, :, None]
+    n = len(offs)
+    d = (offs[:, None, :] - offs[None, :, :]) % Lq
+    idx = 3 * np.asarray(subl)[:, None] + np.arange(3)[None, :]
+    out = np.empty((len(omegas), 3 * n, 3 * n), complex)
+    for i, w in enumerate(omegas):
+        F = np.einsum("qik,qk,qjk->qij", U, 1.0 / ((w + 1j * eta) ** 2 - w2), U.conj()).reshape(Lq, Lq, 6, 6)
+        g = np.fft.ifft2(F, axes=(0, 1))[d[:, :, 0], d[:, :, 1]]            # (n, n, 6, 6)
+        out[i] = g[np.arange(n)[:, None, None, None], np.arange(n)[None, :, None, None],
+                   idx[:, None, :, None], idx[None, :, None, :]].transpose(0, 2, 1, 3).reshape(3 * n, 3 * n)
+    return out
+
+
+def tmatrix_u(omegas, eta, g0, dPhi, dM):
+    """T = (1 - V g0)^-1 V with V(z) = dPhi - z dM (displacement coordinates)."""
+    z = (np.asarray(omegas) + 1j * eta) ** 2
+    V = dPhi[None] - z[:, None, None] * np.diag(dM)[None]
+    return np.linalg.solve(np.eye(len(dM))[None] - V @ g0, V)
+
+
+def self_energy(q, T, offs, subl, nd):
+    """Sigma_st(q) = n_d sum_{a in s, b in t} e^{-iq.(R_a - R_b)} T_ab, (nw, 6, 6), in the convention of
+    hc.bloch(gauge="cell"), D_st(q) = sum_R D(0s, Rt) e^{iq.R}. The lattice has no inversion centre, so the
+    sign of the phase matters: Sigma(-q) = Sigma(q)^T."""
+    ph = np.exp(1j * (offs @ np.array([q @ hc.A1, q @ hc.A2])))              # <R_a s|q s> = e^{iq.R_a}
+    P = np.zeros((3 * len(offs), 6), complex)
+    for a in range(len(offs)):
+        P[3 * a:3 * a + 3, 3 * subl[a]:3 * subl[a] + 3] = ph[a] * np.eye(3)
+    return nd * np.einsum("ai,wab,bj->wij", P.conj(), T, P)
+
+
+def averaged_spectral(qs, omegas, eta, T, offs, subl, nd, polar=None):
+    """Configuration-averaged A(q, w) = -(2w/pi) Im Tr[M^1/2 <g> M^1/2] (host masses), split into in-plane and
+    out-of-plane, with Sigma(q) from `self_energy`. Dyson equation where the host has modes; first order,
+    g0 + g0 Sigma g0, where it has none (FREE), which keeps bound states of a single defect at their
+    frequencies (checked against random configurations, examples/honeycomb_spectral_check.py)."""
+    om = np.asarray(omegas)
+    z = (om + 1j * eta) ** 2
+    free = np.zeros(len(om), bool)
+    for lo, hi in FREE:
+        free |= (om > lo) & (om < hi)
+    Wm = np.sqrt(np.outer(MVEC, MVEC))
+    A_in, A_out = np.empty((len(qs), len(om))), np.empty((len(qs), len(om)))
+    for k, q in enumerate(qs):
+        Sig = self_energy(q, T, offs, subl, nd)
+        Phiq = hc.bloch(q, gauge="cell", polar=polar) * Wm
+        g0 = np.linalg.inv(z[:, None, None] * np.diag(MVEC)[None] - Phiq[None])
+        g = np.where(free[:, None, None], g0 + g0 @ Sig @ g0, np.linalg.inv(np.linalg.inv(g0) - Sig))
+        tr = -(2 * om[:, None] / np.pi) * np.einsum("wii->wi", g * Wm).imag
+        A_in[k], A_out[k] = tr[:, hc.IN_PLANE].sum(1), tr[:, hc.OUT_OF_PLANE].sum(1)
+    return A_in, A_out
+
+
+def spectral_data():
+    t0 = time.time()
+    s, kpath, ticks = hc.path(per_unit=60)
+    om = np.arange(0.002, 3.4, 0.004)
+    omz, kz = np.arange(0.001, 0.45, 0.001), np.linspace(0.0, 0.8, 161)
+    qz = np.outer(kz, hc.POINTS["M"] / np.linalg.norm(hc.POINTS["M"]))      # along Γ-M
+    out, cuts = {}, []
+    offs, subl, _, _ = perturbation((0, (0, 0), 0.3, 1.3))
+    g_main = host_green_support(om, SPEC_ETA, SPEC_LQ, offs, subl)
+    g_zoom = host_green_support(omz, SPEC_ETA, SPEC_LQ, offs, subl)
+    print(f"host Green functions on the support ({time.time() - t0:.0f} s)", flush=True)
+    for key, _, Md, fac in DEFECTS:
+        offs, subl, dPhi, dM = perturbation((0, (0, 0), Md, fac))
+        T = tmatrix_u(om, SPEC_ETA, g_main, dPhi, dM)
+        out[key] = sum(averaged_spectral(kpath, om, SPEC_ETA, T, offs, subl, SPEC_ND))
+        for lab, q in (("Γ+0.05M", 0.05 * hc.POINTS["M"]), ("M", hc.POINTS["M"]), ("K", hc.POINTS["K"])):
+            a_in, a_out = averaged_spectral(q[None], om, SPEC_ETA, T, offs, subl, SPEC_ND)
+            cuts += [(key, lab, w, x, y) for w, x, y in zip(om, a_in[0], a_out[0])]
+        if key == "heavy":
+            Tz = tmatrix_u(omz, SPEC_ETA, g_zoom, dPhi, dM)
+            out["zoom"] = sum(averaged_spectral(qz, omz, SPEC_ETA, Tz, offs, subl, SPEC_ND))
+        print(f"{key} done ({time.time() - t0:.0f} s)", flush=True)
+    cache = os.environ.get("HONEYCOMB_SPECTRAL_CACHE")       # optional .npz outside the repository, for --spectral-plot
+    if cache:
+        np.savez(cache, s=s, ticks=ticks, om=om, omz=omz, kz=kz, **out)
+    write_csv("honeycomb-spectral-cuts.csv", ["defect", "q", "omega", "A_in_plane", "A_out_of_plane"],
+              [(k, l, f"{w:.4f}", f"{a:.6e}", f"{b:.6e}") for k, l, w, a, b in cuts])
+    return s, ticks, om, omz, kz, out
+
+
+def spectral_figure(s, ticks, om, omz, kz, out):
+    fig = plt.figure(figsize=(10.0, 4.6), constrained_layout=True)
+    gs = fig.add_gridspec(1, 4, width_ratios=[1.0, 1.0, 0.68, 0.045])
+    axa = fig.add_subplot(gs[0])
+    axb = fig.add_subplot(gs[1], sharey=axa)
+    axc, cax = fig.add_subplot(gs[2]), fig.add_subplot(gs[3])
+    levels, colors = [0.1, 0.3, 1.0, 3.0, 10.0, 1e6], ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"]
+    for ax, key, title in ((axa, "light", "Light defect"), (axb, "heavy", "Heavy defect")):
+        cs = ax.contourf(s[::2], om, np.clip(out[key][::2].T, 1e-12, None), levels=levels, colors=colors)
+        ax.grid(False)
+        ax.set_xticks(ticks, ["Γ", "M", "K", "Γ"])
+        for t in ticks[1:-1]:
+            ax.axvline(t, color=AXIS, lw=0.75)
+        ax.axhline(1.8621, color=AXIS, lw=0.75)
+        ax.set_xlim(0, ticks[-1])
+        ax.set_ylim(0, 3.4)
+        ax.set_title(f"{title}, $n_d$ = {SPEC_ND} per cell", loc="left", color=INK, fontsize=11)
+    axb.tick_params(labelleft=False)
+    axa.set_ylabel("Frequency ω")
+    arrow = dict(arrowstyle="-", color=MUTED, lw=0.75, shrinkB=2)
+    axa.annotate("in-plane local modes, 3.155", xy=(ticks[2] - 0.5, 3.155 - 0.03), xytext=(ticks[2] - 1.3, 2.55),
+                 ha="center", va="center", color=INK2, fontsize=9, arrowprops=arrow)
+    axa.annotate("out-of-plane modes\nin the gap, 1.454", xy=(ticks[1] * 0.45, 1.454), xytext=(ticks[1] * 0.45, 2.25),
+                 ha="center", va="center", color=INK2, fontsize=9, arrowprops=arrow)
+    axb.add_patch(matplotlib.patches.Rectangle((0.0, 0.0), kz[-1], omz[-1], fill=False, ec=INK2, lw=0.8))
+    axb.text(kz[-1] + 0.08, 0.04, "zoom", ha="left", va="bottom", color=INK2, fontsize=9)
+    axc.contourf(kz, omz, np.clip(out["zoom"].T, 1e-12, None), levels=levels, colors=colors)
+    axc.grid(False)
+    qd = np.outer(kz, hc.POINTS["M"] / np.linalg.norm(hc.POINTS["M"]))
+    wb = np.array([np.sqrt(np.clip(np.linalg.eigvalsh(hc.bloch(q)), 0, None)) for q in qd])
+    for n in range(3):
+        axc.plot(kz, wb[:, n], color=INK2, lw=0.8, ls=(0, (4, 3)))
+    axc.axhline(0.053, color=INK2, lw=0.75)
+    axc.axhline(0.265, color=INK2, lw=0.75)
+    box = dict(boxstyle="square,pad=0.15", fc="white", ec="none", alpha=0.85)
+    axc.text(kz[-1] - 0.02, 0.053 + 0.008, "flexural resonance, 0.053", ha="right", va="bottom", color=INK2, fontsize=8.5, bbox=box)
+    axc.text(kz[-1] - 0.02, 0.265 + 0.008, "in-plane resonance, 0.265", ha="right", va="bottom", color=INK2, fontsize=8.5, bbox=box)
+    axc.text(0.02, omz[-1] - 0.01, "dashed: host ZA, TA, LA", ha="left", va="top", color=INK2, fontsize=8.5, bbox=box)
+    axc.set_xlim(0, kz[-1])
+    axc.set_ylim(0, omz[-1])
+    axc.set_xlabel("q along Γ–M")
+    axc.set_title("Heavy defect near Γ", loc="left", color=INK, fontsize=11)
+    cb = fig.colorbar(cs, cax=cax, ticks=levels[:-1])
+    cb.ax.set_yticklabels(["0.1", "0.3", "1", "3", "10"])
+    cb.set_label("A(q, ω)", color=INK2)
+    cb.outline.set_visible(False)
+    save(fig, "honeycomb-spectral")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    for flag in ("host", "defects", "plot", "polar", "polar_plot"):
+    for flag in ("host", "defects", "plot", "polar", "polar_plot", "spectral", "spectral_plot"):
         ap.add_argument("--" + flag.replace("_", "-"), action="store_true")
     args = ap.parse_args()
     if args.polar:
         polar_data()
     if args.polar or args.polar_plot:
         polar_figures()
-    run_all = not (args.host or args.defects or args.plot or args.polar or args.polar_plot)
+    if args.spectral:
+        spectral_figure(*spectral_data())
+    if args.spectral_plot:
+        z = np.load(os.environ["HONEYCOMB_SPECTRAL_CACHE"])
+        spectral_figure(z["s"], list(z["ticks"]), z["om"], z["omz"], z["kz"], {k: z[k] for k in ("light", "heavy", "zoom")})
+    run_all = not (args.host or args.defects or args.plot or args.polar or args.polar_plot or args.spectral or args.spectral_plot)
     if args.host or run_all:
         host_figure()
     if args.defects or run_all:

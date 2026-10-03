@@ -5,7 +5,9 @@ import sys
 import numpy as np
 import scipy.sparse.linalg as sla
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
 from phdef import honeycomb as hc  # noqa: E402
 
 
@@ -143,3 +145,29 @@ def test_polar_mass_defect_needs_the_column_scaling():
     G_naive = cluster_green_modes(*modes(assemble(Dcc, B0, A, Bc)), len(C), z)
     assert np.abs(G - Gx).max() < 1e-9 * np.abs(Gx).max()
     assert np.abs(G_naive - Gx).max() > 1e-4 * np.abs(Gx).max()
+
+
+def test_position_average_of_one_defect_is_the_first_order_self_energy():
+    """One defect on an L x L torus, averaged over its N positions: <g>(q) = g0 + g0 Sigma g0 / N exactly,
+    with Sigma from the T-matrix on the support. Fixes the sign of the Bloch phase in Sigma(q)."""
+    import honeycomb_figures as hf
+    L, eta = 8, 0.05
+    om = np.array([0.3, 1.0, 1.45, 2.0, 3.1])
+    z = (om + 1j * eta) ** 2
+    BM = np.c_[hc.B1, hc.B2]
+    n1, n2 = (a.ravel() for a in np.meshgrid(np.arange(L), np.arange(L), indexing="ij"))
+    R = np.outer(n1, hc.A1) + np.outer(n2, hc.A2)
+    for d in [(0, (0, 0), 0.3, 1.3), (0, (0, 0), 8.0, 0.6)]:
+        offs, subl, dPhi, dM = hf.perturbation(d)
+        T = hf.tmatrix_u(om, eta, hf.host_green_support(om, eta, L, offs, subl), dPhi, dM)
+        D, m = hc.supercell(L, defect=d)
+        w = np.repeat(1.0 / np.sqrt(m), 3)
+        G = np.array([w[:, None] * np.linalg.inv(zz * np.eye(len(w)) - D.toarray()) * w[None, :] for zz in z])
+        for mq in [(1, 0), (2, 1), (5, 2), (1, 3)]:                  # none of them equivalent to -q
+            q = BM @ np.array(mq, float) / L
+            F = np.kron(np.exp(1j * (R @ q))[:, None], np.eye(6))   # columns: Bloch waves at q
+            avg = np.einsum("ai,wab,bj->wij", F.conj(), G, F) / L ** 2
+            g0 = np.linalg.inv(z[:, None, None] * np.diag(hf.MVEC)[None]
+                               - (hc.bloch(q, gauge="cell") * np.sqrt(np.outer(hf.MVEC, hf.MVEC)))[None])
+            first = g0 + g0 @ hf.self_energy(q, T, offs, subl, 1.0 / L ** 2) @ g0
+            assert np.abs(first - avg).max() < 1e-10 * np.abs(avg).max()

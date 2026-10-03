@@ -170,11 +170,48 @@ unscaled stuck at 4.3e-2. Host with the polar term: LA at M 1.3603 -> 1.3808, TA
 0.8824 -> 0.8992, top 1.8623; LO-TO splitting 0.302 |q| near Γ, about 0.07 at |q| = 0.6,
 the same along Γ-K and Γ-M.
 
+## Honeycomb toy, spectral function at a finite concentration (added 2026-10-03)
+
+`scripts/honeycomb_figures.py --spectral` (SLURM 627707, 896 s on 8 cores; the host Green
+function on the support from the 384 x 384 mesh took 737 s): n_d = 0.02 per cell on A sites,
+eta = 0.01; T = (1 - V g0)^-1 V with V = dPhi - z dM on the 10-atom support (displacement
+coordinates; the code asserts that dPhi vanishes outside the support). On the 64 x 64 mesh
+the T-matrix reproduces the upfolded defect-site LDOS of Figure 2 to 6e-5 / 3e-5 (light, x /
+z) and 2e-5 / 3e-5 (heavy). Bound states of the light defect from the smallest singular value
+of 1 - V g0: 1.4543103 (single), 3.1550781 (doublet), plus shallow states at 1.3615 (doublet)
+and 1.3775 just above the LA top. A pole-subtracted partial resummation was tried and
+dropped: it gives negative spectral weight at the band edges next to the gap mode.
+
+Phase convention. With hc.bloch(gauge="cell"), D_st(q) = sum_R D(0s, Rt) e^{iq.R}, the
+averaged self-energy is Sigma_st(q) = n_d sum e^{-iq.R_a} T_ab e^{iq.R_b}. The first version
+(SLURM 627704 / 627705) had the opposite sign, i.e. Sigma(-q) = Sigma(q)^T: Γ and M are
+blind to it, but along Γ-M the flexural branch moved by tens of per cent (light up, heavy
+down; brute-force L1 distance below 0.12 up to 0.24 / 1.06, now 0.001 / 0.012) and the host
+ridge deviation was 1.0 % / 1.8 % instead of 0.1 % / 0.2 %. The test
+`test_position_average_of_one_defect_is_the_first_order_self_energy` (one defect averaged over
+all positions on an 8 x 8 torus: g0 + g0 Sigma g0 / N is exact, 1e-10) fails with the old
+sign.
+
+`examples/honeycomb_spectral_check.py` (SLURM 627709, 703 s on 16 cores): 36 x 36 torus,
+26 defects, 10 configurations, eta = 0.02, host mesh 256 x 256. Light: L1 distance to the
+brute force between 1.30 and 1.60 (median over the path) 0.209 (Dyson), 0.034 (first order),
+0.039 (rule); below 0.5 0.001 (Dyson, rule) and 0.003 (first order); local band brute 3.155
+at Γ, M, K with weights 0.1208 / 0.1486 / 0.1523, rule 3.155 with 0.1204 / 0.1484 / 0.1522,
+Dyson 3.225-3.235; gap band at Γ brute 1.455 / 0.0980, rule 1.455 / 0.1047, Dyson 1.495;
+host ridge median deviation 0.001. Heavy: all forms agree in 1.30-1.60 (0.002); below 0.5
+0.005 (Dyson, rule, max 0.009) and 0.024 (first order, max 0.063); ridge 0.002 (rule =
+Dyson), first order 0.006. From the figure data (eta = 0.01): light flat bands at 1.454 and
+3.155; out-of-plane weight over the gap 0.105 / 0.044 / 0.040 at Γ+0.05M / M / K, in-plane
+weight over 2.6-3.4 0.110 / 0.138 / 0.141. Heavy near Γ along Γ-M: TA 0.085 / 0.226 / 0.271 /
+0.336 at q = 0.2 / 0.55 / 0.65 / 0.8 (host 0.088 / 0.236 / 0.276 / 0.333), full width 0.022 /
+0.041 / 0.058 / 0.048; LA 0.182 / 0.381 at q = 0.2 / 0.4 (host 0.191 / 0.378); ZA peak on
+the host line within 0.002 for q >= 0.4 (eta shifts it up at smaller q), width 0.022-0.027.
+
 ## Website
 
-`npm run build` → 6 pages, 402 LaTeX expressions rendered with KaTeX in strict
-mode. `npm run check` → "OK: 6 English pages; 402 LaTeX expressions with MathML;
-10 scientific plots; page navigation, local links, anchors and fonts." No browser
+`npm run build` → 6 pages, 448 LaTeX expressions rendered with KaTeX in strict
+mode. `npm run check` → "OK: 6 English pages; 448 LaTeX expressions with MathML;
+11 scientific plots; page navigation, local links, anchors and fonts." No browser
 check was run.
 
 ## Not verified

@@ -38,6 +38,7 @@ phonon bath, attached to the defect cluster.
 | `phdef/` | block Lanczos chain, upfolded matrix, cluster Green function (mode sum and continued fraction), damped companion matrix, toy models (`models.py`: square lattice; `honeycomb.py`: honeycomb lattice with three displacements per atom) |
 | `examples/square_lattice_toy.py` | toy validation (about one minute) |
 | `examples/toy_spectral_check.py` | brute-force check of the toy spectral function at a finite concentration (about two minutes) |
+| `examples/honeycomb_spectral_check.py` | the same check for the honeycomb toy (about twelve minutes on 16 cores) |
 | `tests/` | unit tests: `python -m pytest tests` |
 | `reference/plasmon_phonon_upfolding/` | numerical checks of the plasmon–phonon upfolding identities (Lihm and Park) |
 | `src/`, `site/` | website source and generated website |
