@@ -270,12 +270,121 @@ def defect_figures():
     save(fig, "honeycomb-convergence")
 
 
+# ---------------------------------------------------------------- polar switch
+L_POLAR, MMAX_P = 32, 200
+M_SCAN_P = [5, 10, 20, 40, 60, 80, 120, 160, 200]
+
+
+def polar_data():
+    """Light and heavy defects on the non-polar and the polar host, 32 x 32 mesh: chain from the Bloch
+    modes, exact Green functions from one dense diagonalization of each defect supercell; for the polar
+    host also the upfolded result without the column scaling of B0."""
+    t0 = time.time()
+    L = L_POLAR
+    site = hc.site_index(0, 0, 0, L)
+    hop = hc.hop_distance(site, L)
+    C = hc.coordinates(np.where(hop <= RADIUS)[0])
+    own = [int(np.where(C == 3 * site + a)[0][0]) for a in range(3)]
+    z_test = (TEST + 1j * ETA_D) ** 2
+    w_up = np.linspace(0.005, 3.3, 1320)
+    conv, ldos = [], []
+    for host, polar in (("non-polar", None), ("polar", hc.POLAR)):
+        B0, A, Bc, (A1, W) = hc.mode_chain(C, L, MMAX_P, polar=polar)
+        D0, m0 = hc.supercell(L, polar=polar)
+        D0 = D0.toarray() if sp.issparse(D0) else D0
+        print(f"{host}: chain {len(A)} blocks, widths {A[0].shape[0]}..{A[-1].shape[0]}, first block "
+              f"{np.abs(A1 - W.conj().T @ D0[np.ix_(C, C)] @ W).max():.1e} ({time.time() - t0:.0f} s)", flush=True)
+        for key, _, Md, fac in DEFECTS:
+            D, m = hc.supercell(L, defect=(0, (0, 0), Md, fac), polar=polar)
+            D = D.toarray() if sp.issparse(D) else D
+            lam, V = np.linalg.eigh(D)
+            Vd = V[3 * site:3 * site + 3]
+
+            def exact(z):
+                return np.einsum("an,zn,bn->zab", Vd, 1.0 / (z[:, None] - lam[None, :]), Vd)
+            Gx = exact(z_test)
+            Dcc = D[np.ix_(C, C)]
+            variants = [("scaled", hc.defect_coupling(B0, C, m0, m))]
+            if polar is not None:
+                variants.append(("naive", B0))
+            for name, b0 in variants:
+                for mm in M_SCAN_P:
+                    G = cluster_green_cf(Dcc, b0, A[:mm], Bc[:mm - 1], z_test)[:, own][:, :, own]
+                    e_in = max(np.max(np.abs(G[:, a, a] - Gx[:, a, a]) / np.abs(Gx[:, a, a])) for a in (0, 1))
+                    e_out = np.max(np.abs(G[:, 2, 2] - Gx[:, 2, 2]) / np.abs(Gx[:, 2, 2]))
+                    conv += [(host, key, name, "in-plane", mm, e_in), (host, key, name, "out-of-plane", mm, e_out)]
+                print(f"  {host} {key} {name}: " + ", ".join(f"{c[4]}: {c[5]:.1e}" for c in conv[-2 * len(M_SCAN_P)::2]), flush=True)
+            zz = (w_up + 1j * ETA_D) ** 2
+            G = cluster_green_cf(Dcc, variants[0][1], A, Bc, zz)[:, own][:, :, own]
+            ldos += [(host, key, "upfolded", w, a, b) for w, a, b in zip(w_up, *rho(w_up, G))]
+            w_ex = w_up[::22]
+            ldos += [(host, key, "exact", w, a, b) for w, a, b in zip(w_ex, *rho(w_ex, exact((w_ex + 1j * ETA_D) ** 2)))]
+            write_csv("honeycomb-polar-convergence.csv", ["host", "defect", "coupling", "polarization", "chain_blocks_m", "max_rel_err_G00"],
+                      [(h, k, n, p_, mm, f"{e:.4e}") for h, k, n, p_, mm, e in conv])
+            write_csv("honeycomb-polar-ldos.csv", ["host", "defect", "source", "omega", "rho_x", "rho_z"],
+                      [(h, k, src, f"{w:.5f}", f"{a:.6e}", f"{b:.6e}") for h, k, src, w, a, b in ldos])
+            print(f"  {host} {key} done ({time.time() - t0:.0f} s)", flush=True)
+
+
+def polar_figures():
+    # dispersion with and without the long-range term
+    s, kpath, ticks = hc.path(per_unit=80)
+    fig, (ax, axz) = plt.subplots(1, 2, figsize=(10.0, 4.2), constrained_layout=True, gridspec_kw=dict(width_ratios=[1.6, 1.0]))
+    for polar, ls, lab in ((None, (0, (4, 3)), "non-polar"), (hc.POLAR, "-", "polar")):
+        w = np.array([np.sqrt(np.clip(np.linalg.eigvalsh(hc.bloch(k, polar=polar)), 0, None)) for k in kpath])
+        for n in range(6):
+            ax.plot(s, w[:, n], color=INK2 if polar is None else COLOR["in"], lw=1.0 if polar is None else 1.5, ls=ls,
+                    label=lab if n == 0 else None)
+    ax.set_xlim(0, ticks[-1])
+    ax.set_xticks(ticks, ["Γ", "M", "K", "Γ"])
+    ax.grid(axis="x", visible=False)
+    for t in ticks[1:-1]:
+        ax.axvline(t, color=AXIS, lw=0.75)
+    ax.set_ylim(0, 2.0)
+    ax.set_ylabel("Frequency ω")
+    ax.set_title("Dispersion with and without the polar term", loc="left", color=INK, fontsize=11)
+    ax.legend(loc="lower center", ncol=2, fontsize=9.5, labelcolor=INK2)
+    q = np.linspace(0, 0.6, 241)
+    for direction, col, lab in ((np.array([1.0, 0.0]), COLOR["in"], "along Γ–K"), (hc.POINTS["M"] / np.linalg.norm(hc.POINTS["M"]), COLOR["out"], "along Γ–M")):
+        w = np.array([np.sqrt(np.clip(np.linalg.eigvalsh(hc.bloch(qq * direction, polar=hc.POLAR)), 0, None)) for qq in q])
+        axz.plot(q, w[:, 5] - w[:, 4], color=col, lw=1.5, label=lab)
+    axz.plot(q, 0.302 * q, color=INK2, lw=0.75, ls=(0, (4, 3)), label="0.302 |q|")
+    axz.set_xlim(0, 0.6)
+    axz.set_ylim(0, None)
+    axz.set_xlabel("|q|")
+    axz.set_ylabel("ω_LO − ω_TO")
+    axz.set_title("LO–TO splitting near Γ", loc="left", color=INK, fontsize=11)
+    axz.legend(fontsize=9.5, labelcolor=INK2)
+    save(fig, "honeycomb-polar-dispersion")
+
+    rows = read("honeycomb-polar-convergence.csv")
+    fig, axes = plt.subplots(1, 2, figsize=(10.0, 3.8), constrained_layout=True, sharey=True)
+    for ax, (key, title, _, _) in zip(axes, DEFECTS):
+        for host, coupling, col, mk, lab in (("non-polar", "scaled", INK2, "o", "non-polar host"),
+                                             ("polar", "scaled", COLOR["in"], "o", "polar host"),
+                                             ("polar", "naive", COLOR["out"], "s", "polar host, B₀ not scaled")):
+            for pol, ls in (("in-plane", "-"),):
+                rr = [r for r in rows if r["host"] == host and r["defect"] == key and r["coupling"] == coupling and r["polarization"] == pol]
+                ax.plot([int(r["chain_blocks_m"]) for r in rr], [float(r["max_rel_err_G00"]) for r in rr], color=col, lw=1.5, ls=ls,
+                        marker=mk, ms=6, mec="white", mew=1.2, label=lab)
+        ax.set_yscale("log")
+        ax.set_xlabel("Chain blocks m")
+        ax.set_title(f"{title}: in-plane G at the defect", loc="left", color=INK, fontsize=11)
+    axes[0].set_ylabel("Max relative error against the supercell")
+    axes[0].legend(fontsize=9, labelcolor=INK2)
+    save(fig, "honeycomb-polar-convergence")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    for flag in ("host", "defects", "plot"):
-        ap.add_argument("--" + flag, action="store_true")
+    for flag in ("host", "defects", "plot", "polar", "polar_plot"):
+        ap.add_argument("--" + flag.replace("_", "-"), action="store_true")
     args = ap.parse_args()
-    run_all = not (args.host or args.defects or args.plot)
+    if args.polar:
+        polar_data()
+    if args.polar or args.polar_plot:
+        polar_figures()
+    run_all = not (args.host or args.defects or args.plot or args.polar or args.polar_plot)
     if args.host or run_all:
         host_figure()
     if args.defects or run_all:

@@ -159,11 +159,22 @@ grid. LO = TO = 1.6290 at Γ, splitting 0.302 |q| near Γ. Mass defect on the po
 with the columns of B0 scaled by sqrt(m_host / m_def) the 8 x 8 supercell is reproduced
 to 1e-9, without the scaling it is not (unit test).
 
+Polar comparison (SLURM 627695, 413 s on 8 cores; `--polar`): 32 x 32 mesh, chains of 200
+blocks (width 27 non-polar, 29 polar: the long-range forces reach the defect atom), first-
+block checks 6.4e-15 / 8.7e-15; exact Green functions from one dense diagonalization of
+each defect supercell (6144 coordinates). Max relative error of the in-plane defect-site G:
+non-polar light 0.16 / 3.7e-4 / 1.4e-7 / 1.1e-13 at m = 40 / 120 / 160 / 200, polar light
+0.16 / 2.3e-4 / 4.9e-10 / 1.3e-13, polar light without the scaling of B0 0.16 / 2.0e-2 /
+2.0e-2 / 2.0e-2; heavy: non-polar 9.5e-5 and polar 5.3e-5 at m = 120, both 1e-13 at 200,
+unscaled stuck at 4.3e-2. Host with the polar term: LA at M 1.3603 -> 1.3808, TA at K
+0.8824 -> 0.8992, top 1.8623; LO-TO splitting 0.302 |q| near Γ, about 0.07 at |q| = 0.6,
+the same along Γ-K and Γ-M.
+
 ## Website
 
-`npm run build` → 6 pages, 379 LaTeX expressions rendered with KaTeX in strict
-mode. `npm run check` → "OK: 6 English pages; 379 LaTeX expressions with MathML;
-8 scientific plots; page navigation, local links, anchors and fonts." No browser
+`npm run build` → 6 pages, 402 LaTeX expressions rendered with KaTeX in strict
+mode. `npm run check` → "OK: 6 English pages; 402 LaTeX expressions with MathML;
+10 scientific plots; page navigation, local links, anchors and fonts." No browser
 check was run.
 
 ## Not verified
