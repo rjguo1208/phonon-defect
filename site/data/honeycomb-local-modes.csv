@@ -1,0 +1,46 @@
+mode,exact_omega,chain_blocks_m,upfolded_omega,abs_err
+in-plane local mode,3.1550780711,1,3.1550766705,1.401e-06
+in-plane local mode,3.1550780711,2,3.1550780570,1.408e-08
+in-plane local mode,3.1550780711,3,3.1550780710,1.332e-10
+in-plane local mode,3.1550780711,4,3.1550780711,1.124e-12
+in-plane local mode,3.1550780711,5,3.1550780711,1.332e-14
+in-plane local mode,3.1550780711,6,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,7,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,8,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,9,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,10,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,11,3.1550780711,4.441e-16
+in-plane local mode,3.1550780711,12,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,20,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,40,3.1550780711,0.000e+00
+in-plane local mode,3.1550780711,80,3.1550780711,0.000e+00
+out-of-plane mode in the gap,1.4543103143,1,1.4542982189,1.210e-05
+out-of-plane mode in the gap,1.4543103143,2,1.4543102210,9.329e-08
+out-of-plane mode in the gap,1.4543103143,3,1.4543103135,7.287e-10
+out-of-plane mode in the gap,1.4543103143,4,1.4543103143,5.870e-12
+out-of-plane mode in the gap,1.4543103143,5,1.4543103143,4.774e-14
+out-of-plane mode in the gap,1.4543103143,6,1.4543103143,8.882e-16
+out-of-plane mode in the gap,1.4543103143,7,1.4543103143,4.441e-16
+out-of-plane mode in the gap,1.4543103143,8,1.4543103143,2.220e-16
+out-of-plane mode in the gap,1.4543103143,9,1.4543103143,2.220e-16
+out-of-plane mode in the gap,1.4543103143,10,1.4543103143,1.332e-15
+out-of-plane mode in the gap,1.4543103143,11,1.4543103143,1.554e-15
+out-of-plane mode in the gap,1.4543103143,12,1.4543103143,8.882e-16
+out-of-plane mode in the gap,1.4543103143,20,1.4543103143,2.220e-16
+out-of-plane mode in the gap,1.4543103143,40,1.4543103143,6.661e-16
+out-of-plane mode in the gap,1.4543103143,80,1.4543103143,1.110e-15
+in-plane mode in the gap,1.3772829607,1,1.3500030480,2.728e-02
+in-plane mode in the gap,1.3772829607,2,1.3632079390,1.408e-02
+in-plane mode in the gap,1.3772829607,3,1.3584930430,1.879e-02
+in-plane mode in the gap,1.3772829607,4,1.3761024882,1.180e-03
+in-plane mode in the gap,1.3772829607,5,1.3559413076,2.134e-02
+in-plane mode in the gap,1.3772829607,6,1.3720982096,5.185e-03
+in-plane mode in the gap,1.3772829607,7,1.3626911441,1.459e-02
+in-plane mode in the gap,1.3772829607,8,1.3741392995,3.144e-03
+in-plane mode in the gap,1.3772829607,9,1.3782078448,9.249e-04
+in-plane mode in the gap,1.3772829607,10,1.3726913012,4.592e-03
+in-plane mode in the gap,1.3772829607,11,1.3761570071,1.126e-03
+in-plane mode in the gap,1.3772829607,12,1.3742633372,3.020e-03
+in-plane mode in the gap,1.3772829607,20,1.3769122423,3.707e-04
+in-plane mode in the gap,1.3772829607,40,1.3773340625,5.110e-05
+in-plane mode in the gap,1.3772829607,80,1.3772829793,1.860e-08

@@ -68,3 +68,78 @@ def test_substitution_keeps_the_sum_rules():
         assert np.abs(D @ x.ravel()).max() < 1e-13
     assert sla.eigsh(D, k=1, which="LA", return_eigenvectors=False)[0] > np.linalg.eigvalsh(
         hc.bloch(hc.POINTS["K"])).max()                         # the light defect has a mode above the band
+
+
+def _cluster(L, radius=2):
+    site = hc.site_index(0, 0, 0, L)
+    hop = hc.hop_distance(site, L)
+    return site, hc.coordinates(np.where(hop <= radius)[0]), hc.coordinates(np.where(hop > radius)[0])
+
+
+def test_cluster_of_two_bonds_contains_every_changed_term():
+    L = 8
+    site, C, B = _cluster(L)
+    assert len(C) == 30                                          # 1 + 3 + 6 atoms
+    D0, _ = hc.supercell(L)
+    for d in [(0, (0, 0), 0.3, 1.3), (0, (0, 0), 8.0, 0.6)]:
+        D, _ = hc.supercell(L, defect=d)
+        assert abs(D[B][:, C] - D0[B][:, C]).max() < 1e-14      # coupling block is a host quantity
+        assert abs(D[B][:, B] - D0[B][:, B]).max() < 1e-14      # and so is the bath
+
+
+def test_mode_chain_reproduces_the_defect_supercell():
+    """On the same q-mesh the chain terminates, so the upfolded matrix equals the supercell."""
+    from phdef import assemble, modes, cluster_green_modes
+    L = 8
+    site, C, B = _cluster(L)
+    B0, A, Bc, (A1, W) = hc.mode_chain(C, L, 500)
+    D0, _ = hc.supercell(L)
+    assert np.abs(A1 - W.conj().T @ D0[C][:, C].toarray() @ W).max() < 1e-12
+    z = (np.array([0.2, 0.9, 1.45, 2.0]) + 0.03j) ** 2
+    for d in [None, (0, (0, 0), 0.3, 1.3), (0, (0, 0), 8.0, 0.6)]:
+        D = D0 if d is None else hc.supercell(L, defect=d)[0]
+        G = cluster_green_modes(*modes(assemble(D[C][:, C].toarray(), B0, A, Bc)), len(C), z)
+        Dd = D.toarray()
+        Gx = np.array([np.linalg.inv(zz * np.eye(len(Dd)) - Dd)[np.ix_(C, C)] for zz in z])
+        assert np.abs(G - Gx).max() < 1e-9 * np.abs(Gx).max()
+
+
+def test_polar_switch_sum_rules_and_lo_to():
+    P = hc.POLAR
+    w2 = np.linalg.eigvalsh(hc.bloch(hc.POINTS["Γ"], polar=P))
+    assert np.abs(w2[:3]).max() < 1e-12                          # three zero modes at Γ
+    assert abs(w2[-1] - w2[-2]) < 1e-12                           # in 2D, LO = TO at Γ
+    split = [np.diff(np.sqrt(np.linalg.eigvalsh(hc.bloch(np.array([q, 0.0]), polar=P)))[-2:])[0] / q
+             for q in (1e-3, 2e-3)]
+    assert split[0] > 0.2 and abs(split[0] - split[1]) < 1e-2 * split[0]   # the splitting grows linearly
+    D = hc.bloch(np.array([0.3, 0.1]), polar=P)
+    assert np.abs(D[np.ix_(hc.IN_PLANE, hc.OUT_OF_PLANE)]).max() < 1e-14     # mirror symmetry kept
+    n = 24
+    assert min(np.linalg.eigvalsh(hc.bloch((i * hc.B1 + j * hc.B2) / n, polar=P)).min()
+               for i in range(n) for j in range(n)) > -1e-12
+
+
+def test_polar_torus_equals_bloch_spectrum():
+    L = 5
+    D, _ = hc.supercell(L, polar=hc.POLAR)
+    grid = np.sort(np.concatenate([np.linalg.eigvalsh(hc.bloch((i * hc.B1 + j * hc.B2) / L, polar=hc.POLAR))
+                                   for i in range(L) for j in range(L)]))
+    assert np.allclose(np.linalg.eigvalsh(D), grid, atol=1e-11)
+
+
+def test_polar_mass_defect_needs_the_column_scaling():
+    """With long-range forces the bath couples to the defect atom itself, so the coupling block
+    changes with its mass; scaling the columns of B0 restores the exact result."""
+    from phdef import assemble, modes, cluster_green_modes
+    L = 8
+    site, C, B = _cluster(L)
+    B0, A, Bc, _ = hc.mode_chain(C, L, 500, polar=hc.POLAR)
+    D0, m0 = hc.supercell(L, polar=hc.POLAR)
+    D, m = hc.supercell(L, defect=(0, (0, 0), 0.3, 1.3), polar=hc.POLAR)
+    z = (np.array([0.5, 1.45, 2.0]) + 0.03j) ** 2
+    Gx = np.array([np.linalg.inv(zz * np.eye(len(D)) - D)[np.ix_(C, C)] for zz in z])
+    Dcc = D[np.ix_(C, C)]
+    G = cluster_green_modes(*modes(assemble(Dcc, hc.defect_coupling(B0, C, m0, m), A, Bc)), len(C), z)
+    G_naive = cluster_green_modes(*modes(assemble(Dcc, B0, A, Bc)), len(C), z)
+    assert np.abs(G - Gx).max() < 1e-9 * np.abs(Gx).max()
+    assert np.abs(G_naive - Gx).max() > 1e-4 * np.abs(Gx).max()

@@ -26,8 +26,9 @@ phonon bath, attached to the defect cluster.
   all defects (`src/toy.html`).
 - Plasmon–phonon upfolding (Lihm and Park): re-derived and checked numerically, with two notes on the
   printed equations (`src/plasmon-phonon.html`).
-- Honeycomb toy (two atoms per cell, displacements in x, y, z): host model built and tested
-  (exact sum rules, quadratic flexural branch); defects and the chain planned (`src/honeycomb.html`).
+- Honeycomb toy (two atoms per cell, displacements in x, y, z): host, light and heavy
+  substitutions and the chain built from the Bloch modes validated against exact supercells
+  (64 x 64 mesh); a polar switch (Born charges, 2D Coulomb) implemented and tested (`src/honeycomb.html`).
 - First-principles MoS2 (O_S, V_S): planned, not run (`src/plan.html`).
 
 ## Layout

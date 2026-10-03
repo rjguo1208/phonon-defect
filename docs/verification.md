@@ -131,11 +131,39 @@ out-of-plane gap at K 0.4804-0.5477; top 1.8621. DOS weights 4.0000 (in-plane) a
 flexural modes near Γ). The categorical pair #2a78d6 / #eb6834 is reused (in-plane /
 out-of-plane); no new palette.
 
+## Honeycomb toy, defects and the Bloch-mode chain (added 2026-10-02)
+
+Light (M' = 0.3, factor 1.3) and heavy (M' = 8, factor 0.6) substitution on an A site;
+cluster = atoms within two bonds (10 atoms, 30 coordinates), rank D_bc = 27; the bath and
+coupling blocks equal the host ones (asserted). Chain from the Bloch modes (`mode_chain`):
+block Lanczos on diag(omega^2) from <q nu|e_c>. Supercell gate: on the 8 x 8 and 12 x 12
+meshes the chain terminates after 17 and 33 blocks and reproduces the defect supercell to
+1e-12 for host, light and heavy (the real-space bath chain agrees to 8e-12 / 4e-10).
+Production (SLURM 627691, 2190 s on 8 cores; chain 1558 s): 64 x 64 mesh, 240 blocks of
+width 27, first-block check 7.8e-15; exact 64 x 64 supercell by sparse LU, eta = 0.02,
+12 test frequencies 0.05-2.5. Max relative error of the defect-site G (in-plane /
+out-of-plane): light m = 40: 0.14 / 0.048, m = 120: 2.6e-3 / 6.4e-4, m = 240: 5.0e-6 /
+6.4e-7; heavy m = 240: 2.2e-6 / 1.1e-7. Bound states of the light defect (exact from
+shift-invert eigsh): in-plane local doublet 3.15507807, error 1.4e-6 at m = 1, 1.3e-14 at
+m = 5; out-of-plane gap mode 1.45431031, 1.2e-5 at m = 1, 4.8e-14 at m = 5; the shallow
+in-plane gap mode 1.37728296 (zero weight on the defect site) 3.7e-4 / 5.1e-5 / 1.9e-8 at
+m = 20 / 40 / 80. LDOS peaks (eta = 0.02): light 1.4539 (z), 3.1551 (x); heavy 0.0525 (z,
+half maximum 0.017-0.140), 0.2648 (x, 0.180-0.360). 8 new tests (19 in total) pass.
+
+Polar switch (`polar=POLAR`: Z = 0.48, r_eff = 2, lambda = 0.7): a first Ewald phase
+e^{+i(k+G).d} was wrong (the cell-gauge matrix was not periodic in k and the torus did not
+match the Bloch spectrum, 0.086); with the Poisson-summation phase e^{-iG.d} the polar 5 x 5
+torus equals the Bloch spectrum to 5e-15. lambda = 1 gave a slightly unstable acoustic
+branch (min omega^2 = -3e-3) from the G != 0 terms; lambda = 0.7 is stable on a 60 x 60
+grid. LO = TO = 1.6290 at Γ, splitting 0.302 |q| near Γ. Mass defect on the polar host:
+with the columns of B0 scaled by sqrt(m_host / m_def) the 8 x 8 supercell is reproduced
+to 1e-9, without the scaling it is not (unit test).
+
 ## Website
 
-`npm run build` → 6 pages, 323 LaTeX expressions rendered with KaTeX in strict
-mode. `npm run check` → "OK: 6 English pages; 323 LaTeX expressions with MathML;
-6 scientific plots; page navigation, local links, anchors and fonts." No browser
+`npm run build` → 6 pages, 379 LaTeX expressions rendered with KaTeX in strict
+mode. `npm run check` → "OK: 6 English pages; 379 LaTeX expressions with MathML;
+8 scientific plots; page navigation, local links, anchors and fonts." No browser
 check was run.
 
 ## Not verified
